@@ -1,1 +1,2 @@
-# vscode-extension
+# XSOAR VSCode Plugin
+Validate, Format, Update Release Notes

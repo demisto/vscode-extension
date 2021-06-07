@@ -1,0 +1,116 @@
+/* Style the button that is used to open and close the collapsible content */
+.collapsible {
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: 1px solid #cccccc33;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    background-color: #1e1e1e;
+    color: white;
+  }
+  
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .collapsible:hover {
+  background-color: #cccccc33;
+}
+
+
+/* Style the collapsible content. Note: hidden by default */
+.content {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+  transition: ease-out;
+}
+
+.collapsible:after {
+  content: '\002B';
+  color: white;
+  font-weight: bold;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2212";
+}
+
+form label{
+  display: inline-block;
+  width: 140px;
+  text-align: left;
+  padding-left: 0px;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.partblock:hover{
+  background-color: rgb(56, 56, 56);
+  
+}
+input[type=text] {
+  width: 50%;
+  padding: 5px 15px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  background-color: #cccccc33;
+  color: white;
+  border: 1px solid #ccc;
+  display: inline-block;
+} 
+div {
+  margin-bottom: 10px;
+}
+
+#basicPanelForm {
+  display: inline-block;
+  margin-left: 0px;
+  padding: 12px 20px 10px;
+}
+
+select {
+  background-color: #cccccc33;
+  color: white;
+  padding: 5px 15px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+}
+
+textarea { 
+  vertical-align: middle; 
+  background-color: #cccccc33;
+  color: white;
+  padding: 12px 20px 10px 20px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  width: 300px;
+  height: 120px;
+}​
+
+input {
+  background-color: #cccccc33;
+  color: white;
+  padding: 12px 20px 10px 20px;
+  margin-top: 10px;
+}
+
+button {
+  padding: 5px 5px;
+  border-radius: 8px;
+  background-color: #cccccc33;
+  color: white;
+  text-decoration: double;
+  text-align: center;
+}
+
+h1 {
+  display: block;
+  text-align: left;
+}
+img {
+  margin: 5px 15px;
+}
