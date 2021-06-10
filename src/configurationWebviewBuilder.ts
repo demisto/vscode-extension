@@ -1,21 +1,5 @@
-import { ParamsTypes, typeToName, tton, ntot, typeToClass, ParamsClassesTypes } from "./configurations";
+import { ParamsTypes, typeToName, numberToText, textToNumber, typeToClass, ParamsClassesTypes } from "./configurations";
 import { getRemoveCommandButtonId, getRemoveConfigurationButtonId } from "./tools";
-
-
-function paramSelectorOptionSingleBuilder(typeName: string, selectedType: number): string {
-    return `<option value=${typeName} ${selectedType == ntot[typeName] ? 'selected' : ''}>${typeName}</option>`
-}
-
-export function getWebviewSelectParamType(selectedType: number): string {
-    var selectedForm = '<select type=text id=type>'
-    
-    for (const type in tton){
-        selectedForm += paramSelectorOptionSingleBuilder(tton[type], selectedType)
-    }
-    selectedForm += '</select>'
-    return selectedForm
-}
-
 
 // Basic are similar to each other. Nothing special;
 export function getWebviewSingleConfiguration(configurationIndex: number, configuration: ParamsClassesTypes): string {
@@ -24,8 +8,8 @@ export function getWebviewSingleConfiguration(configurationIndex: number, config
 
 
 export function getWebviewConfiguration(configurations: Array<ParamsClassesTypes>): string{
-    var configurationBlock = '';
-    configurationBlock += '<script> const ntot = ' + JSON.stringify(ntot) + '</script>'
+    let configurationBlock = '';
+    configurationBlock += '<script> const ntot = ' + JSON.stringify(textToNumber) + '</script>'
     for (const [index, configuration] of configurations.entries()){
         configurationBlock += getWebviewSingleConfiguration(index, configuration);
     }

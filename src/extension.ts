@@ -11,8 +11,8 @@ import { IntegrationInterface } from './contentObject';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-	var diagnosticCollection = vscode.languages.createDiagnosticCollection('XSOAR problems');
+export function activate(context: vscode.ExtensionContext): void {
+	const diagnosticCollection = vscode.languages.createDiagnosticCollection('XSOAR problems');
 	context.subscriptions.push(diagnosticCollection);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.load', loadYAML(context.extensionUri))
@@ -45,14 +45,14 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('xsoar.updateDSDK', tools.installDemistoSDK)
 	);
 	// Create a file listener
-	var workspaces = vscode.workspace.workspaceFolders;
+	const workspaces = vscode.workspace.workspaceFolders;
 	if (workspaces){
 		autoGetProblems(workspaces, diagnosticCollection)
 	}
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate(): void { console.log('deactivated') }
 
   
 function autoGetProblems(
@@ -68,7 +68,7 @@ function autoGetProblems(
 			}
 			console.log('watching report ' + fullReportPath);
 			(dsdk.getDiagnostics(fullReportPath));
-			var watcher = vscode.workspace.createFileSystemWatcher(fullReportPath);
+			const watcher = vscode.workspace.createFileSystemWatcher(fullReportPath);
 			watcher.onDidChange(() => {
 				console.debug('Report file was changed! ' + fullReportPath)
 				dsdk.getDiagnostics(fullReportPath).forEach((diags, filePath) => {
@@ -81,28 +81,28 @@ function autoGetProblems(
 }
 function loadYAML(extensionUri: vscode.Uri) {
 	return (() => {
-		var activeWindow = vscode.window.activeTextEditor;
+		const activeWindow = vscode.window.activeTextEditor;
 		if (activeWindow) {
-			var fileName = activeWindow.document.fileName;
-			var filePath = path.parse(fileName);
+			let ymlPath: string;
+			const fileName = activeWindow.document.fileName;
+			const filePath = path.parse(fileName);
 			if (filePath.ext === '.yml') {
 				ymlPath = fileName;
 			} else {
-				var ymlPath = fileName.replace(
+				ymlPath = fileName.replace(
 					filePath.ext, '.yml'
 				);
 			}
 			try {
-				var yml = loadIntegrationYML(ymlPath);
+				const yml = loadIntegrationYML(ymlPath);
+				if (!yml){
+					throw Error('No yml could be resolved.')
+				}
+				vscode.window.showInformationMessage('YML Succesfully loaded 🚀');
+				panelLoader.createViewFromYML(yml, ymlPath, extensionUri);
 			} catch (exception) {
 				vscode.window.showErrorMessage(exception.message);
 				return;
-			}
-			if (yml) {
-				vscode.window.showInformationMessage('YML Succesfully loaded 🚀');
-				panelLoader.createViewFromYML(yml, ymlPath, extensionUri);
-			} else {
-				vscode.window.showErrorMessage('No yml could be resolved.');
 			}
 
 		}

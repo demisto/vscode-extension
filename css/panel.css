@@ -64,12 +64,6 @@ div {
   margin-bottom: 10px;
 }
 
-#basicPanelForm {
-  display: inline-block;
-  margin-left: 0px;
-  padding: 12px 20px 10px;
-}
-
 select {
   background-color: #cccccc33;
   color: white;
@@ -87,7 +81,7 @@ textarea {
   box-sizing: border-box;
   border: 1px solid #ccc;
   margin-bottom: 10px;
-  width: 300px;
+  width: 50%;
   height: 120px;
 }​
 

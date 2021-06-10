@@ -1,11 +1,10 @@
-import { getWebviewSelectParamType } from "./configurationWebviewBuilder";
 import { getCheckboxChecked, getConfigurationDivId, getRemoveConfigurationButtonId } from "./tools";
 
 export interface BasicConfigI {
     name: string
     display: string
     required: boolean
-    defaultvalue: string
+    defaultvalue?: string
     type: number
     additionalinfo: string
 }
@@ -14,14 +13,14 @@ export class BasicConfig implements BasicConfigI {
     name: string;
     display: string;
     required: boolean;
-    defaultvalue: string;
+    defaultvalue?: string;
     type: number;
     additionalinfo: string;
     constructor(basicConfig: BasicConfigI) {
         this.name = basicConfig.name;
         this.display = basicConfig.display;
         this.required = basicConfig.required;
-        this.defaultvalue = basicConfig.defaultvalue;
+        this.defaultvalue = basicConfig.defaultvalue ? basicConfig.defaultvalue : undefined;
         this.type = basicConfig.type;
         this.additionalinfo = basicConfig.additionalinfo;
     }
@@ -33,16 +32,17 @@ export class BasicConfig implements BasicConfigI {
         return `
             <p class=partblock>
             <form id="${configurationId}">
-                <label for=name>Name: </label>
+                <label for=name>Name:</label>
                 <input type=text id="name" value=${this.name}><br>
-                <label for=name>Display: </label>
-                <input type=text id=display value="${this.display}"><br>
-                <label for=type>Type: </label>
-                ${getWebviewSelectParamType(parseInt(this.type.toString()))}<br>
-                <label for=additionalinfo>Additional Info: </label>
+                <label for=name>Display:</label>
+                <input type=text id=display value="${this.display}"></inpur><br>
+                <label for="defaultvalue">Default Value:</label>
+                <input type=text id=defaultvalue value="${this.defaultvalue ? this.defaultvalue : ''}"></input><br>
+                ${this.selectParamType()}<br>
+                <label for=additionalinfo>Additional Info:</label>
                 <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
                 <br>
-                <label for=required>Required: </label>
+                <label for=required>Mandatory:</label>
                 <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
             </form>
             ${getWebviewRemoveConfigurationButton(configurationIndex)}
@@ -63,7 +63,8 @@ export class BasicConfig implements BasicConfigI {
                                         display: form.querySelector("#display").value,
                                         type: ntot[form.querySelector("#type").value],
                                         required: form.querySelector("#required").checked,
-                                        additionalinfo: form.querySelector("#additionalinfo").value
+                                        additionalinfo: form.querySelector("#additionalinfo").value,
+                                        defaultvalue: form.querySelector("#defaultvalue").value
                                     }
                             });
                     }
@@ -74,41 +75,127 @@ export class BasicConfig implements BasicConfigI {
             </p>
             `;
     }
+
+    public paramSelectorOptionSingleBuilder(typeName: string): string {
+        return `<option value=${typeName} ${this.type == textToNumber[typeName] ? 'selected' : ''}>${typeName}</option>`
+    }
+    public selectParamType(): string{
+        let selectedForm = '<select type=text id=type>'
+    
+        for (const type in numberToText){
+            selectedForm += this.paramSelectorOptionSingleBuilder(numberToText[type])
+        }
+        selectedForm += '</select>'
+        return `
+        <label for=type>Type:</label>
+        ${selectedForm}
+        <br>
+        `
+    }
 }
+
 export interface OptionsConfigI extends BasicConfigI {
-    options: Array<string>
-
+    options?: Array<string>
 }
 
-export class OptionsConfig extends BasicConfig {
+export abstract class OptionsConfig extends BasicConfig {
     options: string[]
     constructor(basicConfig: OptionsConfigI) {
         super(basicConfig)
-        this.options = basicConfig.options;
+        if (typeof basicConfig.options === 'string' || basicConfig.options instanceof String){
+            basicConfig.options = basicConfig.options.split('\n');
+        }
+        this.options = basicConfig.options ? basicConfig.options : Array<string>();
     }
+
+    protected showOptions(): string {
+        return `
+        <label for=options>Options: </label>
+        <textarea id=options value="${this.options.join('\n')}">${this.options.join('\n')}</textarea>
+        `
+    }
+
+    abstract toWebview(index: number): string;
 }
+
 export interface BooleanI extends BasicConfigI {
+    defaultvalue?: "true" | "false";
 }
 
 export class Boolean_ extends BasicConfig {
+    defaultvalue: "true" | "false";
     constructor(boolean_: BooleanI) {
         super(boolean_);
+        this.defaultvalue = boolean_.defaultvalue ? boolean_.defaultvalue : 'true';
     }
-}
-
-export interface ShortTextI extends BasicConfigI {
-}
-
-export class ShortText extends BasicConfig {
-}
-
-export interface EncryptedI extends BasicConfigI {
-}
-export class Encrypted extends BasicConfig {
-    constructor(encrypted: EncryptedI) {
-        super(encrypted);
+    /**
+     * getSelectDefault
+     */
+    public getSelectDefault(): string {
+        return `
+        <label for=defaultvalue>Default Value:</label>
+        <select type=text id=defaultvalue>
+            <option value="true" ${this.defaultvalue.toLowerCase() === 'true' ? 'selected' : ''}>true</option>
+            <option value="false"" ${this.defaultvalue.toLowerCase() === 'false' ? 'selected' : ''}>false</option>
+        </select>`
     }
+
+    /**
+     * getWebview
+     */
+    public toWebview(configurationIndex: number): string {
+        const configurationId = getConfigurationDivId(configurationIndex);
+        return `
+                <p class=partblock>
+                <form id="${configurationId}">
+                    <label for=name>Name:</label>
+                    <input type=text id="name" value=${this.name}><br>
+                    <label for=name>Display:</label>
+                    <input type=text id=display value="${this.display}"></inpur><br>
+                    ${this.getSelectDefault()}
+                    <br>
+                    <label for=type>Type:</label>
+                    ${this.selectParamType()}<br>
+                    <label for=additionalinfo>Additional Info:</label>
+                    <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
+                    <br>
+                    <label for=required>Mandatory:</label>
+                    <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+                </form>
+                ${getWebviewRemoveConfigurationButton(configurationIndex)}
+                <script>
+                { (() => {
+                    var form = document.querySelector("#${configurationId}");
+                    var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
+        
+                    for (var inputType of inputs){
+                        for (var input of inputType){
+                            input.onchange = () => {
+                                console.debug("Updating configuration ${configurationIndex}");
+                                vscode.postMessage({
+                                        command: 'updateConfiguration',
+                                        configurationIndex: parseInt(${configurationIndex}),
+                                        data: {
+                                            name: form.querySelector("#name").value,
+                                            display: form.querySelector("#display").value,
+                                            type: ntot[form.querySelector("#type").value],
+                                            required: form.querySelector("#required").checked,
+                                            additionalinfo: form.querySelector("#additionalinfo").value,
+                                            defaultvalue: form.querySelector("#defaultvalue").value
+                                        }
+                                });
+                        }
+                    }
+                }
+                })();}
+                </script>
+                </p>
+                `;
+    }
+
 }
+
+
 export interface AuthenticationI extends BasicConfigI {
     displaypassword: string
     hiddenusername: boolean
@@ -119,7 +206,7 @@ export class Authentication extends BasicConfig {
     constructor(authentication: AuthenticationI) {
         super(authentication);
         this.displaypassword = authentication.displaypassword === undefined ? '' : authentication.displaypassword;
-        if (authentication.hiddenusername === undefined){
+        if (authentication.hiddenusername === undefined) {
             this.hiddenusername = false;
         } else {
             this.hiddenusername = authentication.hiddenusername;
@@ -140,9 +227,8 @@ export class Authentication extends BasicConfig {
                 <input type=checkbox id="showUsername" ${!this.hiddenusername ? 'checked' : ''}>Show</input><br>
                 <label for=name>Display Password: </label>
                 <input type=text id=password value="${this.displaypassword ? this.displaypassword : ''}"></input>
-                <input type=checkbox id="showPassword" ${Boolean(this.displaypassword) ? 'checked' : ''}>Show</input><br>
-                <label for=type>Type: </label>
-                ${getWebviewSelectParamType(parseInt(this.type.toString()))}<br>
+                <input type=checkbox id="showPassword" ${this.displaypassword ? 'checked' : ''}>Show</input><br>
+                ${this.selectParamType()}<br>
                 <label for=additionalinfo>Additional Info: </label>
                 <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
                 <br>
@@ -194,52 +280,174 @@ export class Authentication extends BasicConfig {
             `;
     }
 }
-export interface LongTextI extends BasicConfigI {
-}
 export class LongText extends BasicConfig {
-    constructor(longtext: LongTextI) {
+    constructor(longtext: BasicConfigI) {
         super(longtext);
     }
-}
-export interface SingleSelectI extends OptionsConfigI {
 }
 export class SingleSelect extends OptionsConfig {
     constructor(singleselect: OptionsConfigI) {
         super(singleselect);
     }
 
-}
-export interface MultiSelectI extends OptionsConfigI {
+    /**
+    * selectDefaultValue
+    */
+    private selectDefaultValue(): string {
+        let selectBlock = `
+        <label for="defaultvalue">Default Value:</label>
+        <select type=text id=defaultvalue>
+        <option value="" ${!this.defaultvalue ? 'selected': ''}></option>
+        `
+        this.options.forEach((value: string) => {
+            selectBlock += `<option value="${value}" ${this.defaultvalue === value ? 'selected' : ''}>${value}</option>`
+        })
+        selectBlock += '</select>'
+        return selectBlock
+    }
+
+    /**
+     * toWeview
+     */
+    public toWebview(configurationIndex: number): string {
+        const configurationId = getConfigurationDivId(configurationIndex);
+
+        return `
+                <p class=partblock>
+                <form id="${configurationId}">
+                    <label for=name>Name:</label>
+                    <input type=text id="name" value=${this.name}><br>
+                    <label for=name>Display:</label>
+                    <input type=text id=display value="${this.display}"></input><br>
+                    ${this.selectDefaultValue()}
+                    <br>
+                    ${this.showOptions()}
+                    <br>
+                    ${this.selectParamType()}
+                    <label for=additionalinfo>Additional Info:</label>
+                    <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
+                    <br>
+                    <label for=required>Mandatory:</label>
+                    <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+                </form>
+                ${getWebviewRemoveConfigurationButton(configurationIndex)}
+                <script>
+                { (() => {
+                    var form = document.querySelector("#${configurationId}");
+                    var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
+                    console.log(form.querySelector("#defaultvalue"));
+                    for (var inputType of inputs){
+                        for (var input of inputType){
+                            input.onchange = () => {
+                                console.debug("Updating configuration ${configurationIndex}");
+                                vscode.postMessage({
+                                        command: 'updateConfiguration',
+                                        configurationIndex: parseInt(${configurationIndex}),
+                                        data: {
+                                            name: form.querySelector("#name").value,
+                                            display: form.querySelector("#display").value,
+                                            type: ntot[form.querySelector("#type").value],
+                                            required: form.querySelector("#required").checked,
+                                            additionalinfo: form.querySelector("#additionalinfo").value,
+                                            defaultvalue: form.querySelector("#defaultvalue").value,
+                                            options: form.querySelector("#options").value
+                                        }
+                                });
+                        }
+                    }
+                }
+                })();}
+                </script>
+                </p>
+                `;
+    }
+
 }
 export class MultiSelect extends OptionsConfig {
     constructor(multiselect: OptionsConfigI) {
         super(multiselect);
     }
+    selectDefaultValueAndOptions(): string {
+        return ''
+    }
+    /**
+     * getWebview
+     */
+
+    public toWebview(configurationIndex: number): string {
+        const configurationId = getConfigurationDivId(configurationIndex);
+
+        return `
+                <p class=partblock>
+                <form id="${configurationId}">
+                    <label for=name>Name:</label>
+                    <input type=text id="name" value=${this.name}><br>
+                    <label for=name>Display:</label>
+                    <input type=text id=display value="${this.display}"></inpur><br>
+                    ${this.selectDefaultValueAndOptions()}
+                    ${this.selectParamType()}<br>
+                    <label for=additionalinfo>Additional Info:</label>
+                    <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
+                    <br>
+                    <label for=required>Mandatory:</label>
+                    <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+                </form>
+                ${getWebviewRemoveConfigurationButton(configurationIndex)}
+                <script>
+                { (() => {
+                    var form = document.querySelector("#${configurationId}");
+                    var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
+        
+                    for (var inputType of inputs){
+                        for (var input of inputType){
+                            input.onchange = () => {
+                                console.debug("Updating configuration ${configurationIndex}");
+                                vscode.postMessage({
+                                        command: 'updateConfiguration',
+                                        configurationIndex: parseInt(${configurationIndex}),
+                                        data: {
+                                            name: form.querySelector("#name").value,
+                                            display: form.querySelector("#display").value,
+                                            type: ntot[form.querySelector("#type").value],
+                                            required: form.querySelector("#required").checked,
+                                            additionalinfo: form.querySelector("#additionalinfo").value,
+                                            defaultvalue: form.querySelector("#defaultvalue").value
+                                        }
+                                });
+                        }
+                    }
+                }
+                })();}
+                </script>
+                </p>
+                `;
+    }
 }
 
-export type ParamsTypes = AuthenticationI | EncryptedI | ShortTextI | LongTextI | BooleanI | SingleSelectI | MultiSelectI;
-export type ParamsClassesTypes = Authentication | Encrypted | ShortText | LongText | Boolean_ | SingleSelect | MultiSelect;
+export type ParamsTypes = AuthenticationI | BooleanI;
+export type ParamsClassesTypes = Authentication | LongText | Boolean_ | SingleSelect | MultiSelect;
 
-export type BasicParams = BooleanI | ShortTextI | LongTextI | EncryptedI;
+export type BasicParams = BooleanI 
 
-export type OptionsParams = SingleSelectI | MultiSelectI;
-
-export function typeToInterface(data: BasicConfigI) {
+export function typeToInterface(data: BasicConfigI): BasicConfigI {
     switch (data.type) {
         case 0:
-            return data as ShortTextI;
-        case 12:
-            return data as LongTextI;
+        case 1:
+        case 4:
+        case 19:
+            case 12:
+        case 13:
+            return data as BasicConfigI;
+
         case 8:
             return data as BooleanI;
-        case 4:
-            return data as EncryptedI;
         case 9:
             return data as AuthenticationI;
         case 15:
-            return data as SingleSelectI;
+        case 17:
+        case 18:
         case 16:
-            return data as MultiSelectI;
+            return data as OptionsConfigI;
         default:
             throw TypeError('Unknown type ' + data.type)
     }
@@ -248,19 +456,23 @@ export function typeToInterface(data: BasicConfigI) {
 export function typeToClass(data: ParamsTypes): BasicConfig {
     switch (data.type) {
         case 0:
-            return new ShortText(data);
+        case 1:
+        case 4:
+        case 19:
+        case 13:
+            return new BasicConfig(data);
         case 12:
             return new LongText(data);
         case 8:
-            return new Boolean_(data);
-        case 4:
-            return new Encrypted(data);
+            return new Boolean_(data as BooleanI);
         case 9:
             return new Authentication(data as AuthenticationI);
         case 15:
-            return new SingleSelect(data as SingleSelectI);
+        case 17:
+        case 18:
+            return new SingleSelect(data as OptionsConfigI);
         case 16:
-            return new MultiSelect(data as MultiSelectI);
+            return new MultiSelect(data as OptionsConfigI);
         default:
             throw TypeError('Unknown type ' + data.type)
     }
@@ -272,32 +484,45 @@ export const displayNames: { [name: string]: string } = {
     Authentication: 'Authentication',
     LongText: 'LongText',
     SingleSelect: 'SingleSelect',
-    MultiSelect: 'MultiSelect'
+    MultiSelect: 'MultiSelect',
+    feedReliability: 'feedReliability',
+    incidentType: 'incidentType',
+    feedExpirationPolicy: 'feedExpirationPolicy',
+    feedExpirationInterval: 'feedExpirationInterval'
 }
 
-export const ntot: { [name: string]: number } = {
+export const textToNumber: { [name: string]: number } = {
     ShortText: 0,
     Encrypted: 4,
     Boolean: 8,
     Authentication: 9,
     LongText: 12,
+    incidentType: 13,
     SingleSelect: 15,
-    MultiSelect: 16
+    MultiSelect: 16,
+    feedExpirationInterval: 1,
+    feedExpirationPolicy: 17,
+    feedReliability: 18
+
 }
 
-export const tton: { [type: number]: string } = {
+export const numberToText: { [type: number]: string } = {
     0: displayNames.ShortText,
     4: displayNames.Encrypted,
     8: displayNames.Boolean,
     9: displayNames.Authentication,
     12: displayNames.LongText,
+    13: displayNames.incidentType,
     15: displayNames.SingleSelect,
-    16: displayNames.MultiSelect
+    16: displayNames.MultiSelect,
+    1: displayNames.feedExpirationInterval,
+    17: displayNames.feedExpirationPolicy,
+    18: displayNames.feedReliability
 }
 
 
 export function nameToType(name: string): number {
-    const name_ = ntot[name];
+    const name_ = textToNumber[name];
     if (name_) {
         return name_;
     }
@@ -305,7 +530,7 @@ export function nameToType(name: string): number {
 }
 
 export function typeToName(type: number): string {
-    const name_ = tton[type];
+    const name_ = numberToText[type];
     if (name_) {
         return name_;
     }
@@ -328,5 +553,4 @@ function getWebviewRemoveConfigurationButton(configurationIndex: number): string
     })();}
     </script>
     `;
-    return '';
 }

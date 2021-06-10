@@ -1,33 +1,38 @@
 import * as vscode from 'vscode';
 import {
-    IntegrationHolder, CommandMessage, ConfigurationMessage, IntegrationInterface, ArgumentMessage, OutputMessage, Command, Output, Argument, categories, BasicMessage, AdvancedMessage} from './contentObject';
+    IntegrationHolder, CommandMessage, ConfigurationMessage, IntegrationInterface, ArgumentMessage, OutputMessage, Command, Output, Argument, categories, BasicMessage, AdvancedMessage, Integration} from './contentObject';
 import { PathLike } from 'fs';
-import {getAddArgumentButtonId, getAddOutputButtonId, getArgumentsDivId, getArgumentSingleDivId, getCheckboxChecked, getCommandDivId, getConfigurationDivId, getOutputsDivId, getRemoveArgumentButtonId, getRemoveCommandButtonId, getRemoveConfigurationButtonId, getRemoveOutputButtonId, getSelectedSelect} from './tools';
+import {getAddArgumentButtonId, getAddOutputButtonId, getArgumentsDivId, getArgumentSingleDivId, getCheckboxChecked, getCommandDivId, getOutputsDivId, getRemoveArgumentButtonId, getRemoveOutputButtonId, getSelectedSelect} from './tools';
 import { glob } from 'glob';
 import * as path from 'path';
-import { nameToType, ntot, ParamsClassesTypes, ParamsTypes, typeToClass } from './configurations';
+import { ParamsClassesTypes, typeToClass } from './configurations';
 import { getWebviewConfiguration, getWebviewRemoveCommandButton, getWebviewSingleConfiguration } from './configurationWebviewBuilder';
 
 let panel: vscode.WebviewPanel;
-let integration: IntegrationHolder;
+let integrationHolder: IntegrationHolder;
 let styleSrc: vscode.Uri;
 const commandsDivId = 'commandsDivId';
 const advancedDivId = 'advancedDivId';
 const configurationDivId = "configDivId";
 
-export function createViewFromYML(yml: IntegrationInterface, ymlPath: PathLike, extensionUri: vscode.Uri){
+export function createViewFromYML(yml: IntegrationInterface, ymlPath: PathLike, extensionUri: vscode.Uri): void{
     const dirOfYML = path.dirname(ymlPath.toString());
     const dirOfYMLUri = vscode.Uri.parse(dirOfYML);
     const cssPath = vscode.Uri.joinPath(extensionUri, 'css');
-    var g = new glob.Glob(dirOfYML + '/*.png', {sync: true});
+    const g = new glob.Glob(dirOfYML + '/*.png', {sync: true});
     
     const imagePath = vscode.Uri.joinPath(dirOfYMLUri, path.parse(g.found[0]).base);
-
-    integration = new IntegrationHolder(yml, ymlPath, imagePath);
+    try{
+        integrationHolder = new IntegrationHolder(yml, ymlPath, imagePath);
+    } catch (err){
+        vscode.window.showErrorMessage(err);
+        panel.dispose()
+        return
+    }
 
     panel = vscode.window.createWebviewPanel(
         'integrationPanel',
-        `${integration.integration.display} Settings`,
+        `${integrationHolder.integration.display} Settings`,
         vscode.ViewColumn.Beside,
         {
             enableScripts: true,
@@ -37,15 +42,19 @@ export function createViewFromYML(yml: IntegrationInterface, ymlPath: PathLike, 
     );
 
     panel.onDidDispose(
-        () => {panel.dispose();}
-    );
+        () => {
+        console.log('closing')
+        },
+        null,
+      );
+
     panel.webview.onDidReceiveMessage(
         (message) => {
             console.debug('Got a command in the main switch: ' + message.command);
             switch (message.command){
                 case 'save':
-                    integration.saveYML();
-                    vscode.window.showInformationMessage('Integration "' + integration.integration.display + '" has been saved!');
+                    integrationHolder.saveYML();
+                    vscode.window.showInformationMessage('Integration "' + integrationHolder.integration.display + '" has been saved!');
                     break;
                 case 'removeConfiguration':
                     removeConfiguration(message);
@@ -93,42 +102,42 @@ export function createViewFromYML(yml: IntegrationInterface, ymlPath: PathLike, 
         }
     );
     styleSrc = vscode.Uri.joinPath(cssPath, 'panel.css');
-    var html = getWebviewFromYML(integration, styleSrc);
+    const html = getWebviewFromYML(integrationHolder.integration, styleSrc);
     panel.webview.html = html;
 }
 function  updateAdvanced(message: AdvancedMessage){
-    var yml = integration.integration;
+    const yml = integrationHolder.integration;
     const data = message.data;
-    yml.script.dockerimage = data.dockerImage;
-    yml.longRunning = data.longRunning;
+    yml.script.dockerimage = data.dockerImage ? data.dockerImage : undefined;
+    yml.script.longRunning = data.longRunning;
     if (data.longRunning){
-        yml.longRunningPort = data.longRunningPort;
+        yml.script.longRunningPort = data.longRunningPort;
     }
 }
 function removeConfiguration(message: ConfigurationMessage) {
-    const popedConf = integration.integration.configuration.splice(message.configurationIndex, 1)[0];
+    const popedConf = integrationHolder.integration.configuration.splice(message.configurationIndex, 1)[0];
     panel.webview.postMessage({
         command: 'removeConfiguration',
         divId: configurationDivId,
-        html: getWebviewConfiguration(integration.integration.configuration)
+        html: getWebviewConfiguration(integrationHolder.integration.configuration)
     });
     console.log('Removed configuration ' + popedConf.name);
 }
 
 function updateBasic(message: BasicMessage){
     const basic = message.data;
-    integration.integration.name = basic.name;
-    integration.integration.commonfields.id = basic.id;
-    integration.integration.category = basic.category;
-    integration.integration.description = basic.description;
-    integration.integration.script.feed = basic.feed;
-    integration.integration.script.isfetch = basic.isFetch;
+    integrationHolder.integration.name = basic.name;
+    integrationHolder.integration.commonfields.id = basic.id;
+    integrationHolder.integration.category = basic.category;
+    integrationHolder.integration.description = basic.description;
+    integrationHolder.integration.script.feed = basic.feed;
+    integrationHolder.integration.script.isfetch = basic.isFetch;
 }
 function addConfiguration(message: ConfigurationMessage){
     const newConfiguration: ParamsClassesTypes = typeToClass(message.data);
-    integration.integration.configuration.push();
+    integrationHolder.integration.configuration.push();
     const newCommandWebview = getWebviewSingleConfiguration(
-        integration.integration.script.commands.length-1,
+        integrationHolder.integration.script.commands.length-1,
         newConfiguration
     );
     panel.webview.postMessage(
@@ -141,21 +150,21 @@ function addConfiguration(message: ConfigurationMessage){
 }
 function updateConfiguration(message: ConfigurationMessage){
     const configuration = message.data;
-    integration.integration.configuration[message.configurationIndex] = typeToClass(configuration);
+    integrationHolder.integration.configuration[message.configurationIndex] = typeToClass(configuration);
     console.debug('Configuration ' + message.configurationIndex + ' has been succesfully updated');
     panel.webview.postMessage(
         {
-            'command': 'updateConfiguration',
-            'divId': configurationDivId,
-            'html': getWebviewConfiguration(integration.integration.configuration)
+            command: 'updateConfiguration',
+            divId: configurationDivId,
+            html: getWebviewConfiguration(integrationHolder.integration.configuration)
         }
     );
 }
 function addCommand(message: CommandMessage){
     const newCommand: Command = message.data;
-    integration.integration.script.commands.push(newCommand);
+    integrationHolder.integration.script.commands.push(newCommand);
     const newCommandWebview = getWebviewSingleCommand(
-        integration.integration.script.commands.length-1,
+        integrationHolder.integration.script.commands.length-1,
         newCommand
     );
     panel.webview.postMessage(
@@ -167,16 +176,16 @@ function addCommand(message: CommandMessage){
     );
 }
 function removeCommand(message: CommandMessage){
-    const removedCommand = integration.integration.script.commands.splice(message.index, 1);
+    const removedCommand = integrationHolder.integration.script.commands.splice(message.index, 1);
     console.log('Removing command index ' + message.index + " " + removedCommand[0].name);
     panel.webview.postMessage({
         command: 'renderCommands',
-        html: getWebviewCommands(integration.integration.script.commands),
+        html: getWebviewCommands(integrationHolder.integration.script.commands),
         divId: commandsDivId
     });
 }
 function removeArgument(message: ArgumentMessage){
-    const removedArgument = integration.integration.script.commands[message.commandIndex].arguments.splice(message.index, 1);
+    const removedArgument = integrationHolder.integration.script.commands[message.commandIndex].arguments.splice(message.index, 1);
     console.log('Removing argument index ' + message.index + " from command " + message.commandIndex);
     console.log('removed command name is ' + removedArgument[0].name);
     panel.webview.postMessage({
@@ -184,31 +193,31 @@ function removeArgument(message: ArgumentMessage){
         divId: getArgumentsDivId(message.commandIndex),
         html: getWebviewArguments(
             message.commandIndex, 
-            integration.integration.script.commands[message.commandIndex].arguments
+            integrationHolder.integration.script.commands[message.commandIndex].arguments
             )
     });
 }
 function removeOutput(message: OutputMessage){
-    const removedOutput = integration.integration.script.commands[message.commandIndex].outputs.splice(message.index, 1);
+    const removedOutput = integrationHolder.integration.script.commands[message.commandIndex].outputs.splice(message.index, 1);
     console.log('Removing output index ' + message.index + " from command " + message.commandIndex);
     console.log('removed contextPath is ' + removedOutput[0].contextPath);
     panel.webview.postMessage({
         command: 'renderOutputs',
         divId: getOutputsDivId(message.commandIndex),
-        html: getWebviewOutputs(message.commandIndex, integration.integration.script.commands[message.commandIndex].outputs)
+        html: getWebviewOutputs(message.commandIndex, integrationHolder.integration.script.commands[message.commandIndex].outputs)
     });
 }
 function updateCommand(message: CommandMessage){
     const command = message.data;
-    integration.integration.script.commands[message.index] = command;
+    integrationHolder.integration.script.commands[message.index] = command;
     console.debug('Command ' + message.data.name + ' has been succesfully updated');
 }
 function addArgument(message: ArgumentMessage){
     const arg = message.data;
-    integration.integration.script.commands[message.commandIndex].arguments.push(arg);
+    integrationHolder.integration.script.commands[message.commandIndex].arguments.push(arg);
     const newArgWebview = getWebviewSingleArgument(
         message.commandIndex,
-        integration.integration.script.commands[message.commandIndex].arguments.length-1,
+        integrationHolder.integration.script.commands[message.commandIndex].arguments.length-1,
         arg
     );
     panel.webview.postMessage({
@@ -216,22 +225,22 @@ function addArgument(message: ArgumentMessage){
         divId: getArgumentsDivId(message.commandIndex),
         html: newArgWebview
     });
-    const command = integration.integration.script.commands[message.commandIndex];
+    const command = integrationHolder.integration.script.commands[message.commandIndex];
     console.debug('adding an argument to command ' + message.commandIndex + " name: " + command.name);
 
 }
 function updateArgment(message: ArgumentMessage){
     const arg = message.data;
-    integration.integration.script.commands[message.commandIndex].arguments[message.index] = arg;
+    integrationHolder.integration.script.commands[message.commandIndex].arguments[message.index] = arg;
     console.debug('updating an argument to command ' + message.commandIndex + " name: " + arg.name);
 }
 function addOutput(message: OutputMessage){
     const output = message.data;
-    var command = integration.integration.script.commands[message.commandIndex];
-    integration.integration.script.commands[message.commandIndex].outputs.push(output);
+    const command = integrationHolder.integration.script.commands[message.commandIndex];
+    integrationHolder.integration.script.commands[message.commandIndex].outputs.push(output);
     const newOutputWebview = getWebviewSingleOutput(
         message.commandIndex,
-        integration.integration.script.commands[message.commandIndex].outputs.length-1,
+        integrationHolder.integration.script.commands[message.commandIndex].outputs.length-1,
         output
     );
     panel.webview.postMessage({
@@ -243,43 +252,43 @@ function addOutput(message: OutputMessage){
 
 }
 function updateOutput(message: OutputMessage){
-    integration.integration.script.commands[message.commandIndex].outputs[message.index] = message.data;
+    integrationHolder.integration.script.commands[message.commandIndex].outputs[message.index] = message.data;
     console.debug('Output ' + message.index +  ' of command ' + message.commandIndex +' has been succesfully updated');
 }
-function getWebviewFromYML(integration_: IntegrationHolder, stylePath: vscode.Uri){
+export function getWebviewFromYML(integration: Integration, stylePath: vscode.Uri): string{
     const cssFile = panel.webview.asWebviewUri(stylePath);
-    const image = panel.webview.asWebviewUri(integration.imgPath);
+    const image = panel.webview.asWebviewUri(integrationHolder.imgPath);
     return `<!DOCTYPE html>
       <html lang="en">
       <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>${integration_.integration.display} Settings</title>
+          <title>${integration.display} Settings</title>
           <link rel="stylesheet" type="text/css" href="${cssFile}">
       </head>
       <body>
           <script> const vscode = acquireVsCodeApi(); </script>
-          <h1><img src=${image}></img>${integration_.integration.display} Integration</h1>
+          <h1><img src=${image}></img>${integration.display} Integration</h1>
           <hr>
           <div id="basicPanel">
-          ${getWebviewBasicPanel(integration.integration)}
+          ${getWebviewBasicPanel(integration)}
           </div>
           <br>
           <h2>Parameters</h2>
           <hr>
           <div id=${configurationDivId}>
-          ${getWebviewConfiguration(integration_.integration.configuration)}
+          ${getWebviewConfiguration(integration.configuration)}
           </div>
           ${getWebviewAddConfigurationButton()}
           <h2>Commands</h2>
           <hr>
           <div id="${commandsDivId}">
-          ${getWebviewCommands(integration_.integration.script.commands)}
+          ${getWebviewCommands(integration.script.commands)}
           </div>
           ${getWebviewAddCommandButton()}
           <hr>
           <div id="${advancedDivId}">
-          ${getWebviewAdvancedConfiguration(integration.integration)}
+          ${getWebviewAdvancedConfiguration(integration)}
           </div>
           <button id="saveButton">Save</button>
           <script>
@@ -452,7 +461,7 @@ function getWebviewSingleCommand(commandIndex: number, command: Command){
     `;
 }
 function getWebviewCommands(commands: Array<Command>): string{
-    var commandBlock = '';
+    let commandBlock = '';
     for (const [index, command] of commands.entries()){
         commandBlock += getWebviewSingleCommand(index, command);
     }
@@ -509,7 +518,7 @@ function getWebviewArguments(commandIndex: number, args?: Array<Argument>){
     if (!args){
         return'';
     }
-    var argumentsBlock = `<div id=${getArgumentsDivId(commandIndex)}>`;
+    let argumentsBlock = `<div id=${getArgumentsDivId(commandIndex)}>`;
     for (const [argumentIndex, arg] of args.entries()){
         
         argumentsBlock += getWebviewSingleArgument(commandIndex, argumentIndex, arg);
@@ -571,7 +580,7 @@ function getWebviewSingleOutput(commandIndex: number, index: number, output: Out
 }
 
 function getWebviewOutputs(commandIndex: number, outputs?: Array<Output>){
-    var outputsBlock = ''
+    let outputsBlock = ''
     if (!outputs){
         return '';
     }
@@ -671,7 +680,7 @@ function getWebviewAddOutputButton(commandIndex: number): string{
     `;
 }
 
-function getWebviewBasicPanel(yml: IntegrationInterface): string{
+function getWebviewBasicPanel(yml: Integration): string{
     return `
     <form id="basicPanelForm">
         <label for=name>Name:</label>
@@ -719,7 +728,7 @@ function getWebviewBasicPanel(yml: IntegrationInterface): string{
 }
 
 function getWebviewCategorySelection(givenCategory: string){
-    var htmlBlock = `<label for=category>Category:</label>
+    let htmlBlock = `<label for=category>Category:</label>
     <select id=category>`;
     for (const category of categories){
         htmlBlock += `<option value="${category}" ${getSelectedSelect(category === givenCategory)}>${category}</option>`;
@@ -728,15 +737,15 @@ function getWebviewCategorySelection(givenCategory: string){
     return htmlBlock;
 
 }
-function getWebviewAdvancedConfiguration(yml: IntegrationInterface): string{
+function getWebviewAdvancedConfiguration(yml: Integration): string{
     const advancedFormId = + advancedDivId + 'form';
     return `
     <form id="${advancedFormId}">
         <label for=dockerImage>Docker Image:</label>
-        <input type=text id=dockerImage value=${yml.script.dockerimage}></input><br>
-        <input type=checkbox id=longRunning ${getCheckboxChecked(yml.longRunning)}>Long running integration</input><br>
+        <input type=text id=dockerImage value=${yml.script.dockerimage ? yml.script.dockerimage : ''}></input><br>
+        <input type=checkbox id=longRunning ${getCheckboxChecked(yml.script.longRunning)}>Long running integration</input><br>
         <div id=longRunningPortDiv>
-        <input type=checkbox id=longRunningPort ${getCheckboxChecked(yml.longRunningPort)}>Long Running Port</input><br>
+        <input type=checkbox id=longRunningPort ${getCheckboxChecked(yml.script.longRunningPort)}>Long Running Port</input><br>
         </div>
     </form>
     <script>

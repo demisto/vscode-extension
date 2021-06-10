@@ -15,13 +15,13 @@ suite('HTML validator', () => {
         vscode.window.showInformationMessage('All tests done!');
     });
 
-    test('Test full html', async () => {
+    test('Test full html', () => {
         const integration = new Integration(
             yaml.parse(fs.readFileSync('./test_files/Hello.yml', {encoding: 'utf-8'}))
         );
         const page = getWebviewFromYML(integration, vscode.Uri.parse(''))
 
-        await validator(
+        validator(
             {
                 format: "html",
                 data: page

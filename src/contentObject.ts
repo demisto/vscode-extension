@@ -79,9 +79,9 @@ export interface IntegrationInterface {
     display: string,
     configuration: Array<ParamsTypes>
     description: string,
-    longRunning: boolean,
-    longRunningPort: boolean,
     script: {
+        longRunning: boolean,
+        longRunningPort: boolean
         commands: Array<Command>,
         dockerimage: string,
         isfetch: boolean,
@@ -102,11 +102,11 @@ export class Integration {
     display: string;
     configuration: ParamsClassesTypes[];
     description: string;
-    longRunning: boolean;
-    longRunningPort: boolean;
     script: {
+        longRunning: boolean;
+        longRunningPort: boolean;
         commands: Command[];
-        dockerimage: string;
+        dockerimage?: string;
         isfetch: boolean;
         runonce: boolean;
         subtype: string;
@@ -124,8 +124,6 @@ export class Integration {
             this.configuration.push(typeToClass(value))
         })
         this.description = yml.description;
-        this.longRunning = yml.longRunning;
-        this.longRunningPort = yml.longRunningPort;
         this.script = yml.script;
         this.commonfields = yml.commonfields;
     }
@@ -142,12 +140,12 @@ export class IntegrationHolder {
         if (!(yml.script.commands)) {
             yml.script.commands = Array<Command>();
         }
-        for (var command of yml.script.commands) {
-            var args = command.arguments;
+        for (const command of yml.script.commands) {
+            const args = command.arguments;
             if (!(args)) {
                 command.arguments = Array<Argument>();
             }
-            var outputs = command.outputs;
+            const outputs = command.outputs;
             if (!(outputs)) {
                 command.outputs = Array<Output>();
             }
@@ -158,7 +156,7 @@ export class IntegrationHolder {
     /**
      * name
      */
-    public saveYML() {
+    public saveYML(): void {
         const ymlString = yamlParser.stringify(this.integration);
         writeFileSync(this.path, ymlString);
     }

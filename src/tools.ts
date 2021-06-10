@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as vscode from "vscode";
 import { DiagnosticCollection } from "vscode";
 
-export function sendCommandExtraArgsWithUserInput(command: string[]) {
+export function sendCommandExtraArgsWithUserInput(command: string[]): void {
     vscode.window.showInputBox(
         {
             'placeHolder': 'Add extra arguments?'
@@ -13,14 +13,14 @@ export function sendCommandExtraArgsWithUserInput(command: string[]) {
         }
         sendCommand(command);
     });
-};
+}
 
 let terminal: vscode.Terminal | null = null;
 
 export function publishDiagnostics(
     diagnosticCollection: DiagnosticCollection, 
     diagnostics: Map<string, vscode.Diagnostic[]>,
-    ) {
+    ): void {
     console.debug('Got ' + diagnostics.size + ' diagnostics');
     diagnostics.forEach((diags, filePath) => {
         diagnosticCollection?.set(vscode.Uri.parse(filePath), diags)
@@ -29,7 +29,7 @@ export function publishDiagnostics(
 export function sendCommand(
     command: string[],
     show = true
-    ) {
+    ): void  {
     if (!terminal) {
         terminal = vscode.window.createTerminal('XSOAR Extension Terminal');
         terminal.sendText('echo Welcome to the Cortex XSOAR Terminal!');
@@ -40,7 +40,7 @@ export function sendCommand(
     terminal.sendText(command.join(' '));
 }
 
-export function installDemistoSDK() {
+export function installDemistoSDK(): void {
     sendCommand(['pip3', 'install', 'demisto-sdk', '--upgrade']);
 }
 
@@ -88,7 +88,7 @@ export function getRemoveOutputButtonId(commandIndex: number, argumentIndex: num
     return 'command' + commandIndex + 'RemoveOutputButton' + argumentIndex;
 }
 
-export function getConfigurationDivId(configurationIndex: number) {
+export function getConfigurationDivId(configurationIndex: number): string {
     return 'config' + configurationIndex + 'section';
 }
 

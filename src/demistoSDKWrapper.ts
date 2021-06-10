@@ -3,11 +3,11 @@ import * as path from 'path';
 import * as tools from './tools';
 import * as fs from 'fs';
 
-export function updateReleaseNotesCommand() {
-	var activeWindow = vscode.window.activeTextEditor;
+export function updateReleaseNotesCommand(): void {
+	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openeFile = activeWindow.document.fileName;
-		const regs = new RegExp("Packs\/.*?\/");
+		const regs = new RegExp("Packs/.*?/");
 		const packName = openeFile.match(regs);
 		if (packName) {
 			vscode.window.showQuickPick(
@@ -32,8 +32,8 @@ export function updateReleaseNotesCommand() {
 	}
 }
 
-export function validateCommand() {
-	var activeWindow = vscode.window.activeTextEditor;
+export function validateCommand(): void {
+	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openeFile = activeWindow.document.fileName;
 	
@@ -46,51 +46,51 @@ export function validateCommand() {
 	}
 }
 
-export function validateUsingGit(workspace: vscode.WorkspaceFolder) {
+export function validateUsingGit(workspace: vscode.WorkspaceFolder): void {
 	tools.sendCommand(['demisto-sdk', 'validate',  '-g' ,'-j', tools.getReportPathFromConf(workspace)]);
 }
-export function formatCommand() {
-	var activeWindow = vscode.window.activeTextEditor;
+export function formatCommand(): void {
+	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openeFile = activeWindow.document.fileName;
-		var command = ['demisto-sdk', 'format', '-i', path.dirname(openeFile)];
+		const command = ['demisto-sdk', 'format', '-i', path.dirname(openeFile)];
 		tools.sendCommandExtraArgsWithUserInput(command);
 
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
 	}
 }
-export function uploadToXSOAR() {
-	var activeWindow = vscode.window.activeTextEditor;
+export function uploadToXSOAR(): void {
+	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openeFile = activeWindow.document.fileName;
-		var command = ['demisto-sdk', 'upload', '-i', path.dirname(openeFile)];
+		const command = ['demisto-sdk', 'upload', '-i', path.dirname(openeFile)];
 		tools.sendCommand(command);
 
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
 	}
-};
-export function lintUsingGit() {
-	var activeWindow = vscode.window.activeTextEditor;
+}
+export function lintUsingGit(): void {
+	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openedFile = activeWindow.document.fileName;
-		var command = ['demisto-sdk', 'lint', '-g', '-i ', path.dirname(openedFile)];
+		const command = ['demisto-sdk', 'lint', '-g', '-i ', path.dirname(openedFile)];
 		tools.sendCommand(command);
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
 	}
-};
-export function lint() {
-	var activeWindow = vscode.window.activeTextEditor;
+}
+export function lint(): void {
+	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openedFile = activeWindow.document.fileName;
-		var command = ['demisto-sdk', 'lint', '-i', path.dirname(openedFile), '-j', tools.getReportPath(openedFile)];
+		const command = ['demisto-sdk', 'lint', '-i', path.dirname(openedFile), '-j', tools.getReportPath(openedFile)];
 		tools.sendCommand(command);
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
 	}
-};
+}
 
 interface demistoSDKReport {
 	"filePath": string,
@@ -106,12 +106,12 @@ interface demistoSDKReport {
 	"col": string
 }
 export function getDiagnostic(reports: Array<demistoSDKReport>): Map<string, vscode.Diagnostic[]> {
-	var diagnostics = new Map<string, vscode.Diagnostic[]>();
+	const diagnostics = new Map<string, vscode.Diagnostic[]>();
 	for (const report of reports) {
 		try {
 			const row = parseInt(report.row) - 1;
-			var col = parseInt(report.col) + 1;
-			var diagObj = diagnostics.get(report.filePath);
+			const col = parseInt(report.col) + 1;
+			let diagObj = diagnostics.get(report.filePath);
 			if (!diagObj) {
 				diagObj = Array<vscode.Diagnostic>();
 			}
@@ -133,7 +133,7 @@ export function getDiagnostic(reports: Array<demistoSDKReport>): Map<string, vsc
 }
 export function getDiagnostics(file: fs.PathLike): Map<string, vscode.Diagnostic[]> {
 	const fileText = fs.readFileSync(file, 'utf-8')
-	var diagnostics = new Map<string, Array<vscode.Diagnostic>>();
+	const diagnostics = new Map<string, Array<vscode.Diagnostic>>();
 	if (!fileText) {
 		console.log('could not read' + file);
 	}
@@ -141,7 +141,7 @@ export function getDiagnostics(file: fs.PathLike): Map<string, vscode.Diagnostic
 		const parsed = JSON.parse(fileText);
 		const newDiagnostics = getDiagnostic(parsed);
 		newDiagnostics.forEach((diag: vscode.Diagnostic[], filePath: string) => {
-			var existsObject = diagnostics.get(filePath);
+			const existsObject = diagnostics.get(filePath);
 			if (existsObject) {
 				diagnostics.set(filePath, existsObject.concat(diag))
 			} else {
@@ -154,7 +154,7 @@ export function getDiagnostics(file: fs.PathLike): Map<string, vscode.Diagnostic
 	return diagnostics;
 }
 export function showProblems(diagnosticCollection: vscode.DiagnosticCollection) {
-	return () => {
+	return (): void => {
 		const workspaceFolders = vscode.workspace.workspaceFolders;
 		if (!workspaceFolders) {
 			return
