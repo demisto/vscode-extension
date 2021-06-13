@@ -43,7 +43,7 @@ export class BasicConfig implements BasicConfigI {
                 <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
                 <br>
                 <label for=required>Mandatory:</label>
-                <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+                <input type=checkbox id=required ${getCheckboxChecked(this.required)}></input><br><br>
             </form>
             ${getWebviewRemoveConfigurationButton(configurationIndex)}
             <script>
@@ -111,7 +111,7 @@ export abstract class OptionsConfig extends BasicConfig {
     protected showOptions(): string {
         return `
         <label for=options>Options: </label>
-        <textarea id=options value="${this.options.join('\n')}">${this.options.join('\n')}</textarea>
+        <textarea id=options>${this.options.join('\n')}</textarea>
         `
     }
 
@@ -335,7 +335,6 @@ export class SingleSelect extends OptionsConfig {
                 { (() => {
                     var form = document.querySelector("#${configurationId}");
                     var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
-                    console.log(form.querySelector("#defaultvalue"));
                     for (var inputType of inputs){
                         for (var input of inputType){
                             input.onchange = () => {
@@ -367,13 +366,25 @@ export class MultiSelect extends OptionsConfig {
     constructor(multiselect: OptionsConfigI) {
         super(multiselect);
     }
-    selectDefaultValueAndOptions(): string {
-        return ''
-    }
     /**
-     * getWebview
-     */
+    * selectDefaultValue
+    */
+     private selectDefaultValue(): string {
+        let selectBlock = `
+        <label for="defaultvalue">Default Value:</label>
+        <select type=text id=defaultvalue multiple>
+        <option value="" ${!this.defaultvalue ? 'selected': ''}></option>
+        `
+        this.options.forEach((value: string) => {
+            selectBlock += `<option value="${value}" ${this.defaultvalue === value ? 'selected' : ''}>${value}</option>`
+        })
+        selectBlock += '</select>'
+        return selectBlock
+    }
 
+    /**
+     * toWeview
+     */
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
 
@@ -383,9 +394,12 @@ export class MultiSelect extends OptionsConfig {
                     <label for=name>Name:</label>
                     <input type=text id="name" value=${this.name}><br>
                     <label for=name>Display:</label>
-                    <input type=text id=display value="${this.display}"></inpur><br>
-                    ${this.selectDefaultValueAndOptions()}
-                    ${this.selectParamType()}<br>
+                    <input type=text id=display value="${this.display}"></input><br>
+                    ${this.selectDefaultValue()}
+                    <br>
+                    ${this.showOptions()}
+                    <br>
+                    ${this.selectParamType()}
                     <label for=additionalinfo>Additional Info:</label>
                     <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
                     <br>
@@ -397,7 +411,14 @@ export class MultiSelect extends OptionsConfig {
                 { (() => {
                     var form = document.querySelector("#${configurationId}");
                     var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
-        
+                    var defaultvalue = [];
+                    console.log(form.querySelector('#defaultvalue'));
+                    for (var option of form.querySelector('#defaultvalue').options)
+                    {
+                        if (option.selected) {
+                            defaultvalue.push(option.value);
+                        }
+                    }
                     for (var inputType of inputs){
                         for (var input of inputType){
                             input.onchange = () => {
@@ -411,7 +432,8 @@ export class MultiSelect extends OptionsConfig {
                                             type: ntot[form.querySelector("#type").value],
                                             required: form.querySelector("#required").checked,
                                             additionalinfo: form.querySelector("#additionalinfo").value,
-                                            defaultvalue: form.querySelector("#defaultvalue").value
+                                            defaultvalue: options,
+                                            options: form.querySelector("#options").value
                                         }
                                 });
                         }

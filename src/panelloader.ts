@@ -6,7 +6,7 @@ import {getAddArgumentButtonId, getAddOutputButtonId, getArgumentsDivId, getArgu
 import { glob } from 'glob';
 import * as path from 'path';
 import { ParamsClassesTypes, typeToClass } from './configurations';
-import { getWebviewConfiguration, getWebviewRemoveCommandButton, getWebviewSingleConfiguration } from './configurationWebviewBuilder';
+import { getWebviewConfiguration, getWebviewRemoveCommandButton } from './configurationWebviewBuilder';
 
 let panel: vscode.WebviewPanel;
 let integrationHolder: IntegrationHolder;
@@ -135,16 +135,13 @@ function updateBasic(message: BasicMessage){
 }
 function addConfiguration(message: ConfigurationMessage){
     const newConfiguration: ParamsClassesTypes = typeToClass(message.data);
-    integrationHolder.integration.configuration.push();
-    const newCommandWebview = getWebviewSingleConfiguration(
-        integrationHolder.integration.script.commands.length-1,
-        newConfiguration
-    );
+    integrationHolder.integration.configuration.push(newConfiguration);
+    const newConfigurationWebview = newConfiguration.toWebview(integrationHolder.integration.configuration.length-1);
     panel.webview.postMessage(
         {
             command: 'addConfiguration',
             divId: configurationDivId,
-            html: newCommandWebview
+            html: newConfigurationWebview
         }
     );
 }

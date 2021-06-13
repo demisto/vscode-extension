@@ -17,7 +17,7 @@ suite('HTML validator', () => {
 
     test('Test full html', async () => {
         const integration = new Integration(
-            yaml.parse(fs.readFileSync('./test_files/Hello.yml', {encoding: 'utf-8'}))
+            yaml.parse(fs.readFileSync('./out/test/suite/test_files/Hello.yml', {encoding: 'utf-8'}))
         );
         const page = getWebviewFromYML(integration, vscode.Uri.parse(''))
 

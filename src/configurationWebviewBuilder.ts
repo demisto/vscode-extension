@@ -1,9 +1,10 @@
-import { ParamsTypes, typeToName, numberToText, textToNumber, typeToClass, ParamsClassesTypes } from "./configurations";
-import { getRemoveCommandButtonId, getRemoveConfigurationButtonId } from "./tools";
+import { textToNumber, ParamsClassesTypes } from "./configurations";
+import { getRemoveCommandButtonId } from "./tools";
 
 // Basic are similar to each other. Nothing special;
 export function getWebviewSingleConfiguration(configurationIndex: number, configuration: ParamsClassesTypes): string {
-    return configuration.toWebview(configurationIndex);
+    const wview = configuration.toWebview(configurationIndex);
+    return wview;
 }
 
 
@@ -11,7 +12,7 @@ export function getWebviewConfiguration(configurations: Array<ParamsClassesTypes
     let configurationBlock = '';
     configurationBlock += '<script> const ntot = ' + JSON.stringify(textToNumber) + '</script>'
     for (const [index, configuration] of configurations.entries()){
-        configurationBlock += getWebviewSingleConfiguration(index, configuration);
+        configurationBlock += configuration.toWebview(index);
     }
     return configurationBlock;
 }
