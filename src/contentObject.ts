@@ -23,6 +23,8 @@ export interface ArgumentMessage extends Message {
     data: Argument
 }
 
+
+
 export interface OutputMessage extends Message {
     index: number,
     commandIndex: number,
@@ -71,6 +73,7 @@ export interface Argument {
     isArray: boolean;
     required: boolean;
     defaultValue: string;
+    predefined: Array<string>
 }
 
 export interface IntegrationInterface {

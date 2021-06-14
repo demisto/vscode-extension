@@ -279,11 +279,7 @@ export class Authentication extends BasicConfig {
             `;
     }
 }
-export class LongText extends BasicConfig {
-    constructor(longtext: BasicConfigI) {
-        super(longtext);
-    }
-}
+
 export class SingleSelect extends OptionsConfig {
     constructor(singleselect: OptionsConfigI) {
         super(singleselect);
@@ -363,7 +359,7 @@ export class SingleSelect extends OptionsConfig {
 }
 export class MultiSelect extends OptionsConfig {
     constructor(multiselect: OptionsConfigI) {
-        multiselect.defaultvalue = multiselect.defaultvalue ? multiselect.defaultvalue.replace('\n', ',') : multiselect.defaultvalue;
+        multiselect.defaultvalue = multiselect.defaultvalue ? multiselect.defaultvalue.split('\n').join(',') : multiselect.defaultvalue;
         super(multiselect);
     }
     /**
@@ -452,7 +448,7 @@ export class MultiSelect extends OptionsConfig {
 }
 
 export type ParamsTypes = AuthenticationI | BooleanI;
-export type ParamsClassesTypes = Authentication | LongText | Boolean_ | SingleSelect | MultiSelect;
+export type ParamsClassesTypes = Authentication | Boolean_ | SingleSelect | MultiSelect | BasicConfig;
 
 export type BasicParams = BooleanI 
 
@@ -486,10 +482,10 @@ export function typeToClass(data: ParamsTypes): BasicConfig {
         case 1:
         case 4:
         case 19:
-        case 13:
-            return new BasicConfig(data);
         case 12:
-            return new LongText(data);
+        case 13:
+        case 14:
+            return new BasicConfig(data);
         case 8:
             return new Boolean_(data as BooleanI);
         case 9:
@@ -535,6 +531,7 @@ export const textToNumber: { [name: string]: number } = {
 
 export const numberToText: { [type: number]: string } = {
     0: displayNames.ShortText,
+    14: displayNames.ShortText,
     4: displayNames.Encrypted,
     8: displayNames.Boolean,
     9: displayNames.Authentication,

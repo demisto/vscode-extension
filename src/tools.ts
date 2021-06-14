@@ -17,33 +17,39 @@ export function sendCommandExtraArgsWithUserInput(command: string[]): void {
 
 let terminal: vscode.Terminal | null = null;
 
-export function publishDiagnostics(
-    diagnosticCollection: DiagnosticCollection, 
-    diagnostics: Map<string, vscode.Diagnostic[]>,
-    ): void {
-    console.debug('Got ' + diagnostics.size + ' diagnostics');
-    diagnostics.forEach((diags, filePath) => {
-        diagnosticCollection?.set(vscode.Uri.parse(filePath), diags)
-    })
+export function sendCommandWithReport(
+    command: string[],
+    show = true): void {
+    sendCommand(command, show);
 }
 export function sendCommand(
     command: string[],
     show = true
-    ): void  {
+): void {
     if (!terminal) {
         terminal = vscode.window.createTerminal('XSOAR Extension Terminal');
         terminal.sendText('echo Welcome to the Cortex XSOAR Terminal!');
     }
-    if (show){
+    if (show) {
         terminal.show();
     }
     terminal.sendText(command.join(' '));
 }
 
+
 export function installDemistoSDK(): void {
     sendCommand(['pip3', 'install', 'demisto-sdk', '--upgrade']);
 }
 
+export function publishDiagnostics(
+    diagnosticCollection: DiagnosticCollection,
+    diagnostics: Map<string, vscode.Diagnostic[]>,
+): void {
+    console.debug('Got ' + diagnostics.size + ' diagnostics');
+    diagnostics.forEach((diags, filePath) => {
+        diagnosticCollection?.set(vscode.Uri.parse(filePath), diags)
+    })
+}
 export function getCheckboxChecked(isChecked: boolean): string {
     return isChecked ? 'checked' : '';
 }

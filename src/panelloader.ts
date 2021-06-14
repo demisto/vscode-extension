@@ -230,6 +230,10 @@ function addArgument(message: ArgumentMessage){
 }
 function updateArgment(message: ArgumentMessage){
     const arg = message.data;
+    if (typeof arg.predefined === 'string' || arg.predefined instanceof String){
+        arg.predefined = arg.predefined.split("\n")
+    }
+    
     integrationHolder.integration.script.commands[message.commandIndex].arguments[message.index] = arg;
     console.debug('updating an argument to command ' + message.commandIndex + " name: " + arg.name);
 }
@@ -474,36 +478,42 @@ function getWebviewSingleArgument(commandIndex: number, argumentIndex: number, a
     <label for=name>Description: </label>
     <input type=text id=description value="${arg.description}"></input><br>
     <label for=required>Required: </label>
-    <input type=checkbox id=required ${getCheckboxChecked(arg.required)}><br>
+    <input type=checkbox id=required ${getCheckboxChecked(arg.required)}></input><br>
     <label for=isArray>isArray: </label>
-    <input type=checkbox id=isArray ${getCheckboxChecked(arg.isArray)}><br>
+    <input type=checkbox id=isArray ${getCheckboxChecked(arg.isArray)}></input><br>
+    <label for=defaultvalue>Default Value:</label>
+    <input type=text id="defaultValue" value="${arg.defaultValue ? arg.defaultValue : ''}"></input><br>
+    <label for=defaultvalue>Predefined values:</label>
+    <textarea id=predefined>${arg.predefined ? arg.predefined.join('\n') : ''}</textarea><br>
     </form>
     <script>
     {
         ( () => {
             var form = document.querySelector("#${argId}");
-            var inputs = form.getElementsByTagName("input");
-            for (var i=0; i<inputs.length; i++){
-                inputs[i].onchange = () => {
-                    console.debug("Updating argument ${argumentIndex} of command ${commandIndex}");
-                    vscode.postMessage(
-                        {
-                            command: 'updateArgument',
-                            commandIndex: parseInt(${commandIndex}),
-                            index: parseInt(${argumentIndex}),
-                            data: {
-                                name: form.querySelector("#name").value,
-                                description: form.querySelector("#description").value,
-                                required: form.querySelector("#required").checked,
-                                isArray: form.querySelector("#isArray").checked,
-                                defaultValue: ''  // TODO: defaultValue
+            var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("textarea")];
+            for (const inputType of inputs){
+                for (var input of inputType){
+                    input.onchange = () => {
+                        console.debug("Updating argument ${argumentIndex} of command ${commandIndex}");
+                        vscode.postMessage(
+                            {
+                                command: 'updateArgument',
+                                commandIndex: parseInt(${commandIndex}),
+                                index: parseInt(${argumentIndex}),
+                                data: {
+                                    name: form.querySelector("#name").value,
+                                    description: form.querySelector("#description").value,
+                                    required: form.querySelector("#required").checked,
+                                    isArray: form.querySelector("#isArray").checked,
+                                    defaultValue: form.querySelector("#defaultValue").value,
+                                    predefined: form.querySelector("#predefined").value
+                                }
                             }
-                        }
-                    );
+                        );
+                    }
                 }
             }
         }
-
         )();
     }
     </script>
