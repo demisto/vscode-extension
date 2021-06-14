@@ -102,7 +102,9 @@ export function createViewFromYML(yml: IntegrationInterface, ymlPath: PathLike, 
         }
     );
     styleSrc = vscode.Uri.joinPath(cssPath, 'panel.css');
-    const html = getWebviewFromYML(integrationHolder.integration, styleSrc);
+    const cssFile = panel.webview.asWebviewUri(styleSrc);
+    const image = panel.webview.asWebviewUri(integrationHolder.imgPath);
+    const html = getWebviewFromYML(integrationHolder.integration, cssFile, image);
     panel.webview.html = html;
 }
 function  updateAdvanced(message: AdvancedMessage){
@@ -252,9 +254,7 @@ function updateOutput(message: OutputMessage){
     integrationHolder.integration.script.commands[message.commandIndex].outputs[message.index] = message.data;
     console.debug('Output ' + message.index +  ' of command ' + message.commandIndex +' has been succesfully updated');
 }
-export function getWebviewFromYML(integration: Integration, stylePath: vscode.Uri): string{
-    const cssFile = panel.webview.asWebviewUri(stylePath);
-    const image = panel.webview.asWebviewUri(integrationHolder.imgPath);
+export function getWebviewFromYML(integration: Integration, cssFile: vscode.Uri, image: vscode.Uri): string{
     return `<!DOCTYPE html>
       <html lang="en">
       <head>

@@ -154,7 +154,6 @@ export class Boolean_ extends BasicConfig {
                     <input type=text id=display value="${this.display}"></inpur><br>
                     ${this.getSelectDefault()}
                     <br>
-                    <label for=type>Type:</label>
                     ${this.selectParamType()}<br>
                     <label for=additionalinfo>Additional Info:</label>
                     <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
@@ -364,19 +363,21 @@ export class SingleSelect extends OptionsConfig {
 }
 export class MultiSelect extends OptionsConfig {
     constructor(multiselect: OptionsConfigI) {
+        multiselect.defaultvalue = multiselect.defaultvalue ? multiselect.defaultvalue.replace('\n', ',') : multiselect.defaultvalue;
         super(multiselect);
     }
     /**
     * selectDefaultValue
     */
      private selectDefaultValue(): string {
+        const defaultValue = new Set(this.defaultvalue?.split(','));
         let selectBlock = `
         <label for="defaultvalue">Default Value:</label>
         <select type=text id=defaultvalue multiple>
         <option value="" ${!this.defaultvalue ? 'selected': ''}></option>
         `
         this.options.forEach((value: string) => {
-            selectBlock += `<option value="${value}" ${this.defaultvalue === value ? 'selected' : ''}>${value}</option>`
+            selectBlock += `<option value="${value}" ${defaultValue?.has(value) ? 'selected' : ''}>${value}</option>`
         })
         selectBlock += '</select>'
         return selectBlock
@@ -388,7 +389,7 @@ export class MultiSelect extends OptionsConfig {
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
 
-        return `
+        const a =  `
                 <p class=partblock>
                 <form id="${configurationId}">
                     <label for=name>Name:</label>
@@ -413,16 +414,19 @@ export class MultiSelect extends OptionsConfig {
                     var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
                     var defaultvalue = [];
                     console.log(form.querySelector('#defaultvalue'));
-                    for (var option of form.querySelector('#defaultvalue').options)
-                    {
-                        if (option.selected) {
-                            defaultvalue.push(option.value);
-                        }
-                    }
                     for (var inputType of inputs){
                         for (var input of inputType){
+                            console.log('updating'); console.log(input);
                             input.onchange = () => {
                                 console.debug("Updating configuration ${configurationIndex}");
+                                for (var option of form.querySelector('#defaultvalue').options)
+                                {
+                                    if (option.selected) {
+                                        console.log('option selected');
+                                        console.log(option.value);
+                                        defaultvalue.push(option.value);
+                                    }
+                                }
                                 vscode.postMessage({
                                         command: 'updateConfiguration',
                                         configurationIndex: parseInt(${configurationIndex}),
@@ -432,7 +436,7 @@ export class MultiSelect extends OptionsConfig {
                                             type: ntot[form.querySelector("#type").value],
                                             required: form.querySelector("#required").checked,
                                             additionalinfo: form.querySelector("#additionalinfo").value,
-                                            defaultvalue: options,
+                                            defaultvalue: defaultvalue.join("\\n"),
                                             options: form.querySelector("#options").value
                                         }
                                 });
@@ -443,6 +447,7 @@ export class MultiSelect extends OptionsConfig {
                 </script>
                 </p>
                 `;
+                return a;
     }
 }
 

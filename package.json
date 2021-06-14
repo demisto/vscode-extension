@@ -10,6 +10,7 @@
   "categories": [
     "Other"
   ],
+  "repository": "github:demisto/vscode-extension",
   "activationEvents": [
     "onCommand:xsoar.load",
     "onCommand:xsoar.upload",
@@ -106,7 +107,6 @@
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
-    "@types/html-validator": "^5.0.0",
     "@types/mocha": "^8.0.4",
     "@types/node": "^12.11.7",
     "@types/vscode": "^1.54.0",
@@ -114,10 +114,9 @@
     "@typescript-eslint/parser": "^4.26.1",
     "esbuild": "^0.12.5",
     "eslint": "^7.28.0",
-    "html-validator": "^5.1.17",
     "mocha": "^8.2.1",
-    "ts-loader": "^9.2.2",
-    "vscode-test": "^1.5.0"
+    "vscode-test": "^1.5.0",
+    "ts-loader": "^9.2.2"
   },
   "dependencies": {
     "glob": "^7.1.6",
