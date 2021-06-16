@@ -54,6 +54,12 @@ export class BasicConfig implements BasicConfigI {
                 for (var inputType of inputs){
                     for (var input of inputType){
                         input.onchange = () => {
+                            var selectedOption = 0;
+                            for (const option of form.querySelector("#type").selectedOptions){
+                                if (option.selected){
+                                    selectedOption = option.dataset.type;
+                                }
+                            }
                             console.debug("Updating configuration ${configurationIndex}");
                             vscode.postMessage({
                                     command: 'updateConfiguration',
@@ -61,7 +67,7 @@ export class BasicConfig implements BasicConfigI {
                                     data: {
                                         name: form.querySelector("#name").value,
                                         display: form.querySelector("#display").value,
-                                        type: ntot[form.querySelector("#type").value],
+                                        type: parseInt(selectedOption),
                                         required: form.querySelector("#required").checked,
                                         additionalinfo: form.querySelector("#additionalinfo").value,
                                         defaultvalue: form.querySelector("#defaultvalue").value
@@ -77,10 +83,10 @@ export class BasicConfig implements BasicConfigI {
     }
 
     public paramSelectorOptionSingleBuilder(typeName: string): string {
-        return `<option value=${typeName} ${this.type == textToNumber[typeName] ? 'selected' : ''}>${typeName}</option>`
+        return `<option value=${typeName} ${this.type == textToNumber[typeName] ? 'selected' : ''} data-type=${this.type}>${typeName}</option>`
     }
     public selectParamType(): string{
-        let selectedForm = '<select type=text id=type>'
+        let selectedForm = `<select type=text id=type>`
     
         for (const type in numberToText){
             selectedForm += this.paramSelectorOptionSingleBuilder(numberToText[type])
@@ -114,7 +120,6 @@ export abstract class OptionsConfig extends BasicConfig {
         <textarea id=options>${this.options.join('\n')}</textarea>
         `
     }
-
     abstract toWebview(index: number): string;
 }
 
@@ -154,7 +159,8 @@ export class Boolean_ extends BasicConfig {
                     <input type=text id=display value="${this.display}"></inpur><br>
                     ${this.getSelectDefault()}
                     <br>
-                    ${this.selectParamType()}<br>
+                    ${this.selectParamType()}
+                    <br>
                     <label for=additionalinfo>Additional Info:</label>
                     <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
                     <br>
@@ -171,13 +177,19 @@ export class Boolean_ extends BasicConfig {
                         for (var input of inputType){
                             input.onchange = () => {
                                 console.debug("Updating configuration ${configurationIndex}");
+                                var selectedOption = 0;
+                                for (const option of form.querySelector("#type").selectedOptions){
+                                    if (option.selected){
+                                        selectedOption = option.dataset.type;
+                                    }
+                                }
                                 vscode.postMessage({
                                         command: 'updateConfiguration',
                                         configurationIndex: parseInt(${configurationIndex}),
                                         data: {
                                             name: form.querySelector("#name").value,
                                             display: form.querySelector("#display").value,
-                                            type: ntot[form.querySelector("#type").value],
+                                            type: parseInt(selectedOption),
                                             required: form.querySelector("#required").checked,
                                             additionalinfo: form.querySelector("#additionalinfo").value,
                                             defaultvalue: form.querySelector("#defaultvalue").value
@@ -249,6 +261,12 @@ export class Authentication extends BasicConfig {
                 for (var inputType of inputs){
                     for (var input of inputType){
                         input.onchange = () => {
+                            var selectedOption = 0;
+                            for (const option of form.querySelector("#type").selectedOptions){
+                                if (option.selected){
+                                    selectedOption = option.dataset.type;
+                                }
+                            }
                             username.disabled = !showUsername.checked;
                             password.disabled = !showPassword.checked;
                             if (showPassword.checked){
@@ -263,7 +281,7 @@ export class Authentication extends BasicConfig {
                                     data: {
                                         name: form.querySelector("#name").value,
                                         display: form.querySelector("#display").value,
-                                        type: ntot[form.querySelector("#type").value],
+                                        type: parseInt(selectedOption),
                                         required: form.querySelector("#required").checked,
                                         hiddenusername: !showUsername.checked,
                                         displaypassword: password.value,
@@ -334,13 +352,19 @@ export class SingleSelect extends OptionsConfig {
                         for (var input of inputType){
                             input.onchange = () => {
                                 console.debug("Updating configuration ${configurationIndex}");
+                                var selectedOption = 0;
+                                for (const option of form.querySelector("#type").selectedOptions){
+                                    if (option.selected){
+                                        selectedOption = option.dataset.type;
+                                    }
+                                }
                                 vscode.postMessage({
                                         command: 'updateConfiguration',
                                         configurationIndex: parseInt(${configurationIndex}),
                                         data: {
                                             name: form.querySelector("#name").value,
                                             display: form.querySelector("#display").value,
-                                            type: ntot[form.querySelector("#type").value],
+                                            type: parseInt(selectedOption),
                                             required: form.querySelector("#required").checked,
                                             additionalinfo: form.querySelector("#additionalinfo").value,
                                             defaultvalue: form.querySelector("#defaultvalue").value,
@@ -418,9 +442,13 @@ export class MultiSelect extends OptionsConfig {
                                 for (var option of form.querySelector('#defaultvalue').options)
                                 {
                                     if (option.selected) {
-                                        console.log('option selected');
-                                        console.log(option.value);
                                         defaultvalue.push(option.value);
+                                    }
+                                }
+                                var selectedOption = 0;
+                                for (const option of form.querySelector("#type").selectedOptions){
+                                    if (option.selected){
+                                        selectedOption = option.dataset.type;
                                     }
                                 }
                                 vscode.postMessage({
@@ -429,7 +457,7 @@ export class MultiSelect extends OptionsConfig {
                                         data: {
                                             name: form.querySelector("#name").value,
                                             display: form.querySelector("#display").value,
-                                            type: ntot[form.querySelector("#type").value],
+                                            type: parseInt(selectedOption),
                                             required: form.querySelector("#required").checked,
                                             additionalinfo: form.querySelector("#additionalinfo").value,
                                             defaultvalue: defaultvalue.join("\\n"),
