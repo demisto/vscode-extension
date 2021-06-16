@@ -30,12 +30,12 @@ export class BasicConfig implements BasicConfigI {
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
         return `
-            <p class=partblock>
-            <form id="${configurationId}">
+            <p>
+            <form id="${configurationId}" class="partblock">
                 <label for=name>Name:</label>
                 <input type=text id="name" value=${this.name}><br>
                 <label for=name>Display:</label>
-                <input type=text id=display value="${this.display}"></inpur><br>
+                <input type=text id=display value="${this.display}"></input><br>
                 <label for="defaultvalue">Default Value:</label>
                 <input type=text id=defaultvalue value="${this.defaultvalue ? this.defaultvalue : ''}"></input><br>
                 ${this.selectParamType()}<br>
@@ -151,8 +151,8 @@ export class Boolean_ extends BasicConfig {
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
         return `
-                <p class=partblock>
-                <form id="${configurationId}">
+                <p>
+                <form id="${configurationId}" class="partblock">
                     <label for=name>Name:</label>
                     <input type=text id="name" value=${this.name}><br>
                     <label for=name>Display:</label>
@@ -166,8 +166,9 @@ export class Boolean_ extends BasicConfig {
                     <br>
                     <label for=required>Mandatory:</label>
                     <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+                    ${getWebviewRemoveConfigurationButton(configurationIndex)}
                 </form>
-                ${getWebviewRemoveConfigurationButton(configurationIndex)}
+                
                 <script>
                 { (() => {
                     var form = document.querySelector("#${configurationId}");
@@ -229,8 +230,8 @@ export class Authentication extends BasicConfig {
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
         return `
-            <p class=partblock>
-            <form id="${configurationId}">
+            <p>
+            <form id="${configurationId}" class="partblock">
                 <label for=name>Name: </label>
                 <input type=text id="name" value=${this.name}><br>
                 <label for=name>Display Username: </label>
@@ -245,8 +246,8 @@ export class Authentication extends BasicConfig {
                 <br>
                 <label for=required>Mandatory: </label>
                 <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+                ${getWebviewRemoveConfigurationButton(configurationIndex)}
             </form>
-            ${getWebviewRemoveConfigurationButton(configurationIndex)}
             <script>
             { (() => {
                 var form = document.querySelector("#${configurationId}");
@@ -326,8 +327,8 @@ export class SingleSelect extends OptionsConfig {
         const configurationId = getConfigurationDivId(configurationIndex);
 
         return `
-                <p class=partblock>
-                <form id="${configurationId}">
+                <p>
+                <form id="${configurationId}" class="partblock">
                     <label for=name>Name:</label>
                     <input type=text id="name" value=${this.name}><br>
                     <label for=name>Display:</label>
@@ -342,8 +343,8 @@ export class SingleSelect extends OptionsConfig {
                     <br>
                     <label for=required>Mandatory:</label>
                     <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+                    ${getWebviewRemoveConfigurationButton(configurationIndex)}
                 </form>
-                ${getWebviewRemoveConfigurationButton(configurationIndex)}
                 <script>
                 { (() => {
                     var form = document.querySelector("#${configurationId}");
@@ -410,8 +411,8 @@ export class MultiSelect extends OptionsConfig {
         const configurationId = getConfigurationDivId(configurationIndex);
 
         const a =  `
-                <p class=partblock>
-                <form id="${configurationId}">
+                <p>
+                <form id="${configurationId}" class="partblock">
                     <label for=name>Name:</label>
                     <input type=text id="name" value=${this.name}><br>
                     <label for=name>Display:</label>
@@ -426,8 +427,8 @@ export class MultiSelect extends OptionsConfig {
                     <br>
                     <label for=required>Mandatory:</label>
                     <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+                    ${getWebviewRemoveConfigurationButton(configurationIndex)}
                 </form>
-                ${getWebviewRemoveConfigurationButton(configurationIndex)}
                 <script>
                 { (() => {
                     var form = document.querySelector("#${configurationId}");

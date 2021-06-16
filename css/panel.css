@@ -7,13 +7,26 @@
     text-align: left;
     outline: none;
     font-size: 15px;
+  }
+
+  .collapsible.vscode-dark {
     background-color: #1e1e1e;
     color: white;
   }
   
+  .collapsible.vscode-dark {
+    background-color:  white;
+    color: black;
+  }
+
+  
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.active, .collapsible:hover {
+.active, .collapsible:hover.vscode-dark {
   background-color: #cccccc33;
+}
+
+.active, .collapsible:hover.vscode-light {
+  background-color: #69676733;
 }
 
 
@@ -27,10 +40,17 @@
 
 .collapsible:after {
   content: '\002B';
-  color: white;
   font-weight: bold;
   float: right;
   margin-left: 5px;
+}
+
+.collapsible:after.vscode-dark {
+  color: white;
+}
+
+.collapsible:after.vscode-light {
+  color: black;
 }
 
 .active:after {
@@ -46,27 +66,44 @@ form label{
   vertical-align: middle;
 }
 
-.partblock:hover{
-  background-color: rgb(56, 56, 56);
-  
-}
 input[type=text] {
   width: 50%;
   padding: 5px 15px;
   margin: 8px 0;
   box-sizing: border-box;
   background-color: #cccccc33;
-  color: white;
   border: 1px solid #ccc;
   display: inline-block;
 } 
+input.vscode-dark[type=text]{
+  color: white;
+}
+input.vscode-light[type=text]{
+  color: black;
+}
+
+textarea.vscode-dark {
+  color: white;
+}
+
+textarea.vscode-light {
+  color: black;
+}
+
+select.vscode-dark {
+  color: white;
+}
+
+select.vscode-light {
+  color: black;
+}
+
 div {
   margin-bottom: 10px;
 }
 
 select {
   background-color: #cccccc33;
-  color: white;
   padding: 5px 15px;
   box-sizing: border-box;
   border: 1px solid #ccc;
@@ -76,7 +113,6 @@ select {
 textarea { 
   vertical-align: middle; 
   background-color: #cccccc33;
-  color: white;
   padding: 12px 20px 10px 20px;
   box-sizing: border-box;
   border: 1px solid #ccc;
@@ -87,18 +123,36 @@ textarea {
 
 input {
   background-color: #cccccc33;
-  color: white;
   padding: 12px 20px 10px 20px;
   margin-top: 10px;
+}
+
+input.vscode-dark {
+  color: white;
+}
+
+input.vscode-light {
+  color: black;
 }
 
 button {
   padding: 5px 5px;
   border-radius: 8px;
   background-color: #cccccc33;
-  color: white;
   text-decoration: double;
   text-align: center;
+}
+
+button:hover {
+  background-color: #9e9998d0;
+}
+
+button.vscode-dark {
+  color: white;
+}
+
+button.vscode-light {
+  color: black;
 }
 
 h1 {
@@ -107,4 +161,8 @@ h1 {
 }
 img {
   margin: 5px 15px;
+}
+
+.partblock:hover{
+  background:rgba(228, 227, 227, 0.349);
 }
