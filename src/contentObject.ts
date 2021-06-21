@@ -98,6 +98,17 @@ export interface IntegrationInterface {
         version: number
     }
 }
+export interface scriptI{
+    longRunning: boolean;
+    longRunningPort: boolean;
+    commands: Command[];
+    dockerimage?: string;
+    isfetch: boolean;
+    runonce: boolean;
+    subtype: string;
+    script: string;
+    feed: boolean;
+}
 
 export class Integration {
     name: string;
@@ -105,17 +116,7 @@ export class Integration {
     display: string;
     configuration: ParamsClassesTypes[];
     description: string;
-    script: {
-        longRunning: boolean;
-        longRunningPort: boolean;
-        commands: Command[];
-        dockerimage?: string;
-        isfetch: boolean;
-        runonce: boolean;
-        subtype: string;
-        script: string;
-        feed: boolean;
-    };
+    script: scriptI;
     commonfields: { id: string; version: number; };
     constructor(yml: IntegrationInterface) {
         this.name = yml.name;
