@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import {
-    IntegrationHolder, CommandMessage, ConfigurationMessage, IntegrationInterface, ArgumentMessage, OutputMessage, Command, Output, Argument, categories, BasicMessage, AdvancedMessage, Integration} from './contentObject';
+    IntegrationHolder, CommandMessage, ConfigurationMessage, IntegrationInterface, ArgumentMessage, OutputMessage, Command, Output, Argument, categories, BasicMessage, AdvancedMessage, Integration, scriptI} from './contentObject';
 import { PathLike } from 'fs';
-import {getAddArgumentButtonId, getAddOutputButtonId, getArgumentsDivId, getArgumentSingleDivId, getCheckboxChecked, getCommandDivId, getOutputsDivId, getRemoveArgumentButtonId, getRemoveOutputButtonId, getSelectedSelect} from './tools';
+import {getAddArgumentButtonId, getAddOutputButtonId, getArgumentsDivId, getArgumentSingleDivId, getCheckboxChecked, getCommandDivId, getOutputsDivId, getRemoveArgumentButtonId, getRemoveOutputButtonId, getSelectedSelect, htmlspecialchars} from './tools';
 import { glob } from 'glob';
 import * as path from 'path';
 import { ParamsClassesTypes, typeToClass } from './configurations';
@@ -269,7 +269,7 @@ export function getWebviewFromYML(integration: Integration, cssFile: vscode.Uri,
       </head>
       <body>
           <script> const vscode = acquireVsCodeApi(); </script>
-          <h1><img src=${image}></img>${integration.display} Integration</h1>
+          <h1><img alt="${integration.name}" src="${image}" />${integration.display} Integration</h1>
           <hr>
           <div id="basicPanel">
           ${getWebviewBasicPanel(integration)}
@@ -289,7 +289,7 @@ export function getWebviewFromYML(integration: Integration, cssFile: vscode.Uri,
           ${getWebviewAddCommandButton()}
           <hr>
           <div id="${advancedDivId}">
-          ${getWebviewAdvancedConfiguration(integration)}
+          ${getWebviewAdvancedConfiguration(integration.script)}
           </div>
           <button id="saveButton">Save</button>
           <script>
@@ -391,19 +391,19 @@ function getWebviewRemoveOutputButton(commandIndex: number, index: number): stri
     </script>
     `;
 }
-function getWebviewSingleCommand(commandIndex: number, command: Command){
+export function getWebviewSingleCommand(commandIndex: number, command: Command): string{
     const commandId = getCommandDivId(commandIndex);
     const collapseId = commandId + 'collapse';
     return `
-    <button class="collapsible" id="${collapseId}">${command.name}</button>
+    <button class="collapsible" id="${collapseId}" >${command.name}</button>
     <div class="content">
-    <form id="${commandId}"}>
+    <form id="${commandId}">
         <label for=name>Command name: </label>
-        <input type=text id=name value="${command.name}"><br>
+        <input type=text id=name value="${command.name}" /><br>
         <label for=description>Description: </label>
-        <input type=text id=description value="${command.description}"><br>
+        <input type=text id=description value="${command.description}" /><br>
         <label for=deprecated>Deprecated: </label>
-        <input type=checkbox id=deprecated ${getCheckboxChecked(command.deprecated)}><br>
+        <input type=checkbox id=deprecated ${getCheckboxChecked(command.deprecated)} /><br>
     </form>
     ${getWebviewRemoveCommandButton(commandIndex)}
     <h3>Arguments: </h3><br>
@@ -469,21 +469,21 @@ function getWebviewCommands(commands: Array<Command>): string{
     return commandBlock;
 }
 
-function getWebviewSingleArgument(commandIndex: number, argumentIndex: number, arg: Argument): string{
+export function getWebviewSingleArgument(commandIndex: number, argumentIndex: number, arg: Argument): string{
     const argId = getArgumentSingleDivId(commandIndex, argumentIndex);
     return `
     <form id="${argId}">
     <label for=name>Name: </label>
-    <input type=text id=name value=${arg.name}></input><br>
+    <input type=text id=name value="${arg.name}" /><br>
     <label for=name>Description: </label>
-    <input type=text id=description value="${arg.description}"></input><br>
+    <input type=text id=description value="${htmlspecialchars(arg.description, null, false).replace(/(\r\n|\n|\r)/gm, "")}" /><br>
     <label for=required>Required: </label>
-    <input type=checkbox id=required ${getCheckboxChecked(arg.required)}></input><br>
+    <input type=checkbox id=required ${getCheckboxChecked(arg.required)} /><br>
     <label for=isArray>isArray: </label>
-    <input type=checkbox id=isArray ${getCheckboxChecked(arg.isArray)}></input><br>
-    <label for=defaultvalue>Default Value:</label>
-    <input type=text id="defaultValue" value="${arg.defaultValue ? arg.defaultValue : ''}"></input><br>
-    <label for=defaultvalue>Predefined values:</label>
+    <input type=checkbox id=isArray ${getCheckboxChecked(arg.isArray)} /><br>
+    <label for=defaultValue>Default Value:</label>
+    <input type=text id="defaultValue" value="${arg.defaultValue ? arg.defaultValue : ''}" /><br>
+    <label for=predefined>Predefined values:</label>
     <textarea id=predefined>${arg.predefined ? arg.predefined.join('\n') : ''}</textarea><br>
     </form>
     <script>
@@ -518,10 +518,9 @@ function getWebviewSingleArgument(commandIndex: number, argumentIndex: number, a
     }
     </script>
     ${getWebviewRemoveArgumentButton(commandIndex, argumentIndex)}
-    </p>
     `;
 }
-function getWebviewArguments(commandIndex: number, args?: Array<Argument>){
+function getWebviewArguments(commandIndex: number, args?: Array<Argument>): string{
     if (!args){
         return'';
     }
@@ -534,10 +533,10 @@ function getWebviewArguments(commandIndex: number, args?: Array<Argument>){
     return argumentsBlock;
 
 }
-function getWebviewSingleOutput(commandIndex: number, index: number, output: Output){
+export function getWebviewSingleOutput(commandIndex: number, index: number, output: Output): string{
     function getWebviewSelectOutputType(type: string): string{
         const selected = 'selected';
-        return `<select type=text id=type>
+        return `<select id=type>
             <option value=Unknown ${type === 'Unknown' ? selected : ''}>Unknown</option>
             <option value=Number ${type === 'Number' ? selected : ''}>Number</option>
             <option value=String ${type === 'String' ? selected : ''}>String</option>
@@ -691,17 +690,24 @@ function getWebviewBasicPanel(yml: Integration): string{
     return `
     <form id="basicPanelForm">
         <label for=name>Name:</label>
-        <input type=text id=name value="${yml.name}"></input><br>
+        <input type=text id=name value="${yml.name}" /><br>
         <label for=id>ID:</label>
-        <input type=text id=id value="${yml.commonfields.id}"></input><br>
+        <input type=text id=id value="${yml.commonfields.id}" /><br>
         <br>
         ${getWebviewCategorySelection(yml.category)}
         <br>
         <label for=description>Description:</label>
         <textarea id=description>${yml.description}</textarea>
         <br>
-        <input type=checkbox id=isFetch ${getCheckboxChecked(yml.script.isfetch)}>Fetching incidents</input><br>
-        <input type=checkbox id=feed ${getCheckboxChecked(yml.script.feed)}>Fetching indicators</input>
+        <label>
+        <input type=checkbox id=isFetch ${getCheckboxChecked(yml.script.isfetch)} />
+        Fetching incidents
+        </label>
+        <br>
+        <label>
+        <input type=checkbox id=feed ${getCheckboxChecked(yml.script.feed)} />
+        Fetching indicators
+        </label>
     </form>
     <script>
     var basicPanelform = document.querySelector("#basicPanelForm");
@@ -744,15 +750,23 @@ function getWebviewCategorySelection(givenCategory: string){
     return htmlBlock;
 
 }
-function getWebviewAdvancedConfiguration(yml: Integration): string{
+export function getWebviewAdvancedConfiguration(script: scriptI): string{
     const advancedFormId = + advancedDivId + 'form';
     return `
     <form id="${advancedFormId}">
-        <label for=dockerImage>Docker Image:</label>
-        <input type=text id=dockerImage value=${yml.script.dockerimage ? yml.script.dockerimage : ''}></input><br>
-        <input type=checkbox id=longRunning ${getCheckboxChecked(yml.script.longRunning)}>Long running integration</input><br>
+        <label>Docker Image
+        <input type=text id=dockerImage value=${script.dockerimage ? script.dockerimage : ''} />
+        </label>
+        <br>
+        <label>Long running integration
+        <input type=checkbox id=longRunning ${getCheckboxChecked(script.longRunning)} />
+        </label>
+        <br>
         <div id=longRunningPortDiv>
-        <input type=checkbox id=longRunningPort ${getCheckboxChecked(yml.script.longRunningPort)}>Long Running Port</input><br>
+        <label>Long Running Port
+        <input type=checkbox id=longRunningPort ${getCheckboxChecked(script.longRunningPort)} />
+        </label>
+        <br>
         </div>
     </form>
     <script>

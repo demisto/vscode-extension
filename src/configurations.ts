@@ -30,20 +30,19 @@ export class BasicConfig implements BasicConfigI {
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
         return `
-            <p>
             <form id="${configurationId}" class="partblock">
                 <label for=name>Name:</label>
-                <input type=text id="name" value=${this.name}><br>
+                <input type=text id="name" value=${this.name} /><br>
                 <label for=name>Display:</label>
-                <input type=text id=display value="${this.display}"></input><br>
+                <input type=text id=display value="${this.display}" /><br>
                 <label for="defaultvalue">Default Value:</label>
-                <input type=text id=defaultvalue value="${this.defaultvalue ? this.defaultvalue : ''}"></input><br>
+                <input type=text id=defaultvalue value="${this.defaultvalue ? this.defaultvalue : ''}" /><br>
                 ${this.selectParamType()}<br>
                 <label for=additionalinfo>Additional Info:</label>
                 <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
                 <br>
                 <label for=required>Mandatory:</label>
-                <input type=checkbox id=required ${getCheckboxChecked(this.required)}></input><br><br>
+                <input type=checkbox id=required ${getCheckboxChecked(this.required)} /><br><br>
             </form>
             ${getWebviewRemoveConfigurationButton(configurationIndex)}
             <script>
@@ -55,10 +54,10 @@ export class BasicConfig implements BasicConfigI {
                     for (var input of inputType){
                         input.onchange = () => {
                             var selectedOption = 0;
-                            for (const option of form.querySelector("#type").selectedOptions){
-                                if (option.selected){
-                                    selectedOption = option.dataset.type;
-                                }
+                            for (var option of form.querySelector("#type").selectedOptions){
+                                console.log('got a selected option ' + option.innerHTML + option.dataset.type);
+                                selectedOption = option.dataset.type;
+                                
                             }
                             console.debug("Updating configuration ${configurationIndex}");
                             vscode.postMessage({
@@ -78,18 +77,17 @@ export class BasicConfig implements BasicConfigI {
             }
             })();}
             </script>
-            </p>
             `;
     }
 
-    public paramSelectorOptionSingleBuilder(typeName: string): string {
-        return `<option value=${typeName} ${this.type == textToNumber[typeName] ? 'selected' : ''} data-type=${this.type}>${typeName}</option>`
+    public paramSelectorOptionSingleBuilder(typeNumber: number, typeName: string): string {
+        return `<option value=${typeName}${this.type == typeNumber ? ' selected' : ' '} data-type="${typeNumber}">${typeName}</option>`
     }
     public selectParamType(): string{
-        let selectedForm = `<select type=text id=type>`
-    
-        for (const type in numberToText){
-            selectedForm += this.paramSelectorOptionSingleBuilder(numberToText[type])
+        let selectedForm = `<select id="type">`
+        
+        for (const [key, value] of Object.entries(numberToText)){
+            selectedForm += this.paramSelectorOptionSingleBuilder(parseInt(key), value)
         }
         selectedForm += '</select>'
         return `
@@ -139,9 +137,9 @@ export class Boolean_ extends BasicConfig {
     public getSelectDefault(): string {
         return `
         <label for=defaultvalue>Default Value:</label>
-        <select type=text id=defaultvalue>
+        <select id=defaultvalue>
             <option value="true" ${this.defaultvalue.toLowerCase() === 'true' ? 'selected' : ''}>true</option>
-            <option value="false"" ${this.defaultvalue.toLowerCase() === 'false' ? 'selected' : ''}>false</option>
+            <option value="false" ${this.defaultvalue.toLowerCase() === 'false' ? 'selected' : ''}>false</option>
         </select>`
     }
 
@@ -151,12 +149,11 @@ export class Boolean_ extends BasicConfig {
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
         return `
-                <p>
                 <form id="${configurationId}" class="partblock">
                     <label for=name>Name:</label>
                     <input type=text id="name" value=${this.name}><br>
                     <label for=name>Display:</label>
-                    <input type=text id=display value="${this.display}"></inpur><br>
+                    <input type=text id=display value="${this.display}" /><br>
                     ${this.getSelectDefault()}
                     <br>
                     ${this.selectParamType()}
@@ -201,7 +198,7 @@ export class Boolean_ extends BasicConfig {
                 }
                 })();}
                 </script>
-                </p>
+                
                 `;
     }
 
@@ -230,22 +227,23 @@ export class Authentication extends BasicConfig {
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
         return `
-            <p>
             <form id="${configurationId}" class="partblock">
                 <label for=name>Name: </label>
                 <input type=text id="name" value=${this.name}><br>
                 <label for=name>Display Username: </label>
-                <input type=text id=display value="${this.display}"></input>
-                <input type=checkbox id="showUsername" ${!this.hiddenusername ? 'checked' : ''}>Show</input><br>
+                <input type=text id=display value="${this.display}" />
+                <label for="showUsername">Show</label>
+                <input type=checkbox id="showUsername" ${!this.hiddenusername ? 'checked' : ''} /><br>
                 <label for=name>Display Password: </label>
-                <input type=text id=password value="${this.displaypassword ? this.displaypassword : ''}"></input>
-                <input type=checkbox id="showPassword" ${this.displaypassword ? 'checked' : ''}>Show</input><br>
+                <input type=text id=password value="${this.displaypassword ? this.displaypassword : ''}" />
+                <label for="showPassword">Show</label>
+                <input type=checkbox id="showPassword" ${this.displaypassword ? 'checked' : ''} /><br>
                 ${this.selectParamType()}<br>
                 <label for=additionalinfo>Additional Info: </label>
                 <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
                 <br>
                 <label for=required>Mandatory: </label>
-                <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+                <input type=checkbox id=required ${getCheckboxChecked(this.required)} /><br><br>
                 ${getWebviewRemoveConfigurationButton(configurationIndex)}
             </form>
             <script>
@@ -263,9 +261,11 @@ export class Authentication extends BasicConfig {
                     for (var input of inputType){
                         input.onchange = () => {
                             var selectedOption = 0;
-                            for (const option of form.querySelector("#type").selectedOptions){
+                            for (var option of form.querySelector("#type").selectedOptions){
+                                console.log(selectedOption);
                                 if (option.selected){
                                     selectedOption = option.dataset.type;
+                                    console.log("selected option is " + selectedOption);
                                 }
                             }
                             username.disabled = !showUsername.checked;
@@ -294,7 +294,6 @@ export class Authentication extends BasicConfig {
             }
             })();}
             </script>
-            </p>
             `;
     }
 }
@@ -310,8 +309,8 @@ export class SingleSelect extends OptionsConfig {
     private selectDefaultValue(): string {
         let selectBlock = `
         <label for="defaultvalue">Default Value:</label>
-        <select type=text id=defaultvalue>
-        <option value="" ${!this.defaultvalue ? 'selected': ''}></option>
+        <select id=defaultvalue>
+        <option value="" ${!this.defaultvalue ? 'selected': ''} label="None"></option>
         `
         this.options.forEach((value: string) => {
             selectBlock += `<option value="${value}" ${this.defaultvalue === value ? 'selected' : ''}>${value}</option>`
@@ -327,12 +326,11 @@ export class SingleSelect extends OptionsConfig {
         const configurationId = getConfigurationDivId(configurationIndex);
 
         return `
-                <p>
                 <form id="${configurationId}" class="partblock">
                     <label for=name>Name:</label>
                     <input type=text id="name" value=${this.name}><br>
                     <label for=name>Display:</label>
-                    <input type=text id=display value="${this.display}"></input><br>
+                    <input type=text id=display value="${this.display}" /><br>
                     ${this.selectDefaultValue()}
                     <br>
                     ${this.showOptions()}
@@ -377,7 +375,7 @@ export class SingleSelect extends OptionsConfig {
                 }
                 })();}
                 </script>
-                </p>
+                
                 `;
     }
 
@@ -394,8 +392,8 @@ export class MultiSelect extends OptionsConfig {
         const defaultValue = new Set(this.defaultvalue?.split(','));
         let selectBlock = `
         <label for="defaultvalue">Default Value:</label>
-        <select type=text id=defaultvalue multiple>
-        <option value="" ${!this.defaultvalue ? 'selected': ''}></option>
+        <select id=defaultvalue multiple>
+        <option value="" ${!this.defaultvalue ? 'selected': ''} label="None"></option>
         `
         this.options.forEach((value: string) => {
             selectBlock += `<option value="${value}" ${defaultValue?.has(value) ? 'selected' : ''}>${value}</option>`
@@ -411,12 +409,11 @@ export class MultiSelect extends OptionsConfig {
         const configurationId = getConfigurationDivId(configurationIndex);
 
         const a =  `
-                <p>
                 <form id="${configurationId}" class="partblock">
                     <label for=name>Name:</label>
                     <input type=text id="name" value=${this.name}><br>
                     <label for=name>Display:</label>
-                    <input type=text id=display value="${this.display}"></input><br>
+                    <input type=text id=display value="${this.display}" /><br>
                     ${this.selectDefaultValue()}
                     <br>
                     ${this.showOptions()}
@@ -437,7 +434,6 @@ export class MultiSelect extends OptionsConfig {
                     console.log(form.querySelector('#defaultvalue'));
                     for (var inputType of inputs){
                         for (var input of inputType){
-                            console.log('updating'); console.log(input);
                             input.onchange = () => {
                                 console.debug("Updating configuration ${configurationIndex}");
                                 for (var option of form.querySelector('#defaultvalue').options)
@@ -470,7 +466,7 @@ export class MultiSelect extends OptionsConfig {
                 }
                 })();}
                 </script>
-                </p>
+                
                 `;
                 return a;
     }
@@ -531,6 +527,7 @@ export function typeToClass(data: ParamsTypes): BasicConfig {
 }
 export const displayNames: { [name: string]: string } = {
     ShortText: 'ShortText',
+    ShortEncrypted: 'ShortEncrypted',
     Encrypted: 'Encrypted',
     Boolean: 'Boolean',
     Authentication: 'Authentication',
@@ -554,13 +551,14 @@ export const textToNumber: { [name: string]: number } = {
     MultiSelect: 16,
     feedExpirationInterval: 1,
     feedExpirationPolicy: 17,
-    feedReliability: 18
+    feedReliability: 18,
+    ShortEncrypted: 14
 
 }
 
 export const numberToText: { [type: number]: string } = {
     0: displayNames.ShortText,
-    14: displayNames.ShortText,
+    14: displayNames.ShortEncrypted,
     4: displayNames.Encrypted,
     8: displayNames.Boolean,
     9: displayNames.Authentication,
