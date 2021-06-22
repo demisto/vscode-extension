@@ -1,3 +1,7 @@
+
+![](https://github.com/demisto/vscode-extension/actions/workflows/steps.yml/badge.svg)
+
+
 # XSOAR VSCode Plugin
 Validate, Format, Update Release Notes
 
