@@ -43,8 +43,8 @@ export class BasicConfig implements BasicConfigI {
                 <br>
                 <label for=required>Mandatory:</label>
                 <input type=checkbox id=required ${getCheckboxChecked(this.required)} /><br><br>
+                ${getWebviewRemoveConfigurationButton(configurationIndex)}
             </form>
-            ${getWebviewRemoveConfigurationButton(configurationIndex)}
             <script>
             { (() => {
                 var form = document.querySelector("#${configurationId}");

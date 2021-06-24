@@ -9,25 +9,25 @@
     font-size: 15px;
   }
 
-  .collapsible.vscode-dark {
+  .collapsible {
     background-color: #1e1e1e;
     color: white;
   }
   
-  .collapsible.vscode-dark {
+  /* .collapsible.vscode-light {
     background-color:  white;
     color: black;
-  }
+  } */
 
   
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.active, .collapsible:hover.vscode-dark {
+.active, .collapsible:hover {
   background-color: #cccccc33;
 }
 
-.active, .collapsible:hover.vscode-light {
+/* .active, .collapsible:hover.vscode-light {
   background-color: #69676733;
-}
+} */
 
 
 /* Style the collapsible content. Note: hidden by default */
@@ -45,13 +45,13 @@
   margin-left: 5px;
 }
 
-.collapsible:after.vscode-dark {
+.collapsible:after {
   color: white;
 }
 
-.collapsible:after.vscode-light {
+/* .collapsible:after.vscode-light {
   color: black;
-}
+} */
 
 .active:after {
   content: "\2212";
@@ -75,28 +75,28 @@ input[type=text] {
   border: 1px solid #ccc;
   display: inline-block;
 } 
-input.vscode-dark[type=text]{
+input[type=text]{
   color: white;
 }
-input.vscode-light[type=text]{
+/* input.vscode-light[type=text]{
   color: black;
-}
+} */
 
-textarea.vscode-dark {
-  color: white;
-}
-
-textarea.vscode-light {
-  color: black;
-}
-
-select.vscode-dark {
+textarea {
   color: white;
 }
 
-select.vscode-light {
+/* textarea.vscode-light {
   color: black;
+} */
+
+select {
+  color: white;
 }
+
+/* select.vscode-light {
+  color: black;
+} */
 
 div {
   margin-bottom: 10px;
@@ -127,13 +127,13 @@ input {
   margin-top: 10px;
 }
 
-input.vscode-dark {
+input {
   color: white;
 }
 
-input.vscode-light {
+/* input.vscode-light {
   color: black;
-}
+} */
 
 button {
   padding: 5px 5px;
@@ -147,13 +147,13 @@ button:hover {
   background-color: #9e9998d0;
 }
 
-button.vscode-dark {
+button {
   color: white;
 }
 
-button.vscode-light {
+/* button.vscode-light {
   color: black;
-}
+} */
 
 h1 {
   display: block;
@@ -164,5 +164,10 @@ img {
 }
 
 .partblock:hover{
-  background:rgba(228, 227, 227, 0.349);
+  background:rgb(36, 36, 36);
+  
+}
+
+.partblock {
+  border-bottom: 1px solid #d2cfc7;
 }
