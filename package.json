@@ -2,7 +2,7 @@
   "name": "xsoar",
   "displayName": "Cortex XSOAR",
   "description": "Upload, Validate and Format Cortex XSOAR entities.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -13,6 +13,7 @@
   "repository": "github:demisto/vscode-extension",
   "activationEvents": [
     "onCommand:xsoar.load",
+    "onCommand:xsoar.loadScript",
     "onCommand:xsoar.upload",
     "onCommand:xsoar.format",
     "onCommand:xsoar.validate",
@@ -34,6 +35,11 @@
       {
         "command": "xsoar.load",
         "title": "Load Integration",
+        "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.loadScript",
+        "title": "Load Script",
         "category": "XSOAR"
       },
       {

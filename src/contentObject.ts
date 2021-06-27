@@ -80,13 +80,13 @@ export interface IntegrationInterface {
     name: string,
     category: string,
     display: string,
-    configuration: Array<ParamsTypes>
+    configuration: Array<ParamsClassesTypes>
     description: string,
     script: {
         longRunning: boolean,
         longRunningPort: boolean
         commands: Array<Command>,
-        dockerimage: string,
+        dockerimage?: string,
         isfetch: boolean,
         runonce: boolean,
         subtype: string,
@@ -98,7 +98,7 @@ export interface IntegrationInterface {
         version: number
     }
 }
-export interface scriptI{
+export interface scriptI {
     longRunning: boolean;
     longRunningPort: boolean;
     commands: Command[];
@@ -110,40 +110,28 @@ export interface scriptI{
     feed: boolean;
 }
 
-export class Integration {
-    name: string;
-    category: string;
-    display: string;
-    configuration: ParamsClassesTypes[];
-    description: string;
-    script: scriptI;
-    commonfields: { id: string; version: number; };
-    constructor(yml: IntegrationInterface) {
-        this.name = yml.name;
-        this.category = yml.category;
-        this.display = yml.display;
-        yml.configuration = yml.configuration ? yml.configuration : Array<ParamsTypes>();
-        this.configuration = Array<ParamsClassesTypes>();
-        yml.configuration.forEach((value: ParamsTypes) => {
-            this.configuration.push(typeToClass(value))
-        })
-        this.description = yml.description;
-        this.script = yml.script;
-        this.commonfields = yml.commonfields;
-    }
-}
+
 export class IntegrationHolder {
     path: PathLike;
     imgPath: vscode.Uri;
-    integration: Integration;
+    integration: IntegrationInterface;
 
     constructor(yml: IntegrationInterface, ymlPath: PathLike, imgPath: vscode.Uri) {
         this.path = ymlPath;
         this.imgPath = imgPath;
+        this.integration = yml;
         // Get lists ready
         if (!(yml.script.commands)) {
             yml.script.commands = Array<Command>();
         }
+
+        const configuration = Array<ParamsClassesTypes>();
+        if (yml.configuration) {
+            yml.configuration.forEach((value: unknown) => {
+                configuration.push(typeToClass(value as ParamsTypes))
+            })
+        }
+        yml.configuration = configuration;
         for (const command of yml.script.commands) {
             const args = command.arguments;
             if (!(args)) {
@@ -154,7 +142,7 @@ export class IntegrationHolder {
                 command.outputs = Array<Output>();
             }
         }
-        this.integration = new Integration(yml);
+        this.integration = yml;
     }
 
     /**
@@ -165,4 +153,34 @@ export class IntegrationHolder {
         writeFileSync(this.path, ymlString);
     }
 
+}
+
+export interface AutomationI {
+    name: string,
+    script: string,
+    commonfields: {
+        id: string,
+        version: number
+    },
+    args: Array<Argument>,
+    outputs: Array<Output>,
+    dockerimage: string,
+    comment: string
+}
+
+export class ScriptHolder {
+    path: PathLike;
+    imgPath: vscode.Uri;
+    script: AutomationI;
+    constructor(yml: AutomationI, ymlPath: PathLike, imgPath: vscode.Uri) {
+        this.path = ymlPath;
+        this.imgPath = imgPath;
+        if (!(yml.args)) {
+            yml.args = Array<Argument>();
+        }
+        if (!(yml.outputs)) {
+            yml.outputs = Array<Output>();
+        }
+        this.script = yml;
+    }
 }

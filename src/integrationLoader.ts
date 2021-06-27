@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import {
-    IntegrationHolder, CommandMessage, ConfigurationMessage, IntegrationInterface, ArgumentMessage, OutputMessage, Command, Output, Argument, categories, BasicMessage, AdvancedMessage, Integration, scriptI} from './contentObject';
+    IntegrationHolder, CommandMessage, ConfigurationMessage, IntegrationInterface, ArgumentMessage, OutputMessage, Command, Output, Argument, categories, BasicMessage, AdvancedMessage, scriptI} from './contentObject';
 import { PathLike } from 'fs';
 import {getAddArgumentButtonId, getAddOutputButtonId, getArgumentsDivId, getArgumentSingleDivId, getCheckboxChecked, getCommandDivId, getOutputsDivId, getRemoveArgumentButtonId, getRemoveOutputButtonId, getSelectedSelect, htmlspecialchars} from './tools';
 import { glob } from 'glob';
@@ -258,7 +258,7 @@ function updateOutput(message: OutputMessage){
     integrationHolder.integration.script.commands[message.commandIndex].outputs[message.index] = message.data;
     console.debug('Output ' + message.index +  ' of command ' + message.commandIndex +' has been succesfully updated');
 }
-export function getWebviewFromYML(integration: Integration, cssFile: vscode.Uri, image: vscode.Uri): string{
+export function getWebviewFromYML(integration: IntegrationInterface, cssFile: vscode.Uri, image: vscode.Uri): string{
     return `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -686,7 +686,7 @@ function getWebviewAddOutputButton(commandIndex: number): string{
     `;
 }
 
-function getWebviewBasicPanel(yml: Integration): string{
+function getWebviewBasicPanel(yml: IntegrationInterface): string{
     return `
     <form id="basicPanelForm">
         <label for=name>Name:</label>
