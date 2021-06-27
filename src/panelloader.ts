@@ -775,7 +775,6 @@ export function getWebviewAdvancedConfiguration(script: scriptI): string{
         longRunningPortDiv.style.display = advancedform.querySelector("#longRunning").checked ? 'block' : 'none';
         for (var input of advancedform.getElementsByTagName("input")){
             input.onchange = () => {
-                console.log(3);
                 if (advancedform.querySelector("#longRunning").checked){
                     longRunningPortDiv.style.display = 'block';
                 } else {
@@ -788,8 +787,8 @@ export function getWebviewAdvancedConfiguration(script: scriptI): string{
                     command: 'updateAdvanced',
                     data: {
                         dockerImage: advancedform.querySelector("#dockerImage").value,
-                        LongRunning: advancedform.querySelector("#longRunning").checked,
-                        LongRunningPort: advancedform.querySelector("#longRunningPort").checked
+                        longRunning: advancedform.querySelector("#longRunning").checked,
+                        longRunningPort: advancedform.querySelector("#longRunningPort").checked
                     }
                 })
             }

@@ -262,7 +262,6 @@ export class Authentication extends BasicConfig {
                         input.onchange = () => {
                             var selectedOption = 0;
                             for (var option of form.querySelector("#type").selectedOptions){
-                                console.log(selectedOption);
                                 if (option.selected){
                                     selectedOption = option.dataset.type;
                                     console.log("selected option is " + selectedOption);
@@ -431,7 +430,6 @@ export class MultiSelect extends OptionsConfig {
                     var form = document.querySelector("#${configurationId}");
                     var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
                     var defaultvalue = [];
-                    console.log(form.querySelector('#defaultvalue'));
                     for (var inputType of inputs){
                         for (var input of inputType){
                             input.onchange = () => {
