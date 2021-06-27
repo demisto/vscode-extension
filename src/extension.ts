@@ -6,7 +6,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as tools from "./tools";
 import * as dsdk from "./demistoSDKWrapper";
-import * as panelLoader from "./panelloader";
+import * as panelLoader from "./integrationLoader";
 import { IntegrationInterface } from './contentObject';
 
 // this method is called when your extension is activated
@@ -16,6 +16,9 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(diagnosticCollection);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.load', loadYAML(context.extensionUri))
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.loadScript', loadScriptYAML(context.extensionUri))
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.showProblems', dsdk.showProblems(diagnosticCollection))
@@ -94,7 +97,7 @@ function loadYAML(extensionUri: vscode.Uri) {
 				);
 			}
 			try {
-				const yml = loadIntegrationYML(ymlPath);
+				const yml = loadYamlToObject(ymlPath);
 				if (!yml){
 					throw Error('No yml could be resolved.')
 				}
@@ -109,8 +112,38 @@ function loadYAML(extensionUri: vscode.Uri) {
 	});
 }
 
+function loadScriptYAML(extensionUri: vscode.Uri) {
+	return (() => {
+		const activeWindow = vscode.window.activeTextEditor;
+		if (activeWindow) {
+			let ymlPath: string;
+			const fileName = activeWindow.document.fileName;
+			const filePath = path.parse(fileName);
+			if (filePath.ext === '.yml') {
+				ymlPath = fileName;
+			} else {
+				ymlPath = fileName.replace(
+					filePath.ext, '.yml'
+				);
+			}
+			extensionUri
+			try {
+				const yml = loadYamlToObject(ymlPath);
+				if (!yml){
+					throw Error('No yml could be resolved.')
+				}
+				vscode.window.showInformationMessage('YML Succesfully loaded 🚀');
+				// let script = ScriptHolder(yml, ymlPath, extensionUri);
+			} catch (exception) {
+				vscode.window.showErrorMessage(exception.message);
+				return;
+			}
 
-function loadIntegrationYML(filePath: string): IntegrationInterface | undefined {
+		}
+	});
+}
+
+function loadYamlToObject(filePath: string): IntegrationInterface | undefined {
 	return yaml.parse(fs.readFileSync(filePath, 'utf-8'));
 }
 

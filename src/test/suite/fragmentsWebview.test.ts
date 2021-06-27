@@ -4,7 +4,7 @@ import * as validator from 'html-validator';
 // as well as import your extension to test it
 import * as vscode from 'vscode';
 import { Authentication, BasicConfig, Boolean_, MultiSelect, SingleSelect, textToNumber } from '../../configurations';
-import { getWebviewAdvancedConfiguration, getWebviewSingleArgument, getWebviewSingleCommand, getWebviewSingleOutput } from '../../panelloader';
+import { getWebviewAdvancedConfiguration, getWebviewSingleArgument, getWebviewSingleCommand, getWebviewSingleOutput } from '../../integrationLoader';
 
 suite('Configurations Webview Validator', () => {
     after(() => {
