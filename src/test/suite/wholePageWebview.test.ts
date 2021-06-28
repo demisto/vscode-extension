@@ -14,7 +14,7 @@ suite("Full HTML validator", () => {
 
 
     test('Test integration HTML', async () => {
-        const yml_path = path.resolve(__dirname, './test_files/Hello.yml').replace('/out/', '/src/');
+        const yml_path = path.resolve(__dirname, './test_files/Hello.yml').replace('out', 'src');
         const parsed_yml = yaml.parse(
             fs.readFileSync(
                 yml_path,
@@ -43,7 +43,7 @@ suite("Full HTML validator", () => {
     });
 
     test('Test script HTML', async () => {
-        const yml_path = path.resolve(__dirname, './test_files/script.yml').replace('/out/', '/src/');
+        const yml_path = path.resolve(__dirname, './test_files/script.yml').replace('out', 'src');
         const parsed_yml = yaml.parse(
             fs.readFileSync(
                 yml_path,
