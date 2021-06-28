@@ -1,5 +1,4 @@
-import { PathLike, writeFileSync } from "fs";
-import * as yamlParser from "yaml";
+import { PathLike } from "fs";
 import * as vscode from 'vscode';
 import { ParamsClassesTypes, ParamsTypes, typeToClass } from "./configurations";
 
@@ -76,7 +75,7 @@ export interface Argument {
     predefined: Array<string>
 }
 
-export interface IntegrationInterface {
+export interface IntegrationI {
     name: string,
     category: string,
     display: string,
@@ -114,9 +113,9 @@ export interface scriptI {
 export class IntegrationHolder {
     path: PathLike;
     imgPath: vscode.Uri;
-    integration: IntegrationInterface;
+    integration: IntegrationI;
 
-    constructor(yml: IntegrationInterface, ymlPath: PathLike, imgPath: vscode.Uri) {
+    constructor(yml: IntegrationI, ymlPath: PathLike, imgPath: vscode.Uri) {
         this.path = ymlPath;
         this.imgPath = imgPath;
         this.integration = yml;
@@ -145,14 +144,6 @@ export class IntegrationHolder {
         this.integration = yml;
     }
 
-    /**
-     * name
-     */
-    public saveYML(): void {
-        const ymlString = yamlParser.stringify(this.integration);
-        writeFileSync(this.path, ymlString);
-    }
-
 }
 
 export interface AutomationI {
@@ -166,21 +157,4 @@ export interface AutomationI {
     outputs: Array<Output>,
     dockerimage: string,
     comment: string
-}
-
-export class ScriptHolder {
-    path: PathLike;
-    imgPath: vscode.Uri;
-    script: AutomationI;
-    constructor(yml: AutomationI, ymlPath: PathLike, imgPath: vscode.Uri) {
-        this.path = ymlPath;
-        this.imgPath = imgPath;
-        if (!(yml.args)) {
-            yml.args = Array<Argument>();
-        }
-        if (!(yml.outputs)) {
-            yml.outputs = Array<Output>();
-        }
-        this.script = yml;
-    }
 }
