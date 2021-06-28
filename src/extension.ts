@@ -6,8 +6,9 @@ import * as fs from "fs";
 import * as path from "path";
 import * as tools from "./tools";
 import * as dsdk from "./demistoSDKWrapper";
-import * as panelLoader from "./integrationLoader";
-import { IntegrationInterface } from './contentObject';
+import * as integration from "./integrationLoader";
+import { AutomationI, IntegrationI } from './contentObject';
+import * as automation from './automation';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -97,12 +98,12 @@ function loadYAML(extensionUri: vscode.Uri) {
 				);
 			}
 			try {
-				const yml = loadYamlToObject(ymlPath);
+				const yml = loadIntegration(ymlPath);
 				if (!yml){
 					throw Error('No yml could be resolved.')
 				}
 				vscode.window.showInformationMessage('YML Succesfully loaded 🚀');
-				panelLoader.createViewFromYML(yml, ymlPath, extensionUri);
+				integration.createViewFromYML(yml, ymlPath, extensionUri);
 			} catch (exception) {
 				vscode.window.showErrorMessage(exception.message);
 				return;
@@ -128,12 +129,12 @@ function loadScriptYAML(extensionUri: vscode.Uri) {
 			}
 			extensionUri
 			try {
-				const yml = loadYamlToObject(ymlPath);
+				const yml = loadScript(ymlPath);
 				if (!yml){
 					throw Error('No yml could be resolved.')
 				}
 				vscode.window.showInformationMessage('YML Succesfully loaded 🚀');
-				// let script = ScriptHolder(yml, ymlPath, extensionUri);
+				automation.createViewFromYML(yml, ymlPath, extensionUri)
 			} catch (exception) {
 				vscode.window.showErrorMessage(exception.message);
 				return;
@@ -143,7 +144,15 @@ function loadScriptYAML(extensionUri: vscode.Uri) {
 	});
 }
 
-function loadYamlToObject(filePath: string): IntegrationInterface | undefined {
+function loadYamlToObject(filePath: string): IntegrationI | AutomationI | undefined {
 	return yaml.parse(fs.readFileSync(filePath, 'utf-8'));
+}
+
+function loadIntegration(filePath: string): IntegrationI {
+	return loadYamlToObject(filePath) as IntegrationI;
+}
+
+function loadScript(filePath: string): AutomationI {
+	return loadYamlToObject(filePath) as AutomationI;
 }
 

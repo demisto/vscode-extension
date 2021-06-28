@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import {
-    IntegrationHolder, CommandMessage, ConfigurationMessage, IntegrationInterface, ArgumentMessage, OutputMessage, Command, Output, Argument, categories, BasicMessage, AdvancedMessage, scriptI} from './contentObject';
+    IntegrationHolder, CommandMessage, ConfigurationMessage, IntegrationI, ArgumentMessage, OutputMessage, Command, Output, Argument, categories, BasicMessage, AdvancedMessage, scriptI} from './contentObject';
 import { PathLike } from 'fs';
-import {getAddArgumentButtonId, getAddOutputButtonId, getArgumentsDivId, getArgumentSingleDivId, getCheckboxChecked, getCommandDivId, getOutputsDivId, getRemoveArgumentButtonId, getRemoveOutputButtonId, getSelectedSelect, htmlspecialchars} from './tools';
+import {getAddArgumentButtonId, getAddOutputButtonId, getArgumentsDivId, getArgumentSingleDivId, getCheckboxChecked, getCommandDivId, getOutputsDivId, getRemoveArgumentButtonId, getRemoveOutputButtonId, getSelectedSelect, htmlspecialchars, saveYML} from './tools';
 import { glob } from 'glob';
 import * as path from 'path';
 import { ParamsClassesTypes, typeToClass } from './configurations';
@@ -15,7 +15,7 @@ const commandsDivId = 'commandsDivId';
 const advancedDivId = 'advancedDivId';
 const configurationDivId = "configDivId";
 
-export function createViewFromYML(yml: IntegrationInterface, ymlPath: PathLike, extensionUri: vscode.Uri): void{
+export function createViewFromYML(yml: IntegrationI, ymlPath: PathLike, extensionUri: vscode.Uri): void{
     const dirOfYML = path.dirname(ymlPath.toString());
     const dirOfYMLUri = vscode.Uri.parse(dirOfYML);
     const cssPath = vscode.Uri.joinPath(extensionUri, 'css');
@@ -53,7 +53,7 @@ export function createViewFromYML(yml: IntegrationInterface, ymlPath: PathLike, 
             console.debug('Got a command in the main switch: ' + message.command);
             switch (message.command){
                 case 'save':
-                    integrationHolder.saveYML();
+                    saveYML(integrationHolder.path, integrationHolder.integration)
                     vscode.window.showInformationMessage('Integration "' + integrationHolder.integration.display + '" has been saved!');
                     break;
                 case 'removeConfiguration':
@@ -258,7 +258,7 @@ function updateOutput(message: OutputMessage){
     integrationHolder.integration.script.commands[message.commandIndex].outputs[message.index] = message.data;
     console.debug('Output ' + message.index +  ' of command ' + message.commandIndex +' has been succesfully updated');
 }
-export function getWebviewFromYML(integration: IntegrationInterface, cssFile: vscode.Uri, image: vscode.Uri): string{
+export function getWebviewFromYML(integration: IntegrationI, cssFile: vscode.Uri, image: vscode.Uri): string{
     return `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -520,7 +520,7 @@ export function getWebviewSingleArgument(commandIndex: number, argumentIndex: nu
     ${getWebviewRemoveArgumentButton(commandIndex, argumentIndex)}
     `;
 }
-function getWebviewArguments(commandIndex: number, args?: Array<Argument>): string{
+export function getWebviewArguments(commandIndex: number, args?: Array<Argument>): string{
     if (!args){
         return'';
     }
@@ -533,6 +533,7 @@ function getWebviewArguments(commandIndex: number, args?: Array<Argument>): stri
     return argumentsBlock;
 
 }
+
 export function getWebviewSingleOutput(commandIndex: number, index: number, output: Output): string{
     function getWebviewSelectOutputType(type: string): string{
         const selected = 'selected';
@@ -585,7 +586,7 @@ export function getWebviewSingleOutput(commandIndex: number, index: number, outp
         `;
 }
 
-function getWebviewOutputs(commandIndex: number, outputs?: Array<Output>){
+export function getWebviewOutputs(commandIndex: number, outputs?: Array<Output>): string{
     let outputsBlock = ''
     if (!outputs){
         return '';
@@ -618,7 +619,7 @@ function getWebviewAddCommandButton(): string{
     `;
 }
 
-function getWebviewAddArgumentButton(commandIndex: number): string{
+export function getWebviewAddArgumentButton(commandIndex: number): string{
     const buttonId = getAddArgumentButtonId(commandIndex);
     const argName = 'new_argument';
     const description = 'description';
@@ -663,7 +664,7 @@ function getWebviewAddConfigurationButton(): string{
     `;
 }
 
-function getWebviewAddOutputButton(commandIndex: number): string{
+export function getWebviewAddOutputButton(commandIndex: number): string{
     const buttonId = getAddOutputButtonId(commandIndex);
     const contextPath = 'Path.To.Context';
     const description = 'description';
@@ -686,7 +687,7 @@ function getWebviewAddOutputButton(commandIndex: number): string{
     `;
 }
 
-function getWebviewBasicPanel(yml: IntegrationInterface): string{
+function getWebviewBasicPanel(yml: IntegrationI): string{
     return `
     <form id="basicPanelForm">
         <label for=name>Name:</label>

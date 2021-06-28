@@ -1,6 +1,9 @@
+import { PathLike, writeFileSync } from 'fs';
 import * as path from 'path';
 import * as vscode from "vscode";
 import { DiagnosticCollection } from "vscode";
+import * as yaml from "yaml";
+import { AutomationI, IntegrationI } from './contentObject';
 
 export function sendCommandExtraArgsWithUserInput(command: string[]): void {
     vscode.window.showInputBox(
@@ -119,7 +122,7 @@ export function getReportPathFromConf(workspace: vscode.WorkspaceFolder): string
 export function getProblemsFlag(workspace: vscode.WorkspaceFolder): boolean {
     return Boolean(getAutofindProblems(workspace).get('getProblems'))
 }
-export function htmlspecialchars (
+export function htmlspecialchars(
     str: string, quoteStyle: number | never[] | null, doubleEncode: boolean)
     : string {
     //       discuss at: https://locutus.io/php/htmlspecialchars/
@@ -145,46 +148,51 @@ export function htmlspecialchars (
     let i = 0
     let noquotes = false
     if (typeof quoteStyle === 'undefined' || quoteStyle === null) {
-      quoteStyle = 2
+        quoteStyle = 2
     }
     str = str || ''
     str = str.toString()
     if (doubleEncode !== false) {
-      // Put this first to avoid double-encoding
-      str = str.replace(/&/g, '&amp;')
+        // Put this first to avoid double-encoding
+        str = str.replace(/&/g, '&amp;')
     }
     str = str
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
     const OPTS = {
-      ENT_NOQUOTES: 0,
-      ENT_HTML_QUOTE_SINGLE: 1,
-      ENT_HTML_QUOTE_DOUBLE: 2,
-      ENT_COMPAT: 2,
-      ENT_QUOTES: 3,
-      ENT_IGNORE: 4
+        ENT_NOQUOTES: 0,
+        ENT_HTML_QUOTE_SINGLE: 1,
+        ENT_HTML_QUOTE_DOUBLE: 2,
+        ENT_COMPAT: 2,
+        ENT_QUOTES: 3,
+        ENT_IGNORE: 4
     }
     if (quoteStyle === 0) {
-      noquotes = true
+        noquotes = true
     }
     if (typeof quoteStyle !== 'number') {
-      // Allow for a single string or an array of string flags
-      quoteStyle = [].concat(quoteStyle)
-      for (i = 0; i < quoteStyle.length; i++) {
-        // Resolve string input to bitwise e.g. 'ENT_IGNORE' becomes 4
-        if (OPTS[quoteStyle[i]] === 0) {
-          noquotes = true
-        } else if (OPTS[quoteStyle[i]]) {
-          optTemp = optTemp | OPTS[quoteStyle[i]]
+        // Allow for a single string or an array of string flags
+        quoteStyle = [].concat(quoteStyle)
+        for (i = 0; i < quoteStyle.length; i++) {
+            // Resolve string input to bitwise e.g. 'ENT_IGNORE' becomes 4
+            if (OPTS[quoteStyle[i]] === 0) {
+                noquotes = true
+            } else if (OPTS[quoteStyle[i]]) {
+                optTemp = optTemp | OPTS[quoteStyle[i]]
+            }
         }
-      }
-      quoteStyle = optTemp
+        quoteStyle = optTemp
     }
     if (quoteStyle & OPTS.ENT_HTML_QUOTE_SINGLE) {
-      str = str.replace(/'/g, '&#039;')
+        str = str.replace(/'/g, '&#039;')
     }
     if (!noquotes) {
-      str = str.replace(/"/g, '&quot;')
+        str = str.replace(/"/g, '&quot;')
     }
     return str
-  }
+}
+
+export function saveYML(path: PathLike, obj: IntegrationI | AutomationI): void {
+    const ymlString = yaml.stringify(obj);
+    writeFileSync(path, ymlString);
+}
