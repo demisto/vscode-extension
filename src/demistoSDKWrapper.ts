@@ -126,7 +126,7 @@ export function getDiagnostic(reports: Array<demistoSDKReport>): Map<string, vsc
 					new vscode.Position(row, col - 1),
 					new vscode.Position(row, col)
 				),
-				source: report.linter + '(' + report.errorCode + ')'
+				source: `xsoar::${report.linter}(${report.errorCode})`
 			});
 			diagnostics.set(report.filePath, diagObj);
 		} catch (err) {
