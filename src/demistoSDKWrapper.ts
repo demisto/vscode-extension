@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as tools from './tools';
 import * as fs from 'fs';
-
+import * as minimatch from 'minimatch';
+import {TerminalManager} from './terminalManager';
 export function updateReleaseNotesCommand(): void {
 	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
@@ -19,7 +20,7 @@ export function updateReleaseNotesCommand(): void {
 				(value) => {
 					if (value) {
 						const command = ['demisto-sdk update-release-notes -i', packName.toString(), '-u', value];
-						tools.sendCommand(command);
+						TerminalManager.sendCommand(command);
 					}
 				});
 		} else {
@@ -36,10 +37,10 @@ export function validateCommand(): void {
 	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openeFile = activeWindow.document.fileName;
-	
+
 		const json_path = tools.getReportPath(openeFile);
 		const command = ['demisto-sdk validate -i', path.dirname(openeFile), '-j', json_path];
-		tools.sendCommand(command);
+		TerminalManager.sendCommand(command);
 
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
@@ -47,7 +48,7 @@ export function validateCommand(): void {
 }
 
 export function validateUsingGit(workspace: vscode.WorkspaceFolder): void {
-	tools.sendCommand(['demisto-sdk', 'validate',  '-g' ,'-j', tools.getReportPathFromConf(workspace)]);
+	TerminalManager.sendCommand(['demisto-sdk', 'validate', '-g', '-j', tools.getReportPathFromConf(workspace)]);
 }
 export function formatCommand(): void {
 	const activeWindow = vscode.window.activeTextEditor;
@@ -65,7 +66,7 @@ export function uploadToXSOAR(): void {
 	if (activeWindow) {
 		const openeFile = activeWindow.document.fileName;
 		const command = ['demisto-sdk', 'upload', '-i', path.dirname(openeFile)];
-		tools.sendCommand(command);
+		TerminalManager.sendCommand(command);
 
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
@@ -76,17 +77,20 @@ export function lintUsingGit(): void {
 	if (activeWindow) {
 		const openedFile = activeWindow.document.fileName;
 		const command = ['demisto-sdk', 'lint', '-g', '-i ', path.dirname(openedFile)];
-		tools.sendCommand(command);
+		TerminalManager.sendCommand(command);
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
 	}
 }
-export function lint(): void {
+export function lint(tests = true): void {
 	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openedFile = activeWindow.document.fileName;
 		const command = ['demisto-sdk', 'lint', '-i', path.dirname(openedFile), '-j', tools.getReportPath(openedFile)];
-		tools.sendCommand(command);
+		if (!tests) {
+			command.push('--no-test', '--no-pwsh-test')
+		}
+		TerminalManager.sendCommand(command);
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
 	}
@@ -159,11 +163,50 @@ export function showProblems(diagnosticCollection: vscode.DiagnosticCollection) 
 		if (!workspaceFolders) {
 			return
 		}
-		
+
 		for (const workspace of workspaceFolders) {
 			const reportPath = tools.getReportPathFromConf(workspace);
 			const file = path.join(workspace.uri.fsPath, reportPath);
 			tools.publishDiagnostics(diagnosticCollection, getDiagnostics(file));
 		}
 	}
+}
+
+
+export function shouldRunLinter(docUri: string): boolean {
+	const patterns = <Array<string>>vscode.workspace.getConfiguration('xsoar').get('lint.patterns')
+	for (const pattern of patterns) {
+		if (minimatch(docUri, pattern)) {
+			return true
+		}
+	}
+	return false
+
+}
+export async function backgroundLint(document: vscode.TextDocument): Promise<void> {
+	const docUri = document.uri.path;
+
+	const command = [
+		'lint',
+		'-i', path.dirname(docUri.toString()),
+		'-j', tools.getReportPath(docUri.toString()),
+		'--no-test', '--no-pwsh-test'
+	]
+	TerminalManager.runBackgroudCommand('Lint', command)
+
+
+}
+
+
+export async function backgroundValidate(document: vscode.TextDocument): Promise<void> {
+	const docUri = document.uri.path;
+
+	const command = [
+		'validate',
+		'-i', path.dirname(docUri.toString()),
+		'-j', tools.getReportPath(docUri.toString())
+	]
+	TerminalManager.runBackgroudCommand('Validate', command)
+
+
 }

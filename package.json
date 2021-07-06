@@ -22,7 +22,8 @@
     "onCommand:xsoar.updateDSDK",
     "onCommand:xsoar.lint",
     "onCommand:xsoar.lintUsingGit",
-    "onCommand:xsoar.showProblems"
+    "onCommand:xsoar.showProblems",
+    "*"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -49,6 +50,11 @@
       },
       {
         "command": "xsoar.lint",
+        "title": "Lint With Tests",
+        "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.lintNoTests",
         "title": "Lint",
         "category": "XSOAR"
       },
@@ -95,6 +101,34 @@
           "type": "string",
           "default": ".demisto-sdk-report",
           "markdownDescription": "The name of the file to write reports to. You can turn this option on and off using `#xsoar.autoFindProblems.getProblems#`. The file will be located in the local workspace."
+        },
+        "xsoar.lint.patterns": {
+          "type": "array",
+          "default": [
+            "**/Packs/*/Integrations/**",
+            "**/Packs/*/Scripts/**"
+          ],
+          "description": "Patterns to enable linters on. glob format"
+        },
+        "xsoar.demistoSdkPath": {
+          "type": "string",
+          "default": "demisto-sdk",
+          "description": "The command to run demisto-sdk. Can point to a specific environment."
+        },
+        "xsoar.lint.showOnSaveTerminal": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, will show the running process of demisto-sdk in the terminal windows and will not dispose it after finish."
+        },
+        "xsoar.lint.linter.validate": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to run the validate command on the files. (Checks the .yml file)"
+        },
+        "xsoar.lint.linter.lint": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to run the lint command on the files. (Checks the code file)"
         }
       }
     }
@@ -114,6 +148,7 @@
   "devDependencies": {
     "@types/glob": "^7.1.3",
     "@types/html-validator": "^5.0.0",
+    "@types/minimatch": "^3.0.4",
     "@types/mocha": "^8.0.4",
     "@types/node": "^12.11.7",
     "@types/vscode": "^1.54.0",
@@ -129,6 +164,7 @@
   },
   "dependencies": {
     "glob": "^7.1.6",
+    "minimatch": "^3.0.4",
     "yaml": "^1.10.2"
   }
 }

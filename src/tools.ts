@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { DiagnosticCollection } from "vscode";
 import * as yaml from "yaml";
 import { AutomationI, IntegrationI } from './contentObject';
+import { TerminalManager } from './terminalManager';
 
 export function sendCommandExtraArgsWithUserInput(command: string[]): void {
     vscode.window.showInputBox(
@@ -14,34 +15,13 @@ export function sendCommandExtraArgsWithUserInput(command: string[]): void {
         if (value) {
             command.push(value);
         }
-        sendCommand(command);
+        TerminalManager.sendCommand(command);
     });
 }
 
-let terminal: vscode.Terminal | null = null;
 
-export function sendCommandWithReport(
-    command: string[],
-    show = true): void {
-    sendCommand(command, show);
-}
-export function sendCommand(
-    command: string[],
-    show = true
-): void {
-    if (!terminal) {
-        terminal = vscode.window.createTerminal('XSOAR Extension Terminal');
-        terminal.sendText('echo Welcome to the Cortex XSOAR Terminal!');
-    }
-    if (show) {
-        terminal.show();
-    }
-    terminal.sendText(command.join(' '));
-}
-
-
-export function installDemistoSDK(): void {
-    sendCommand(['pip3', 'install', 'demisto-sdk', '--upgrade']);
+export async function installDemistoSDK(): Promise<void> {
+    TerminalManager.sendCommand(['pip3', 'install', 'demisto-sdk', '--upgrade']);
 }
 
 export function publishDiagnostics(
