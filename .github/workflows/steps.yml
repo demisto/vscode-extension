@@ -9,9 +9,7 @@ on:
 jobs:
   test:
     name: Test
-    strategy:
-      matrix:
-        os: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
