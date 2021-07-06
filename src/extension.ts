@@ -31,6 +31,9 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand('xsoar.lint', dsdk.lint)
 	);
 	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.lintNoTests', () => { dsdk.lint(false) })
+	);
+	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.lintUsingGit', dsdk.lintUsingGit)
 	);
 	context.subscriptions.push(
@@ -48,9 +51,23 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.updateDSDK', tools.installDemistoSDK)
 	);
+	context.subscriptions.push(
+		vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
+			console.log('Processing ' + document.fileName)
+			if (dsdk.shouldRunLinter(document.uri.path)) {
+				if (<boolean>vscode.workspace.getConfiguration('xsoar').get('lint.linter.lint')) {
+					dsdk.backgroundLint(document);
+				}
+				if (<boolean>vscode.workspace.getConfiguration('xsoar').get('lint.linter.validate')) {
+					dsdk.backgroundValidate(document)
+				}
+			}
+
+		})
+	)
 	// Create a file listener
 	const workspaces = vscode.workspace.workspaceFolders;
-	if (workspaces){
+	if (workspaces) {
 		autoGetProblems(workspaces, diagnosticCollection)
 	}
 }
@@ -58,16 +75,16 @@ export function activate(context: vscode.ExtensionContext): void {
 // this method is called when your extension is deactivated
 export function deactivate(): void { console.log('deactivated') }
 
-  
+
 function autoGetProblems(
-	workspaces: readonly vscode.WorkspaceFolder[], 
+	workspaces: readonly vscode.WorkspaceFolder[],
 	diagnosticCollection: vscode.DiagnosticCollection
-	){
-	for (const workspace of workspaces){
-		if (tools.getProblemsFlag(workspace)){
+) {
+	for (const workspace of workspaces) {
+		if (tools.getProblemsFlag(workspace)) {
 			const reportPath = tools.getReportPathFromConf(workspace)
-			const fullReportPath = path.join(workspace.uri.fsPath , reportPath)
-			if (!fs.existsSync(fullReportPath)){
+			const fullReportPath = path.join(workspace.uri.fsPath, reportPath)
+			if (!fs.existsSync(fullReportPath)) {
 				fs.writeFileSync(fullReportPath, "[]");
 			}
 			console.log('watching report ' + fullReportPath);
@@ -99,7 +116,7 @@ function loadYAML(extensionUri: vscode.Uri) {
 			}
 			try {
 				const yml = loadIntegration(ymlPath);
-				if (!yml){
+				if (!yml) {
 					throw Error('No yml could be resolved.')
 				}
 				vscode.window.showInformationMessage('YML Succesfully loaded 🚀');
@@ -130,7 +147,7 @@ function loadScriptYAML(extensionUri: vscode.Uri) {
 			extensionUri
 			try {
 				const yml = loadScript(ymlPath);
-				if (!yml){
+				if (!yml) {
 					throw Error('No yml could be resolved.')
 				}
 				vscode.window.showInformationMessage('YML Succesfully loaded 🚀');
