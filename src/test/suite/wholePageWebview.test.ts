@@ -6,13 +6,10 @@ import * as path from 'path';
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import * as vscode from 'vscode';
-import * as integrationLoader from '../../integrationLoader';
 import * as scriptLoader from '../../automation';
 import { removeDuplicateIdErrors } from "./testTools";
 
 suite("Full HTML validator", () => {
-
-
     test('Test integration HTML', async () => {
         const yml_path = path.resolve(__dirname, './test_files/Hello.yml').replace('out', 'src');
         const parsed_yml = yaml.parse(
@@ -26,7 +23,7 @@ suite("Full HTML validator", () => {
             yml_path,
             vscode.Uri.parse('')
         );
-        const page = integrationLoader.getWebviewFromYML(integration.integration, vscode.Uri.parse(''), vscode.Uri.parse(''))
+        const page = integration.getWebview(vscode.Uri.parse(''), vscode.Uri.parse(''))
 
         const res = await validator({
             format: "text",

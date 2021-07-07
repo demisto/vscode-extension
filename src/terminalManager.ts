@@ -15,23 +15,25 @@ export class TerminalManager {
 	private static delay(ms: number) {
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
-	
+
 	public static async runBackgroudCommand(commandName: string, command: string[]): Promise<void> {
 		const xsoarConf = vscode.workspace.getConfiguration('xsoar')
 		const dsdkPath = <string>xsoarConf.get('demistoSdkPath')
 		const showOnSaveTerminal = <boolean>xsoarConf.get('lint.showOnSaveTerminal')
-	
+
 		const terminal = vscode.window.createTerminal(
 			{
 				name: `XSOAR: ${commandName}`,
-				hideFromUser: !showOnSaveTerminal
+				hideFromUser: !showOnSaveTerminal,
+
 			}
 		)
 		if (!showOnSaveTerminal) {  // If the user want to see it, it should not be managed by the extension
 			TerminalManager.insert(terminal)
 		}
-	
+
 		await this.delay(5000)
+		terminal.sendText('', true)
 		terminal.sendText(`${dsdkPath} ${command.join(' ')}`, true)
 	}
 	/**

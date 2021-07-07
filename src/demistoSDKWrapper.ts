@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as tools from './tools';
 import * as fs from 'fs';
-import * as minimatch from 'minimatch';
+import minimatch = require('minimatch');
+
 import {TerminalManager} from './terminalManager';
 export function updateReleaseNotesCommand(): void {
 	const activeWindow = vscode.window.activeTextEditor;

@@ -67,7 +67,7 @@ export function getAddOutputButtonId(commandIndex: number): string {
     return "command" + commandIndex + "addOutputButton";
 }
 export function getRemoveConfigurationButtonId(configIndex: number): string {
-    return 'config' + configIndex + 'removeButton';
+    return getConfigurationDivId(configIndex) + 'removeButton';
 }
 export function getOutputsDivId(commandIndex: number): string {
     return "command" + commandIndex + "outputs";
@@ -175,4 +175,20 @@ export function htmlspecialchars(
 export function saveYML(path: PathLike, obj: IntegrationI | AutomationI): void {
     const ymlString = yaml.stringify(obj);
     writeFileSync(path, ymlString);
+}
+
+export function getWebviewRemoveCommandButton(commandIndex: number): string{
+    const buttonId = getRemoveCommandButtonId(commandIndex);
+    return `
+    <button id="${buttonId}">Remove Command</button>
+    <script>
+    document.querySelector("#${buttonId}").addEventListener("click", () => {
+        console.log("Remove Command clicked. Command index: ${commandIndex}");
+        vscode.postMessage({
+            command: 'removeCommand',
+            index: parseInt(${commandIndex})
+        });
+    });
+    </script>
+    `;
 }

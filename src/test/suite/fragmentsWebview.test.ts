@@ -1,12 +1,38 @@
 import { after } from 'mocha';
 import * as validator from 'html-validator';
+
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
+
 import * as vscode from 'vscode';
 import { Authentication, BasicConfig, Boolean_, MultiSelect, SingleSelect, textToNumber } from '../../configurations';
-import { getWebviewAdvancedConfiguration, getWebviewSingleArgument, getWebviewSingleCommand, getWebviewSingleOutput } from '../../integrationLoader';
+import { getWebviewSingleArgument, getWebviewSingleCommand, getWebviewSingleOutput } from '../../integrationLoader';
+import { IntegrationHolder, IntegrationI } from '../../contentObject';
+const dummyIntegration: IntegrationI = {
+    name: 'dummy',
+    commonfields: {
+        id: 'dummy',
+        version: -1
+    },
+    category: 'Utilities',
+    display: 'Dummy',
+    configuration: [],
+    description: '',
+    script: {
+        longRunning: true,
+        longRunningPort: true,
+        dockerimage: 'demisto/python3:1333',
+        isfetch: false,
+        feed: false,
+        runonce: false,
+        script: '',
+        subtype: 'python3',
+        commands: []
 
+    }
+}
 suite('Configurations Webview Validator', () => {
+
     after(() => {
         vscode.window.showInformationMessage('All tests done!');
     });
@@ -185,19 +211,13 @@ suite('Command Webview Validator', () => {
     })
 
     test("Advanced panel", async () => {
-        const advancedWebview = getWebviewAdvancedConfiguration(
-            {
-                dockerimage: 'demisto/python3:1333',
-                longRunning: false,
-                longRunningPort: false,
-                isfetch: true,
-                runonce: false,
-                commands: [],
-                feed: false,
-                subtype: 'python3',
-                script: ''
-            }
+        const integrationHolder = new IntegrationHolder(
+            dummyIntegration,
+            '',
+            vscode.Uri.parse('')
         )
+
+        const advancedWebview = integrationHolder.getWebviewAdvancedConfiguration()
         const res = await validator({
             format: "text",
             data: advancedWebview,

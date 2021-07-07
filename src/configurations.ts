@@ -43,39 +43,39 @@ export class BasicConfig implements BasicConfigI {
                 <br>
                 <label for=required>Mandatory:</label>
                 <input type=checkbox id=required ${getCheckboxChecked(this.required)} /><br><br>
-                ${getWebviewRemoveConfigurationButton(configurationIndex)}
             </form>
+            ${getWebviewRemoveConfigurationButton(configurationIndex)}
             <script>
-            { (() => {
+            {
                 var form = document.querySelector("#${configurationId}");
                 var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
-    
-                for (var inputType of inputs){
-                    for (var input of inputType){
+            
+                for (var inputType of inputs) {
+                    for (var input of inputType) {
                         input.onchange = () => {
                             var selectedOption = 0;
-                            for (var option of form.querySelector("#type").selectedOptions){
+                            for (var option of form.querySelector("#type").selectedOptions) {
                                 console.log('got a selected option ' + option.innerHTML + option.dataset.type);
                                 selectedOption = option.dataset.type;
-                                
+            
                             }
                             console.debug("Updating configuration ${configurationIndex}");
                             vscode.postMessage({
-                                    command: 'updateConfiguration',
-                                    configurationIndex: parseInt(${configurationIndex}),
-                                    data: {
-                                        name: form.querySelector("#name").value,
-                                        display: form.querySelector("#display").value,
-                                        type: parseInt(selectedOption),
-                                        required: form.querySelector("#required").checked,
-                                        additionalinfo: form.querySelector("#additionalinfo").value,
-                                        defaultvalue: form.querySelector("#defaultvalue").value
-                                    }
+                                command: 'updateConfiguration',
+                                configurationIndex: parseInt(${configurationIndex}),
+                                data: {
+                                    name: form.querySelector("#name").value,
+                                    display: form.querySelector("#display").value,
+                                    type: parseInt(selectedOption),
+                                    required: form.querySelector("#required").checked,
+                                    additionalinfo: form.querySelector("#additionalinfo").value,
+                                    defaultvalue: form.querySelector("#defaultvalue").value
+                                }
                             });
+                        }
                     }
                 }
             }
-            })();}
             </script>
             `;
     }
@@ -163,40 +163,40 @@ export class Boolean_ extends BasicConfig {
                     <br>
                     <label for=required>Mandatory:</label>
                     <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
-                    ${getWebviewRemoveConfigurationButton(configurationIndex)}
                 </form>
-                
+                ${getWebviewRemoveConfigurationButton(configurationIndex)}
                 <script>
-                { (() => {
+                {
                     var form = document.querySelector("#${configurationId}");
                     var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
-        
-                    for (var inputType of inputs){
-                        for (var input of inputType){
+                
+                    for (var inputType of inputs) {
+                        for (var input of inputType) {
                             input.onchange = () => {
                                 console.debug("Updating configuration ${configurationIndex}");
                                 var selectedOption = 0;
-                                for (const option of form.querySelector("#type").selectedOptions){
-                                    if (option.selected){
+                                for (const option of form.querySelector("#type").selectedOptions) {
+                                    if (option.selected) {
                                         selectedOption = option.dataset.type;
                                     }
                                 }
                                 vscode.postMessage({
-                                        command: 'updateConfiguration',
-                                        configurationIndex: parseInt(${configurationIndex}),
-                                        data: {
-                                            name: form.querySelector("#name").value,
-                                            display: form.querySelector("#display").value,
-                                            type: parseInt(selectedOption),
-                                            required: form.querySelector("#required").checked,
-                                            additionalinfo: form.querySelector("#additionalinfo").value,
-                                            defaultvalue: form.querySelector("#defaultvalue").value
-                                        }
+                                    command: 'updateConfiguration',
+                                    configurationIndex: parseInt(${configurationIndex}),
+                                    data: {
+                                        name: form.querySelector("#name").value,
+                                        display: form.querySelector("#display").value,
+                                        type: parseInt(selectedOption),
+                                        required: form.querySelector("#required").checked,
+                                        additionalinfo: form.querySelector("#additionalinfo").value,
+                                        defaultvalue: form.querySelector("#defaultvalue").value
+                                    }
                                 });
+                            }
                         }
                     }
+                    ;
                 }
-                })();}
                 </script>
                 
                 `;
@@ -232,10 +232,12 @@ export class Authentication extends BasicConfig {
                 <input type=text id="name" value=${this.name}><br>
                 <label for=name>Display Username: </label>
                 <input type=text id=display value="${this.display}" />
+                <br>
                 <label for="showUsername">Show</label>
                 <input type=checkbox id="showUsername" ${!this.hiddenusername ? 'checked' : ''} /><br>
                 <label for=name>Display Password: </label>
                 <input type=text id=password value="${this.displaypassword ? this.displaypassword : ''}" />
+                <br>
                 <label for="showPassword">Show</label>
                 <input type=checkbox id="showPassword" ${this.displaypassword ? 'checked' : ''} /><br>
                 ${this.selectParamType()}<br>
@@ -244,8 +246,8 @@ export class Authentication extends BasicConfig {
                 <br>
                 <label for=required>Mandatory: </label>
                 <input type=checkbox id=required ${getCheckboxChecked(this.required)} /><br><br>
-                ${getWebviewRemoveConfigurationButton(configurationIndex)}
             </form>
+            ${getWebviewRemoveConfigurationButton(configurationIndex)}
             <script>
             { (() => {
                 var form = document.querySelector("#${configurationId}");
@@ -340,8 +342,8 @@ export class SingleSelect extends OptionsConfig {
                     <br>
                     <label for=required>Mandatory:</label>
                     <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
-                    ${getWebviewRemoveConfigurationButton(configurationIndex)}
                 </form>
+                ${getWebviewRemoveConfigurationButton(configurationIndex)}
                 <script>
                 { (() => {
                     var form = document.querySelector("#${configurationId}");
@@ -423,8 +425,8 @@ export class MultiSelect extends OptionsConfig {
                     <br>
                     <label for=required>Mandatory:</label>
                     <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
-                    ${getWebviewRemoveConfigurationButton(configurationIndex)}
                 </form>
+                ${getWebviewRemoveConfigurationButton(configurationIndex)}
                 <script>
                 { (() => {
                     var form = document.querySelector("#${configurationId}");
@@ -589,9 +591,10 @@ export function typeToName(type: number): string {
 function getWebviewRemoveConfigurationButton(configurationIndex: number): string {
     const buttonId = getRemoveConfigurationButtonId(configurationIndex);
     return `
-    <button id="${buttonId}">Remove Configuration</button>
+    <button id="${buttonId}">Remove Parameter</button>
     <script>
-    { (() => {
+    { 
+        console.log("adding remove button ${buttonId}")
         document.querySelector("#${buttonId}").addEventListener("click", () => {
             console.log("Remove output clicked. Command index: ${configurationIndex}");
             vscode.postMessage({
@@ -599,7 +602,7 @@ function getWebviewRemoveConfigurationButton(configurationIndex: number): string
                 configurationIndex: parseInt(${configurationIndex})
             });
         });
-    })();}
+    }
     </script>
     `;
 }
