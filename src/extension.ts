@@ -54,11 +54,13 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(
 		vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
 			console.log('Processing ' + document.fileName)
-			if (dsdk.shouldRunLinter(document.uri.path)) {
-				if (<boolean>vscode.workspace.getConfiguration('xsoar').get('lint.linter.lint')) {
+			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.lint.enable')){
+				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.lint.patterns'))){
 					dsdk.backgroundLint(document);
 				}
-				if (<boolean>vscode.workspace.getConfiguration('xsoar').get('lint.linter.validate')) {
+			}
+			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.validate.enable')){
+				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.validate.patterns'))){	
 					dsdk.backgroundValidate(document)
 				}
 			}

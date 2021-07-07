@@ -19,7 +19,7 @@ export class TerminalManager {
 	public static async runBackgroudCommand(commandName: string, command: string[]): Promise<void> {
 		const xsoarConf = vscode.workspace.getConfiguration('xsoar')
 		const dsdkPath = <string>xsoarConf.get('demistoSdkPath')
-		const showOnSaveTerminal = <boolean>xsoarConf.get('lint.showOnSaveTerminal')
+		const showOnSaveTerminal = <boolean>xsoarConf.get('linter.showOnSaveTerminal')
 
 		const terminal = vscode.window.createTerminal(
 			{

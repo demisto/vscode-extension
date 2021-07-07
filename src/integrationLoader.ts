@@ -98,6 +98,11 @@ export function createViewFromYML(yml: IntegrationI, ymlPath: PathLike, extensio
                     updateAdvanced(message);
                     break;
             }
+            const autoSave = vscode.workspace.getConfiguration('xsoar').get('autoSave')
+            if (autoSave){
+                saveYML(integrationHolder.path, integrationHolder.integration)
+            }
+            
         }
     );
     styleSrc = vscode.Uri.joinPath(cssPath, 'panel.css');

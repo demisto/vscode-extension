@@ -102,33 +102,52 @@
           "default": ".demisto-sdk-report",
           "markdownDescription": "The name of the file to write reports to. You can turn this option on and off using `#xsoar.autoFindProblems.getProblems#`. The file will be located in the local workspace."
         },
-        "xsoar.lint.patterns": {
+        "xsoar.autoSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to auto-save changes in script/integration panel changes."
+        },
+        "xsoar.linter.lint.patterns": {
           "type": "array",
           "default": [
-            "**/Packs/*/Integrations/**",
-            "**/Packs/*/Scripts/**"
+            "**/Packs/*/Integrations/**/*.py",
+            "**/Packs/*/Scripts/**/*.py",
+            "**/Packs/*/Integrations/**/*.ps1",
+            "**/Packs/*/Scripts/**/*.ps1",
+            "**/Packs/*/Integrations/**/*.js",
+            "**/Packs/*/Scripts/**/*.js"
           ],
-          "description": "Patterns to enable linters on. glob format"
+          "description": "Patterns to enable demisto-sdk lint on. glob format"
+        },
+        "xsoar.linter.lint.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to run the lint command on the files. (Checks the code file)"
         },
         "xsoar.demistoSdkPath": {
           "type": "string",
           "default": "demisto-sdk",
           "description": "The command to run demisto-sdk. Can point to a specific environment."
         },
-        "xsoar.lint.showOnSaveTerminal": {
+        "xsoar.linter.showOnSaveTerminal": {
           "type": "boolean",
           "default": false,
           "description": "If true, will show the running process of demisto-sdk in the terminal windows and will not dispose it after finish."
         },
-        "xsoar.lint.linter.validate": {
+        "xsoar.linter.validate.enable": {
           "type": "boolean",
           "default": true,
           "description": "Whether to run the validate command on the files. (Checks the .yml file)"
         },
-        "xsoar.lint.linter.lint": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether to run the lint command on the files. (Checks the code file)"
+        "xsoar.linter.validate.patterns": {
+          "type": "array",
+          "default": [
+            "**/Packs/*/Integrations/*.yml",
+            "**/Packs/*/Scripts/*.yml",
+            "**/Packs/*/Integrations/**/*.yml",
+            "**/Packs/*/Scripts/**/*.yml"
+          ],
+          "description": "Patterns to enable demisto-sdk validate on. glob format"
         }
       }
     }

@@ -174,8 +174,7 @@ export function showProblems(diagnosticCollection: vscode.DiagnosticCollection) 
 }
 
 
-export function shouldRunLinter(docUri: string): boolean {
-	const patterns = <Array<string>>vscode.workspace.getConfiguration('xsoar').get('lint.patterns')
+export function isGlobPatternMatch(docUri: string, patterns: Array<string>): boolean {
 	for (const pattern of patterns) {
 		if (minimatch(docUri, pattern)) {
 			return true

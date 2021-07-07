@@ -1,5 +1,6 @@
 import { getCheckboxChecked, getConfigurationDivId, getRemoveConfigurationButtonId } from "./tools";
 
+const separateClassName = 'separateClassName'
 export interface BasicConfigI {
     name: string
     display: string
@@ -30,6 +31,7 @@ export class BasicConfig implements BasicConfigI {
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
         return `
+        <div class="${separateClassName}">
             <form id="${configurationId}" class="partblock">
                 <label for=name>Name:</label>
                 <input type=text id="name" value=${this.name} /><br>
@@ -77,16 +79,17 @@ export class BasicConfig implements BasicConfigI {
                 }
             }
             </script>
-            `;
+        </div>
+        `;
     }
 
     public paramSelectorOptionSingleBuilder(typeNumber: number, typeName: string): string {
         return `<option value=${typeName}${this.type == typeNumber ? ' selected' : ' '} data-type="${typeNumber}">${typeName}</option>`
     }
-    public selectParamType(): string{
+    public selectParamType(): string {
         let selectedForm = `<select id="type">`
-        
-        for (const [key, value] of Object.entries(numberToText)){
+
+        for (const [key, value] of Object.entries(numberToText)) {
             selectedForm += this.paramSelectorOptionSingleBuilder(parseInt(key), value)
         }
         selectedForm += '</select>'
@@ -106,7 +109,7 @@ export abstract class OptionsConfig extends BasicConfig {
     options: string[]
     constructor(basicConfig: OptionsConfigI) {
         super(basicConfig)
-        if (typeof basicConfig.options === 'string' || basicConfig.options instanceof String){
+        if (typeof basicConfig.options === 'string' || basicConfig.options instanceof String) {
             basicConfig.options = basicConfig.options.split('\n');
         }
         this.options = basicConfig.options ? basicConfig.options : Array<string>();
@@ -149,57 +152,58 @@ export class Boolean_ extends BasicConfig {
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
         return `
-                <form id="${configurationId}" class="partblock">
-                    <label for=name>Name:</label>
-                    <input type=text id="name" value=${this.name}><br>
-                    <label for=name>Display:</label>
-                    <input type=text id=display value="${this.display}" /><br>
-                    ${this.getSelectDefault()}
-                    <br>
-                    ${this.selectParamType()}
-                    <br>
-                    <label for=additionalinfo>Additional Info:</label>
-                    <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
-                    <br>
-                    <label for=required>Mandatory:</label>
-                    <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
-                </form>
-                ${getWebviewRemoveConfigurationButton(configurationIndex)}
-                <script>
-                {
-                    var form = document.querySelector("#${configurationId}");
-                    var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
-                
-                    for (var inputType of inputs) {
-                        for (var input of inputType) {
-                            input.onchange = () => {
-                                console.debug("Updating configuration ${configurationIndex}");
-                                var selectedOption = 0;
-                                for (const option of form.querySelector("#type").selectedOptions) {
-                                    if (option.selected) {
-                                        selectedOption = option.dataset.type;
-                                    }
+        <div class="${separateClassName}">
+            <form id="${configurationId}" class="partblock">
+                <label for=name>Name:</label>
+                <input type=text id="name" value=${this.name}><br>
+                <label for=name>Display:</label>
+                <input type=text id=display value="${this.display}" /><br>
+                ${this.getSelectDefault()}
+                <br>
+                ${this.selectParamType()}
+                <br>
+                <label for=additionalinfo>Additional Info:</label>
+                <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
+                <br>
+                <label for=required>Mandatory:</label>
+                <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+            </form>
+            ${getWebviewRemoveConfigurationButton(configurationIndex)}
+            <script>
+            {
+                var form = document.querySelector("#${configurationId}");
+                var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
+            
+                for (var inputType of inputs) {
+                    for (var input of inputType) {
+                        input.onchange = () => {
+                            console.debug("Updating configuration ${configurationIndex}");
+                            var selectedOption = 0;
+                            for (const option of form.querySelector("#type").selectedOptions) {
+                                if (option.selected) {
+                                    selectedOption = option.dataset.type;
                                 }
-                                vscode.postMessage({
-                                    command: 'updateConfiguration',
-                                    configurationIndex: parseInt(${configurationIndex}),
-                                    data: {
-                                        name: form.querySelector("#name").value,
-                                        display: form.querySelector("#display").value,
-                                        type: parseInt(selectedOption),
-                                        required: form.querySelector("#required").checked,
-                                        additionalinfo: form.querySelector("#additionalinfo").value,
-                                        defaultvalue: form.querySelector("#defaultvalue").value
-                                    }
-                                });
                             }
+                            vscode.postMessage({
+                                command: 'updateConfiguration',
+                                configurationIndex: parseInt(${configurationIndex}),
+                                data: {
+                                    name: form.querySelector("#name").value,
+                                    display: form.querySelector("#display").value,
+                                    type: parseInt(selectedOption),
+                                    required: form.querySelector("#required").checked,
+                                    additionalinfo: form.querySelector("#additionalinfo").value,
+                                    defaultvalue: form.querySelector("#defaultvalue").value
+                                }
+                            });
                         }
                     }
-                    ;
                 }
-                </script>
-                
-                `;
+                ;
+            }
+            </script>
+        </div>
+        `;
     }
 
 }
@@ -227,6 +231,7 @@ export class Authentication extends BasicConfig {
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
         return `
+        <div class="${separateClassName}">
             <form id="${configurationId}" class="partblock">
                 <label for=name>Name: </label>
                 <input type=text id="name" value=${this.name}><br>
@@ -295,6 +300,7 @@ export class Authentication extends BasicConfig {
             }
             })();}
             </script>
+        </div>
             `;
     }
 }
@@ -311,7 +317,7 @@ export class SingleSelect extends OptionsConfig {
         let selectBlock = `
         <label for="defaultvalue">Default Value:</label>
         <select id=defaultvalue>
-        <option value="" ${!this.defaultvalue ? 'selected': ''} label="None"></option>
+        <option value="" ${!this.defaultvalue ? 'selected' : ''} label="None"></option>
         `
         this.options.forEach((value: string) => {
             selectBlock += `<option value="${value}" ${this.defaultvalue === value ? 'selected' : ''}>${value}</option>`
@@ -327,57 +333,58 @@ export class SingleSelect extends OptionsConfig {
         const configurationId = getConfigurationDivId(configurationIndex);
 
         return `
-                <form id="${configurationId}" class="partblock">
-                    <label for=name>Name:</label>
-                    <input type=text id="name" value=${this.name}><br>
-                    <label for=name>Display:</label>
-                    <input type=text id=display value="${this.display}" /><br>
-                    ${this.selectDefaultValue()}
-                    <br>
-                    ${this.showOptions()}
-                    <br>
-                    ${this.selectParamType()}
-                    <label for=additionalinfo>Additional Info:</label>
-                    <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
-                    <br>
-                    <label for=required>Mandatory:</label>
-                    <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
-                </form>
-                ${getWebviewRemoveConfigurationButton(configurationIndex)}
-                <script>
-                { (() => {
-                    var form = document.querySelector("#${configurationId}");
-                    var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
-                    for (var inputType of inputs){
-                        for (var input of inputType){
-                            input.onchange = () => {
-                                console.debug("Updating configuration ${configurationIndex}");
-                                var selectedOption = 0;
-                                for (const option of form.querySelector("#type").selectedOptions){
-                                    if (option.selected){
-                                        selectedOption = option.dataset.type;
-                                    }
+        <div class="${separateClassName}">
+            <form id="${configurationId}" class="partblock">
+                <label for=name>Name:</label>
+                <input type=text id="name" value=${this.name}><br>
+                <label for=name>Display:</label>
+                <input type=text id=display value="${this.display}" /><br>
+                ${this.selectDefaultValue()}
+                <br>
+                ${this.showOptions()}
+                <br>
+                ${this.selectParamType()}
+                <label for=additionalinfo>Additional Info:</label>
+                <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
+                <br>
+                <label for=required>Mandatory:</label>
+                <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+            </form>
+            ${getWebviewRemoveConfigurationButton(configurationIndex)}
+            <script>
+            { (() => {
+                var form = document.querySelector("#${configurationId}");
+                var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
+                for (var inputType of inputs){
+                    for (var input of inputType){
+                        input.onchange = () => {
+                            console.debug("Updating configuration ${configurationIndex}");
+                            var selectedOption = 0;
+                            for (const option of form.querySelector("#type").selectedOptions){
+                                if (option.selected){
+                                    selectedOption = option.dataset.type;
                                 }
-                                vscode.postMessage({
-                                        command: 'updateConfiguration',
-                                        configurationIndex: parseInt(${configurationIndex}),
-                                        data: {
-                                            name: form.querySelector("#name").value,
-                                            display: form.querySelector("#display").value,
-                                            type: parseInt(selectedOption),
-                                            required: form.querySelector("#required").checked,
-                                            additionalinfo: form.querySelector("#additionalinfo").value,
-                                            defaultvalue: form.querySelector("#defaultvalue").value,
-                                            options: form.querySelector("#options").value
-                                        }
-                                });
-                        }
+                            }
+                            vscode.postMessage({
+                                    command: 'updateConfiguration',
+                                    configurationIndex: parseInt(${configurationIndex}),
+                                    data: {
+                                        name: form.querySelector("#name").value,
+                                        display: form.querySelector("#display").value,
+                                        type: parseInt(selectedOption),
+                                        required: form.querySelector("#required").checked,
+                                        additionalinfo: form.querySelector("#additionalinfo").value,
+                                        defaultvalue: form.querySelector("#defaultvalue").value,
+                                        options: form.querySelector("#options").value
+                                    }
+                            });
                     }
                 }
-                })();}
-                </script>
-                
-                `;
+            }
+            })();}
+            </script>
+        </div>
+        `;
     }
 
 }
@@ -389,12 +396,12 @@ export class MultiSelect extends OptionsConfig {
     /**
     * selectDefaultValue
     */
-     private selectDefaultValue(): string {
+    private selectDefaultValue(): string {
         const defaultValue = new Set(this.defaultvalue?.split(','));
         let selectBlock = `
         <label for="defaultvalue">Default Value:</label>
         <select id=defaultvalue multiple>
-        <option value="" ${!this.defaultvalue ? 'selected': ''} label="None"></option>
+        <option value="" ${!this.defaultvalue ? 'selected' : ''} label="None"></option>
         `
         this.options.forEach((value: string) => {
             selectBlock += `<option value="${value}" ${defaultValue?.has(value) ? 'selected' : ''}>${value}</option>`
@@ -409,73 +416,74 @@ export class MultiSelect extends OptionsConfig {
     public toWebview(configurationIndex: number): string {
         const configurationId = getConfigurationDivId(configurationIndex);
 
-        const a =  `
-                <form id="${configurationId}" class="partblock">
-                    <label for=name>Name:</label>
-                    <input type=text id="name" value=${this.name}><br>
-                    <label for=name>Display:</label>
-                    <input type=text id=display value="${this.display}" /><br>
-                    ${this.selectDefaultValue()}
-                    <br>
-                    ${this.showOptions()}
-                    <br>
-                    ${this.selectParamType()}
-                    <label for=additionalinfo>Additional Info:</label>
-                    <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
-                    <br>
-                    <label for=required>Mandatory:</label>
-                    <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
-                </form>
-                ${getWebviewRemoveConfigurationButton(configurationIndex)}
-                <script>
-                { (() => {
-                    var form = document.querySelector("#${configurationId}");
-                    var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
-                    var defaultvalue = [];
-                    for (var inputType of inputs){
-                        for (var input of inputType){
-                            input.onchange = () => {
-                                console.debug("Updating configuration ${configurationIndex}");
-                                for (var option of form.querySelector('#defaultvalue').options)
-                                {
-                                    if (option.selected) {
-                                        defaultvalue.push(option.value);
-                                    }
+        const a = `
+        <div class="${separateClassName}">
+            <form id="${configurationId}" class="partblock">
+                <label for=name>Name:</label>
+                <input type=text id="name" value=${this.name}><br>
+                <label for=name>Display:</label>
+                <input type=text id=display value="${this.display}" /><br>
+                ${this.selectDefaultValue()}
+                <br>
+                ${this.showOptions()}
+                <br>
+                ${this.selectParamType()}
+                <label for=additionalinfo>Additional Info:</label>
+                <textarea id=additionalinfo>${this.additionalinfo ? this.additionalinfo : ''}</textarea>
+                <br>
+                <label for=required>Mandatory:</label>
+                <input type=checkbox id=required ${getCheckboxChecked(this.required)}><br><br>
+            </form>
+            ${getWebviewRemoveConfigurationButton(configurationIndex)}
+            <script>
+            { (() => {
+                var form = document.querySelector("#${configurationId}");
+                var inputs = [form.getElementsByTagName("input"), form.getElementsByTagName("select"), form.getElementsByTagName("textarea")];
+                var defaultvalue = [];
+                for (var inputType of inputs){
+                    for (var input of inputType){
+                        input.onchange = () => {
+                            console.debug("Updating configuration ${configurationIndex}");
+                            for (var option of form.querySelector('#defaultvalue').options)
+                            {
+                                if (option.selected) {
+                                    defaultvalue.push(option.value);
                                 }
-                                var selectedOption = 0;
-                                for (const option of form.querySelector("#type").selectedOptions){
-                                    if (option.selected){
-                                        selectedOption = option.dataset.type;
-                                    }
+                            }
+                            var selectedOption = 0;
+                            for (const option of form.querySelector("#type").selectedOptions){
+                                if (option.selected){
+                                    selectedOption = option.dataset.type;
                                 }
-                                vscode.postMessage({
-                                        command: 'updateConfiguration',
-                                        configurationIndex: parseInt(${configurationIndex}),
-                                        data: {
-                                            name: form.querySelector("#name").value,
-                                            display: form.querySelector("#display").value,
-                                            type: parseInt(selectedOption),
-                                            required: form.querySelector("#required").checked,
-                                            additionalinfo: form.querySelector("#additionalinfo").value,
-                                            defaultvalue: defaultvalue.join("\\n"),
-                                            options: form.querySelector("#options").value
-                                        }
-                                });
-                        }
+                            }
+                            vscode.postMessage({
+                                    command: 'updateConfiguration',
+                                    configurationIndex: parseInt(${configurationIndex}),
+                                    data: {
+                                        name: form.querySelector("#name").value,
+                                        display: form.querySelector("#display").value,
+                                        type: parseInt(selectedOption),
+                                        required: form.querySelector("#required").checked,
+                                        additionalinfo: form.querySelector("#additionalinfo").value,
+                                        defaultvalue: defaultvalue.join("\\n"),
+                                        options: form.querySelector("#options").value
+                                    }
+                            });
                     }
                 }
-                })();}
-                </script>
-                
-                `;
-                return a;
+            }
+            })();}
+            </script>
+        </div>
+        `;
+        return a;
     }
 }
 
 export type ParamsTypes = AuthenticationI | BooleanI;
 export type ParamsClassesTypes = Authentication | Boolean_ | SingleSelect | MultiSelect | BasicConfig;
 
-export type BasicParams = BooleanI 
+export type BasicParams = BooleanI
 
 export function typeToInterface(data: BasicConfigI): BasicConfigI {
     switch (data.type) {
@@ -483,10 +491,9 @@ export function typeToInterface(data: BasicConfigI): BasicConfigI {
         case 1:
         case 4:
         case 19:
-            case 12:
+        case 12:
         case 13:
             return data as BasicConfigI;
-
         case 8:
             return data as BooleanI;
         case 9:
