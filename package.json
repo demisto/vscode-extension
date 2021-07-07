@@ -11,6 +11,10 @@
     "Other"
   ],
   "repository": "github:demisto/vscode-extension",
+  "bugs": {
+    "url": "https://github.com/demisto/vscode-extension/issues"
+  },
+  "icon": "images/icon.png",
   "activationEvents": [
     "onCommand:xsoar.load",
     "onCommand:xsoar.loadScript",
