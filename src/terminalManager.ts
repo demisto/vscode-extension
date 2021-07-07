@@ -33,8 +33,8 @@ export class TerminalManager {
 		}
 
 		await this.delay(5000)
-		terminal.sendText('', true)
-		terminal.sendText(`${dsdkPath} ${command.join(' ')}`, true)
+		terminal.sendText('')
+		terminal.sendText(`${dsdkPath} ${command.join(' ')}`)
 	}
 	/**
 	 * Runs a command in a predefined terminal
@@ -53,6 +53,7 @@ export class TerminalManager {
 		if (show) {
 			this.terminal.show(true);
 		}
+		this.terminal.sendText('')
 		this.terminal.sendText(command.join(' '));
 	}
 
