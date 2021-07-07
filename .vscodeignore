@@ -4,3 +4,7 @@ tsconfig.json
 webpack.config.js
 .env
 .envrc
+.gitignore
+.github/
+Pipfile
+Pipfile.lock
