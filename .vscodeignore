@@ -2,3 +2,5 @@
 src/
 tsconfig.json
 webpack.config.js
+.env
+.envrc
