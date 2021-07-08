@@ -96,15 +96,10 @@
     "configuration": {
       "title": "Cortex XSOAR",
       "properties": {
-        "xsoar.autoFindProblems.getProblems": {
-          "type": "boolean",
-          "default": true,
-          "description": "Auto-read problems from demisto-sdk log file."
-        },
         "xsoar.autoFindProblems.reportPath": {
           "type": "string",
           "default": ".demisto-sdk-report",
-          "markdownDescription": "The name of the file to write reports to. You can turn this option on and off using `#xsoar.autoFindProblems.getProblems#`. The file will be located in the local workspace."
+          "markdownDescription": "The name of the file to write reports to. The file will be located in the local workspace."
         },
         "xsoar.autoSave": {
           "type": "boolean",
@@ -128,16 +123,6 @@
           "default": true,
           "description": "Whether to run the lint command on the files. (Checks the code file)"
         },
-        "xsoar.demistoSdkPath": {
-          "type": "string",
-          "default": "demisto-sdk",
-          "description": "The command to run demisto-sdk. Can point to a specific environment."
-        },
-        "xsoar.linter.showOnSaveTerminal": {
-          "type": "boolean",
-          "default": false,
-          "description": "If true, will show the running process of demisto-sdk in the terminal windows and will not dispose it after finish."
-        },
         "xsoar.linter.validate.enable": {
           "type": "boolean",
           "default": true,
@@ -152,6 +137,11 @@
             "**/Packs/*/Scripts/**/*.yml"
           ],
           "description": "Patterns to enable demisto-sdk validate on. glob format"
+        },
+        "xsoar.linter.showOnSaveTerminal": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, will show the running process of demisto-sdk in the terminal windows and will not dispose it after finish."
         }
       }
     }

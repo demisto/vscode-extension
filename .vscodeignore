@@ -6,5 +6,6 @@ webpack.config.js
 .envrc
 .gitignore
 .github/
+.demisto-sdk-report
 Pipfile
 Pipfile.lock

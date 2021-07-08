@@ -16,16 +16,14 @@ export class TerminalManager {
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
-	public static async runBackgroudCommand(commandName: string, command: string[]): Promise<void> {
+	public static async sendDemistoSdkCommandInBackground(commandName: string, command: string[]): Promise<void> {
 		const xsoarConf = vscode.workspace.getConfiguration('xsoar')
-		const dsdkPath = <string>xsoarConf.get('demistoSdkPath')
 		const showOnSaveTerminal = <boolean>xsoarConf.get('linter.showOnSaveTerminal')
-
+		const pythonPath = <string>vscode.workspace.getConfiguration('python').get('pythonPath')
 		const terminal = vscode.window.createTerminal(
 			{
 				name: `XSOAR: ${commandName}`,
 				hideFromUser: !showOnSaveTerminal,
-
 			}
 		)
 		if (!showOnSaveTerminal) {  // If the user want to see it, it should not be managed by the extension
@@ -34,14 +32,14 @@ export class TerminalManager {
 
 		await this.delay(5000)
 		terminal.sendText('')
-		terminal.sendText(`${dsdkPath} ${command.join(' ')}`)
+		terminal.sendText(`${pythonPath} -m demisto_sdk ${command.join(' ')}`)
 	}
 	/**
 	 * Runs a command in a predefined terminal
 	 * @param command 
 	 * @param show 
 	 */
-	public static async sendCommand(
+	public static async sendDemistoSdkCommand(
 		command: string[],
 		show = true
 	): Promise<void> {
@@ -54,7 +52,7 @@ export class TerminalManager {
 			this.terminal.show(true);
 		}
 		this.terminal.sendText('')
-		this.terminal.sendText(command.join(' '));
+		this.terminal.sendText(`${<string>vscode.workspace.getConfiguration('python').get('pythonPath')} -m demisto_sdk ${command.join(' ')}`);
 	}
 
 	private static async removeOutdatedTerminals() {

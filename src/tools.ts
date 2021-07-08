@@ -15,13 +15,13 @@ export function sendCommandExtraArgsWithUserInput(command: string[]): void {
         if (value) {
             command.push(value);
         }
-        TerminalManager.sendCommand(command);
+        TerminalManager.sendDemistoSdkCommand(command);
     });
 }
 
 
 export async function installDemistoSDK(): Promise<void> {
-    TerminalManager.sendCommand(['pip3', 'install', 'demisto-sdk', '--upgrade']);
+    TerminalManager.sendDemistoSdkCommand(['pip3', 'install', 'demisto-sdk', '--upgrade']);
 }
 
 export function publishDiagnostics(
