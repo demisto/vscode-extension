@@ -20,8 +20,8 @@ export function updateReleaseNotesCommand(): void {
 			).then(
 				(value) => {
 					if (value) {
-						const command = ['demisto-sdk update-release-notes -i', packName.toString(), '-u', value];
-						TerminalManager.sendCommand(command);
+						const command = ['update-release-notes -i', packName.toString(), '-u', value];
+						TerminalManager.sendDemistoSdkCommand(command);
 					}
 				});
 		} else {
@@ -40,8 +40,8 @@ export function validateCommand(): void {
 		const openeFile = activeWindow.document.fileName;
 
 		const json_path = tools.getReportPath(openeFile);
-		const command = ['demisto-sdk validate -i', path.dirname(openeFile), '-j', json_path];
-		TerminalManager.sendCommand(command);
+		const command = ['validate -i', path.dirname(openeFile), '-j', json_path];
+		TerminalManager.sendDemistoSdkCommand(command);
 
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
@@ -49,13 +49,13 @@ export function validateCommand(): void {
 }
 
 export function validateUsingGit(workspace: vscode.WorkspaceFolder): void {
-	TerminalManager.sendCommand(['demisto-sdk', 'validate', '-g', '-j', tools.getReportPathFromConf(workspace)]);
+	TerminalManager.sendDemistoSdkCommand(['validate', '-g', '-j', tools.getReportPathFromConf(workspace)]);
 }
 export function formatCommand(): void {
 	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openeFile = activeWindow.document.fileName;
-		const command = ['demisto-sdk', 'format', '-i', path.dirname(openeFile)];
+		const command = ['format', '-i', path.dirname(openeFile)];
 		tools.sendCommandExtraArgsWithUserInput(command);
 
 	} else {
@@ -66,8 +66,8 @@ export function uploadToXSOAR(): void {
 	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openeFile = activeWindow.document.fileName;
-		const command = ['demisto-sdk', 'upload', '-i', path.dirname(openeFile)];
-		TerminalManager.sendCommand(command);
+		const command = ['upload', '-i', path.dirname(openeFile)];
+		TerminalManager.sendDemistoSdkCommand(command);
 
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
@@ -77,8 +77,8 @@ export function lintUsingGit(): void {
 	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openedFile = activeWindow.document.fileName;
-		const command = ['demisto-sdk', 'lint', '-g', '-i ', path.dirname(openedFile)];
-		TerminalManager.sendCommand(command);
+		const command = ['lint', '-g', '-i ', path.dirname(openedFile)];
+		TerminalManager.sendDemistoSdkCommand(command);
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
 	}
@@ -87,11 +87,11 @@ export function lint(tests = true): void {
 	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
 		const openedFile = activeWindow.document.fileName;
-		const command = ['demisto-sdk', 'lint', '-i', path.dirname(openedFile), '-j', tools.getReportPath(openedFile)];
+		const command = ['lint', '-i', path.dirname(openedFile), '-j', tools.getReportPath(openedFile)];
 		if (!tests) {
 			command.push('--no-test', '--no-pwsh-test')
 		}
-		TerminalManager.sendCommand(command);
+		TerminalManager.sendDemistoSdkCommand(command);
 	} else {
 		vscode.window.showErrorMessage('No active window, please save your file.');
 	}
@@ -192,7 +192,7 @@ export async function backgroundLint(document: vscode.TextDocument): Promise<voi
 		'-j', tools.getReportPath(docUri.toString()),
 		'--no-test', '--no-pwsh-test'
 	]
-	TerminalManager.runBackgroudCommand('Lint', command)
+	TerminalManager.sendDemistoSdkCommandInBackground('Lint', command)
 
 
 }
@@ -206,7 +206,7 @@ export async function backgroundValidate(document: vscode.TextDocument): Promise
 		'-i', path.dirname(docUri.toString()),
 		'-j', tools.getReportPath(docUri.toString())
 	]
-	TerminalManager.runBackgroudCommand('Validate', command)
+	TerminalManager.sendDemistoSdkCommandInBackground('Validate', command)
 
 
 }

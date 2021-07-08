@@ -54,13 +54,13 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(
 		vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
 			console.log('Processing ' + document.fileName)
-			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.lint.enable')){
-				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.lint.patterns'))){
+			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.lint.enable')) {
+				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.lint.patterns'))) {
 					dsdk.backgroundLint(document);
 				}
 			}
-			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.validate.enable')){
-				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.validate.patterns'))){	
+			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.validate.enable')) {
+				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.validate.patterns'))) {
 					dsdk.backgroundValidate(document)
 				}
 			}
@@ -83,23 +83,22 @@ function autoGetProblems(
 	diagnosticCollection: vscode.DiagnosticCollection
 ) {
 	for (const workspace of workspaces) {
-		if (tools.getProblemsFlag(workspace)) {
-			const reportPath = tools.getReportPathFromConf(workspace)
-			const fullReportPath = path.join(workspace.uri.fsPath, reportPath)
-			if (!fs.existsSync(fullReportPath)) {
-				fs.writeFileSync(fullReportPath, "[]");
-			}
-			console.log('watching report ' + fullReportPath);
-			(dsdk.getDiagnostics(fullReportPath));
-			const watcher = vscode.workspace.createFileSystemWatcher(fullReportPath);
-			watcher.onDidChange(() => {
-				console.debug('Report file was changed! ' + fullReportPath)
-				dsdk.getDiagnostics(fullReportPath).forEach((diags, filePath) => {
-					diagnosticCollection.set(vscode.Uri.parse(filePath), diags)
-				})
-
-			})
+		const reportPath = tools.getReportPathFromConf(workspace)
+		const fullReportPath = path.join(workspace.uri.fsPath, reportPath)
+		if (!fs.existsSync(fullReportPath)) {
+			fs.writeFileSync(fullReportPath, "[]");
 		}
+		console.log('watching report ' + fullReportPath);
+		dsdk.getDiagnostics(fullReportPath);
+		const watcher = vscode.workspace.createFileSystemWatcher(fullReportPath);
+		watcher.onDidChange(() => {
+			console.debug('Report file was changed! ' + fullReportPath)
+			dsdk.getDiagnostics(fullReportPath).forEach((diags, filePath) => {
+				diagnosticCollection.set(vscode.Uri.parse(filePath), diags)
+			})
+
+		})
+
 	}
 }
 function loadYAML(extensionUri: vscode.Uri) {
