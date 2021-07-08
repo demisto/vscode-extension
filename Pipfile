@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 demisto-sdk = "*"
+aiohttp = ">=3.7.4"
 
 [dev-packages]
 
