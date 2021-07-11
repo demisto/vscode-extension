@@ -1,0 +1,18 @@
+newIssueWelcomeComment: |
+  Hi and welcome to our Visual Studio Code Extension project!
+  Thanks and congrats for opening your very first issue.
+  If you know the fix, you may also submit a PR to fix the issue if you like! 
+   
+newPRWelcomeComment: |
+  Welcome! Thank you and congrats on your first pull request.
+  
+  **What happens next?**
+  * Github Actions is creating a build to test your code and software.
+  * A member of the team will then review the pull request and provide feedback as needed.
+  * If all is good and the pull request has passed review, you will be able to merge the PR.
+  
+  Good luck to us all!
+firstPRMergeComment: |
+  Congrats on merging your first pull request! 
+  
+  Your contribution is making a difference and it will make it to the next version of Cortex XSOAR VSCode Extension.
