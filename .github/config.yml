@@ -1,6 +1,6 @@
 newIssueWelcomeComment: |
   Hi and welcome to our Visual Studio Code Extension project!
-  Thanks and congrats for opening your very first issue.
+  Thank you and congrats for opening your very first issue.
   If you know the fix, you may also submit a PR to fix the issue if you like! 
    
 newPRWelcomeComment: |
