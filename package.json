@@ -99,7 +99,11 @@
         "xsoar.autoFindProblems.reportPath": {
           "type": "string",
           "default": ".demisto-sdk-report",
-          "markdownDescription": "The name of the file to write reports to. The file will be located in the local workspace."
+          "description": "The name of the file to write reports to. The file will be located in the local workspace."
+        },
+        "xsoar.demisto-sdk.pythonPath": {
+          "type": "string",
+          "description": "The path to a python interpeter with demisto-sdk. If not provided, will use python.pythonPath."
         },
         "xsoar.autoSave": {
           "type": "boolean",
@@ -116,17 +120,17 @@
             "**/Packs/*/Integrations/**/*.js",
             "**/Packs/*/Scripts/**/*.js"
           ],
-          "description": "Patterns to enable demisto-sdk lint on. glob format"
+          "description": "Patterns to enable demisto-sdk lint on. glob format."
         },
         "xsoar.linter.lint.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Whether to run the lint command on the files. (Checks the code file)"
+          "description": "Whether to run the lint command on the files (Checks the code file."
         },
         "xsoar.linter.validate.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Whether to run the validate command on the files. (Checks the .yml file)"
+          "description": "Whether to run the validate command on the files (Checks the .yml file)."
         },
         "xsoar.linter.validate.patterns": {
           "type": "array",
@@ -136,7 +140,7 @@
             "**/Packs/*/Integrations/**/*.yml",
             "**/Packs/*/Scripts/**/*.yml"
           ],
-          "description": "Patterns to enable demisto-sdk validate on. glob format"
+          "description": "Patterns to enable demisto-sdk validate on. glob format."
         },
         "xsoar.linter.showOnSaveTerminal": {
           "type": "boolean",

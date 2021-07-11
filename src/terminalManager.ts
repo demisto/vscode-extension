@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { ProcessEnvOptions, exec } from "child_process";
+import * as tools from "./tools";
 
 /**
  * Used to manage backgrount terminal. Will auto-kill any terminal that is older than
@@ -21,7 +22,7 @@ export class TerminalManager {
 		// options: vscode.TerminalOptions,
 		options: ProcessEnvOptions
 	): Promise<void> {
-		exec(`${<string>vscode.workspace.getConfiguration('python').get('pythonPath')} -m demisto_sdk ${command.join(' ')}`, options, (error, stdout) => {
+		exec(`${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`, options, (error, stdout) => {
 			if (error){
 				console.log(error)
 			} else {
@@ -60,7 +61,7 @@ export class TerminalManager {
 			terminal = await this.openTerminalIfNeeded(show)
 		}
 		terminal.sendText('')
-		terminal.sendText(`${<string>vscode.workspace.getConfiguration('python').get('pythonPath')} -m demisto_sdk ${command.join(' ')}`);
+		terminal.sendText(`${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`);
 	}
 	public static async sendText(
 		command: string[],
