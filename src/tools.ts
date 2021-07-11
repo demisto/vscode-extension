@@ -15,13 +15,13 @@ export function sendCommandExtraArgsWithUserInput(command: string[]): void {
         if (value) {
             command.push(value);
         }
-        TerminalManager.sendDemistoSdkCommand(command);
+        TerminalManager.sendDemistoSDKCommand(command);
     });
 }
 
 
 export async function installDemistoSDK(): Promise<void> {
-    TerminalManager.sendDemistoSdkCommand(['pip3', 'install', 'demisto-sdk', '--upgrade']);
+    TerminalManager.sendText([<string>vscode.workspace.getConfiguration('python').get('pythonPath'), '-m', 'pip', 'install', 'demisto-sdk', '--upgrade']);
 }
 
 export function publishDiagnostics(

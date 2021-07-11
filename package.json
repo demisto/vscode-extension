@@ -26,17 +26,11 @@
     "onCommand:xsoar.updateDSDK",
     "onCommand:xsoar.lint",
     "onCommand:xsoar.lintUsingGit",
-    "onCommand:xsoar.showProblems",
     "*"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
-      {
-        "command": "xsoar.showProblems",
-        "title": "Show Problems",
-        "category": "XSOAR"
-      },
       {
         "command": "xsoar.load",
         "title": "Load Integration",
@@ -141,7 +135,7 @@
         "xsoar.linter.showOnSaveTerminal": {
           "type": "boolean",
           "default": false,
-          "description": "If true, will show the running process of demisto-sdk in the terminal windows and will not dispose it after finish."
+          "description": "Whether to show the running process of demisto-sdk in the terminal windows and will not dispose it after finish."
         }
       }
     }
