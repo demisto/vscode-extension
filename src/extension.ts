@@ -22,9 +22,6 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand('xsoar.loadScript', loadScriptYAML(context.extensionUri))
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.showProblems', dsdk.showProblems(diagnosticCollection))
-	);
-	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.upload', dsdk.uploadToXSOAR)
 	);
 	context.subscriptions.push(
@@ -53,15 +50,16 @@ export function activate(context: vscode.ExtensionContext): void {
 	);
 	context.subscriptions.push(
 		vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
+			const showTerminal = <boolean>vscode.workspace.getConfiguration('xsoar') .get('linter.showOnSaveTerminal')
 			console.log('Processing ' + document.fileName)
 			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.lint.enable')) {
 				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.lint.patterns'))) {
-					dsdk.backgroundLint(document);
+					dsdk.backgroundLint(document, showTerminal);
 				}
 			}
 			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.validate.enable')) {
 				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.validate.patterns'))) {
-					dsdk.backgroundValidate(document)
+					dsdk.backgroundValidate(document, showTerminal)
 				}
 			}
 

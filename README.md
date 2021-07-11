@@ -1,5 +1,5 @@
 
-[![Run Node Test](https://img.shields.io/github/workflow/status/demisto/vscode-extension/steps.yml)](https://github.com/demisto/vscode-extension/actions/workflows/steps.yml)
+[![Run Node Test](https://img.shields.io/github/workflow/status/demisto/vscode-extension/Run%20Node%20Test)](https://github.com/demisto/vscode-extension/actions/workflows/steps.yml)
 
 # Cortex  XSOAR VSCode Plugin
 
@@ -27,7 +27,7 @@ To control the auto-lints behaviour:
 
 * `xsoar.linter.[linter-name].patterns`: Which file patterns (glob) to run with the linter.
 
-The linters will write its data to the path configured in `xsoar.autoFindProblems.reportPath`.
+The linters will write its data to the path configured in `xsoar.autoFindProblems.reportPath`, which is also the file that VSCode takes the problems from.
 
 If you wish to see the process running (or check why it's failing or not working), change `xsoar.linter.showOnSaveTerminal` to `true`.
 

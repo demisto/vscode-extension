@@ -1,79 +1,73 @@
 import * as vscode from "vscode";
+import { ProcessEnvOptions, exec } from "child_process";
 
 /**
  * Used to manage backgrount terminal. Will auto-kill any terminal that is older than
  * 60 seconds.
  */
 export class TerminalManager {
-	static activeBackgroudTerminals: { [givenTime: number]: vscode.Terminal } = {};
 	static terminal: vscode.Terminal;
-	public static async insert(terminal: vscode.Terminal): Promise<void> {
-		this.activeBackgroudTerminals[Date.now()] = terminal;
-		this.removeOutdatedTerminals()
-	}
-
 	private static delay(ms: number) {
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
-	public static async sendDemistoSdkCommandInBackground(commandName: string, command: string[]): Promise<void> {
-		const xsoarConf = vscode.workspace.getConfiguration('xsoar')
-		const showOnSaveTerminal = <boolean>xsoarConf.get('linter.showOnSaveTerminal')
-		const pythonPath = <string>vscode.workspace.getConfiguration('python').get('pythonPath')
-		const terminal = vscode.window.createTerminal(
-			{
-				name: `XSOAR: ${commandName}`,
-				hideFromUser: !showOnSaveTerminal,
+	/**
+	 * Runs a command in a predefined terminal
+	 * @param command 
+	 * @param options 
+	 */
+	public static async sendDemistoSDKCommandBackground(
+		command: string[],
+		// options: vscode.TerminalOptions,
+		options: ProcessEnvOptions
+	): Promise<void> {
+		exec(`${<string>vscode.workspace.getConfiguration('python').get('pythonPath')} -m demisto_sdk ${command.join(' ')}`, options, (error, stdout) => {
+			if (error){
+				console.log(error)
+			} else {
+				console.log(stdout)
 			}
-		)
-		if (!showOnSaveTerminal) {  // If the user want to see it, it should not be managed by the extension
-			TerminalManager.insert(terminal)
+		})
+	}
+	private static createTerminal(options: vscode.TerminalOptions): vscode.Terminal{
+		return vscode.window.createTerminal(options)
+	}
+	public static async openTerminalIfNeeded(show = true): Promise<vscode.Terminal> {
+		if (!this.terminal || this.terminal.exitStatus !== undefined) {
+			this.terminal = this.createTerminal({name: 'XSOAR Extension Terminal'});
+			this.terminal.sendText('echo Welcome to the Cortex XSOAR Terminal!', true);
+			await this.delay(10000)
 		}
-
-		await this.delay(5000)
-		terminal.sendText('')
-		terminal.sendText(`${pythonPath} -m demisto_sdk ${command.join(' ')}`)
+		if (show) {
+			this.terminal.show(true);
+		}
+		return this.terminal
 	}
 	/**
 	 * Runs a command in a predefined terminal
 	 * @param command 
 	 * @param show 
 	 */
-	public static async sendDemistoSdkCommand(
+	public static async sendDemistoSDKCommand(
+		command: string[],
+		show = true,
+		newTerminal = false
+	): Promise<void> {
+		let terminal: vscode.Terminal
+		if (newTerminal){
+			terminal = this.createTerminal({name: 'Demisto-SDK Terminal'})
+		} else {
+			terminal = await this.openTerminalIfNeeded(show)
+		}
+		terminal.sendText('')
+		terminal.sendText(`${<string>vscode.workspace.getConfiguration('python').get('pythonPath')} -m demisto_sdk ${command.join(' ')}`);
+	}
+	public static async sendText(
 		command: string[],
 		show = true
 	): Promise<void> {
-		if (!this.terminal || this.terminal.exitStatus !== undefined) {
-			this.terminal = vscode.window.createTerminal('XSOAR Extension Terminal');
-			this.terminal.sendText('echo Welcome to the Cortex XSOAR Terminal!', true);
-			await this.delay(5000)
-		}
-		if (show) {
-			this.terminal.show(true);
-		}
+		this.openTerminalIfNeeded(show)
 		this.terminal.sendText('')
-		this.terminal.sendText(`${<string>vscode.workspace.getConfiguration('python').get('pythonPath')} -m demisto_sdk ${command.join(' ')}`);
-	}
-
-	private static async removeOutdatedTerminals() {
-		const time_now = Date.now()
-		const times_to_remove: number[] = []
-		for (const givenTime in this.activeBackgroudTerminals) {
-			const givenTimeNum = givenTime as unknown as number
-			if ((time_now - givenTimeNum) >= 6000) {
-				times_to_remove.push(givenTimeNum)
-			}
-		}
-
-		times_to_remove.forEach((time_to_remove) => {
-			try {
-				this.activeBackgroudTerminals[time_to_remove].dispose()
-			} catch (err) {
-				console.debug(err)
-			}
-
-			delete this.activeBackgroudTerminals[time_to_remove]
-		})
-
+		this.terminal.sendText(command.join(' '));
 	}
 }
