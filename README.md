@@ -3,7 +3,7 @@
 
 # Cortex  XSOAR VSCode Plugin
 
-> **Note:** The plugin is currently in `Beta` status. Updates to the Plugin during the `Beta` phase might include non-backward compatible features. We appreciate feedback to help us identify issues, fix them, and continually improve. Please rerpot findings and feedback via the project's **[issues](https://github.com/demisto/vscode-extension/issues)** tab.
+> **Note:** The plugin is currently in `Beta` status. Updates to the Plugin during the `Beta` phase might include non-backward compatible features. We appreciate feedback to help us identify issues, fix them, and continually improve. Please report findings and feedback via the project's **[issues](https://github.com/demisto/vscode-extension/issues)** tab.
 
 Work with Visual Studio Code to edit, validate and format your Cortex XSOAR integrations and automations.
 
@@ -46,7 +46,7 @@ Before merging any PRs, we need all contributors to sign a contributor license a
 
 When you open a new pull request, a bot will evaluate whether you have signed the CLA. If required, the bot will comment on the pull request, including a link to accept the agreement. The CLA document is also available for review as a [PDF](https://github.com/demisto/content/blob/master/docs/cla.pdf).
 
-If the `license/cla` status check remains on *Pending*, even though all contributors have accepted the CLA, you can recheck the CLA status by visiting the following link (replace **[PRID]** with the ID of your PR): <https://cla-assistant.io/check/demisto/vscode-extension?pullRequest=[PRID>] .
+If the `license/cla` status check remains on *Pending*, even though all contributors have accepted the CLA, you can recheck the CLA status by visiting the following link (replace **[PRID]** with the ID of your PR): <https://cla-assistant.io/check/demisto/vscode-extension?pullRequest=[PRID]> .
 
 ## Development
 
