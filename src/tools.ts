@@ -19,9 +19,18 @@ export function sendCommandExtraArgsWithUserInput(command: string[]): void {
     });
 }
 
-
+export function getPythonpath(): string {
+    let sdkPath = <string>vscode.workspace.getConfiguration('xsoar').get('demisto-sdk.pythonPath')
+    if (!sdkPath){
+        sdkPath = <string>vscode.workspace.getConfiguration('python').get('pythonPath')
+    }
+    if (!sdkPath){
+        sdkPath = 'python'
+    }
+    return sdkPath
+}
 export async function installDemistoSDK(): Promise<void> {
-    TerminalManager.sendText([<string>vscode.workspace.getConfiguration('python').get('pythonPath'), '-m', 'pip', 'install', 'demisto-sdk', '--upgrade']);
+    TerminalManager.sendText([getPythonpath(), '-m', 'pip', 'install', 'demisto-sdk', '--upgrade']);
 }
 
 export function publishDiagnostics(
