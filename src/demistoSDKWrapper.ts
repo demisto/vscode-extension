@@ -194,7 +194,7 @@ export async function backgroundLint(document: vscode.TextDocument, showTerminal
 	]
 	
 	if (showTerminal){
-		TerminalManager.sendDemistoSDKCommand(command)
+		TerminalManager.sendDemistoSDKCommand(command, true, false)
 	} else {
 		const cwd = vscode.workspace.getWorkspaceFolder(document.uri)
 		TerminalManager.sendDemistoSDKCommandBackground(command, {cwd: cwd?.uri.path})
@@ -212,7 +212,7 @@ export async function backgroundValidate(document: vscode.TextDocument, showTerm
 		'-j', tools.getReportPath(docUri.toString())
 	]
 	if (showTerminal){
-		TerminalManager.sendDemistoSDKCommand(command)
+		TerminalManager.sendDemistoSDKCommand(command, true, false)
 	} else {
 		const cwd = vscode.workspace.getWorkspaceFolder(document.uri)
 		TerminalManager.sendDemistoSDKCommandBackground(command, {cwd: cwd?.uri.path})

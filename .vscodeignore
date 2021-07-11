@@ -5,6 +5,7 @@ webpack.config.js
 .env
 .envrc
 .gitignore
+out/test/*
 .github/
 .demisto-sdk-report
 Pipfile
