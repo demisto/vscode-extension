@@ -1,16 +1,22 @@
 {
   "name": "xsoar",
   "displayName": "Cortex XSOAR",
-  "description": "Upload, Validate and Format Cortex XSOAR entities.",
+  "description": "Build, Format, and Validate Cortex XSOAR with ease.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.54.0"
   },
   "publisher": "CortexXSOARext",
   "categories": [
+    "Linters",
+    "Formatters",
+    "Visualization",
     "Other"
   ],
-  "repository": "github:demisto/vscode-extension",
+  "repository":{
+    "type": "git",
+    "url": "https://github.com/demisto/vscode-extension"
+  },
   "bugs": {
     "url": "https://github.com/demisto/vscode-extension/issues"
   },
