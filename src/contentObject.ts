@@ -155,7 +155,6 @@ export class IntegrationHolder {
         for (const [index, configuration] of this.integration.configuration.entries()){
             configurationBlock += configuration.toWebview(index);
         }
-        console.log(configurationBlock)
         return configurationBlock;
     }
     public getWebview(cssFile: vscode.Uri, image: vscode.Uri): string {

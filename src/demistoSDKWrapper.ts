@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import minimatch = require('minimatch');
 
 import {TerminalManager} from './terminalManager';
+import { Logger } from './logger';
 export function updateReleaseNotesCommand(): void {
 	const activeWindow = vscode.window.activeTextEditor;
 	if (activeWindow) {
@@ -131,7 +132,7 @@ export function getDiagnostic(reports: Array<demistoSDKReport>): Map<string, vsc
 			});
 			diagnostics.set(report.filePath, diagObj);
 		} catch (err) {
-			console.log('failed to parse report' + JSON.stringify(report));
+			Logger.error('failed to parse report' + JSON.stringify(report));
 		}
 	}
 	return diagnostics;
@@ -140,7 +141,7 @@ export function getDiagnostics(file: fs.PathLike): Map<string, vscode.Diagnostic
 	const fileText = fs.readFileSync(file, 'utf-8')
 	const diagnostics = new Map<string, Array<vscode.Diagnostic>>();
 	if (!fileText) {
-		console.log('could not read' + file);
+		Logger.error('could not read' + file);
 	}
 	try {
 		const parsed = JSON.parse(fileText);
@@ -154,7 +155,7 @@ export function getDiagnostics(file: fs.PathLike): Map<string, vscode.Diagnostic
 			}
 		});
 	} catch (err) {
-		console.log(err);
+		Logger.error(err);
 	}
 	return diagnostics;
 }

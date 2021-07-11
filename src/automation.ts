@@ -4,6 +4,7 @@ import { AutomationI, Argument, Output, OutputMessage, BasicMessage, ArgumentMes
 import { getWebviewAddArgumentButton, getWebviewAddOutputButton, getWebviewArguments, getWebviewOutputs, getWebviewSingleArgument, getWebviewSingleOutput } from "./integrationLoader";
 import * as path from "path";
 import { saveYML } from "./tools";
+import { Logger } from "./logger";
 
 let panel: vscode.WebviewPanel;
 let scriptHolder: ScriptHolder;
@@ -16,8 +17,8 @@ const basicDivId = 'basicDivId';
 export class ScriptHolder {
     removeOutput(message: OutputMessage): void{
         const removedOutput = this.script.outputs.splice(message.index, 1);
-        console.log('Removing output index ' + message.index + " from command " + message.commandIndex);
-        console.log('removed contextPath is ' + removedOutput[0].contextPath);
+        Logger.info('Removing output index ' + message.index + " from command " + message.commandIndex);
+        Logger.info('removed contextPath is ' + removedOutput[0].contextPath);
         panel.webview.postMessage({
             command: 'renderOutputs',
             divId: outputsDivId,
@@ -41,8 +42,8 @@ export class ScriptHolder {
     }
     removeArgument(message: ArgumentMessage): void {
         const removedArgument = this.script.args.splice(message.index, 1);
-        console.log('Removing argument index ' + message.index + " from command " + message.commandIndex);
-        console.log('removed command name is ' + removedArgument[0].name);
+        Logger.info('Removing argument index ' + message.index + " from command " + message.commandIndex);
+        Logger.info('removed command name is ' + removedArgument[0].name);
         panel.webview.postMessage({
             command: 'renderArguments',
             divId: argumentDivId,
@@ -306,7 +307,7 @@ export function createViewFromYML(yml: AutomationI, ymlPath: PathLike, extension
 
     panel.onDidDispose(
         () => {
-        console.log('closing')
+        Logger.info('closing webview')
         },
         null,
       );

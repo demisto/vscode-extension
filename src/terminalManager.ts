@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { ProcessEnvOptions, exec } from "child_process";
 import * as tools from "./tools";
-
+import { Logger } from "./logger";
 /**
  * Used to manage backgrount terminal. Will auto-kill any terminal that is older than
  * 60 seconds.
@@ -22,12 +22,16 @@ export class TerminalManager {
 		// options: vscode.TerminalOptions,
 		options: ProcessEnvOptions
 	): Promise<void> {
-		exec(`${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`, options, (error, stdout) => {
+		const cmd = `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
+		Logger.info(`Executing command in background: \`${cmd}\``)
+		exec(cmd, options, (error, stdout) => {
 			if (error){
-				console.log(error)
+				Logger.error(error.message)
+				Logger.error(stdout)
 			} else {
-				console.log(stdout)
+				Logger.info(stdout)
 			}
+			
 		})
 	}
 	private static createTerminal(options: vscode.TerminalOptions): vscode.Terminal{
@@ -37,7 +41,7 @@ export class TerminalManager {
 		if (!this.terminal || this.terminal.exitStatus !== undefined) {
 			this.terminal = this.createTerminal({name: 'XSOAR Extension Terminal'});
 			this.terminal.sendText('echo Welcome to the Cortex XSOAR Terminal!', true);
-			await this.delay(10000)
+			await this.delay(5000)
 		}
 		if (show) {
 			this.terminal.show(true);
@@ -69,6 +73,8 @@ export class TerminalManager {
 	): Promise<void> {
 		this.openTerminalIfNeeded(show)
 		this.terminal.sendText('')
-		this.terminal.sendText(command.join(' '));
+		const cmd = command.join(' ')
+		Logger.info(`Executing command: \`${cmd}\``)
+		this.terminal.sendText(cmd);
 	}
 }

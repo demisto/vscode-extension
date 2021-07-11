@@ -9,10 +9,12 @@ import * as dsdk from "./demistoSDKWrapper";
 import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
+import { Logger } from './logger';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext): void {
+	Logger.createLogger()
 	const diagnosticCollection = vscode.languages.createDiagnosticCollection('XSOAR problems');
 	context.subscriptions.push(diagnosticCollection);
 	context.subscriptions.push(
@@ -51,7 +53,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(
 		vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
 			const showTerminal = <boolean>vscode.workspace.getConfiguration('xsoar') .get('linter.showOnSaveTerminal')
-			console.log('Processing ' + document.fileName)
+			Logger.info('Processing ' + document.fileName)
 			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.lint.enable')) {
 				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.lint.patterns'))) {
 					dsdk.backgroundLint(document, showTerminal);
@@ -73,7 +75,7 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate(): void { console.log('deactivated') }
+export function deactivate(): void { Logger.info('deactivated') }
 
 
 function autoGetProblems(
@@ -86,7 +88,8 @@ function autoGetProblems(
 		if (!fs.existsSync(fullReportPath)) {
 			fs.writeFileSync(fullReportPath, "[]");
 		}
-		console.log('watching report ' + fullReportPath);
+		
+		Logger.info('watching report ' + fullReportPath);
 		dsdk.getDiagnostics(fullReportPath);
 		const watcher = vscode.workspace.createFileSystemWatcher(fullReportPath);
 		watcher.onDidChange(() => {

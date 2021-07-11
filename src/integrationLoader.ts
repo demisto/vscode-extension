@@ -7,6 +7,7 @@ import { getAddArgumentButtonId, getAddOutputButtonId, getArgumentsDivId, getArg
 import { glob } from 'glob';
 import * as path from 'path';
 import { ParamsClassesTypes, typeToClass } from './configurations';
+import { Logger } from './logger';
 
 let panel: vscode.WebviewPanel;
 let integrationHolder: IntegrationHolder;
@@ -42,7 +43,7 @@ export function createViewFromYML(yml: IntegrationI, ymlPath: PathLike, extensio
 
     panel.onDidDispose(
         () => {
-            console.log('closing')
+            Logger.info('closing')
         },
         null,
     );
@@ -127,7 +128,7 @@ function removeConfiguration(message: ConfigurationMessage) {
         divId: configurationDivId,
         html: integrationHolder.getWebviewConfiguration()
     });
-    console.log('Removed configuration ' + popedConf.name);
+    Logger.info('Removed configuration ' + popedConf.name);
 }
 
 function updateBasic(message: BasicMessage) {
@@ -180,7 +181,7 @@ function addCommand(message: CommandMessage) {
 }
 function removeCommand(message: CommandMessage) {
     const removedCommand = integrationHolder.integration.script.commands.splice(message.index, 1);
-    console.log('Removing command index ' + message.index + " " + removedCommand[0].name);
+    Logger.info('Removing command index ' + message.index + " " + removedCommand[0].name);
     panel.webview.postMessage({
         command: 'renderCommands',
         html: integrationHolder.getWebviewCommands(),
@@ -189,8 +190,8 @@ function removeCommand(message: CommandMessage) {
 }
 function removeArgument(message: ArgumentMessage) {
     const removedArgument = integrationHolder.integration.script.commands[message.commandIndex].arguments.splice(message.index, 1);
-    console.log('Removing argument index ' + message.index + " from command " + message.commandIndex);
-    console.log('removed command name is ' + removedArgument[0].name);
+    Logger.info('Removing argument index ' + message.index + " from command " + message.commandIndex);
+    Logger.info('removed command name is ' + removedArgument[0].name);
     panel.webview.postMessage({
         command: 'renderArguments',
         divId: getArgumentsDivId(message.commandIndex),
@@ -202,8 +203,8 @@ function removeArgument(message: ArgumentMessage) {
 }
 function removeOutput(message: OutputMessage) {
     const removedOutput = integrationHolder.integration.script.commands[message.commandIndex].outputs.splice(message.index, 1);
-    console.log('Removing output index ' + message.index + " from command " + message.commandIndex);
-    console.log('removed contextPath is ' + removedOutput[0].contextPath);
+    Logger.info('Removing output index ' + message.index + " from command " + message.commandIndex);
+    Logger.info('removed contextPath is ' + removedOutput[0].contextPath);
     panel.webview.postMessage({
         command: 'renderOutputs',
         divId: getOutputsDivId(message.commandIndex),
