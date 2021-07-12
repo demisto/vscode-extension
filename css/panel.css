@@ -160,3 +160,8 @@ img {
 body.vscode-light #advancedDivId input[type=text]{
   color: black;
 }
+
+* {
+  font-size: 100%;
+  font-family: Arial;
+ }
