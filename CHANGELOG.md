@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.0.3] (2021-07-13)
+
 - Added a side menu to easily run demisto-sdk command from the explorer  
 ![side bar](documentation/changelog/0.0.3/sidebar.png)
 - renamed all demisto-sdk command names to include Demisto-SDK as the prefix (XSOAR: Lint -> XSOAR: Demisto-SDK Lint)
