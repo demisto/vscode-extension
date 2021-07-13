@@ -14,8 +14,10 @@ You can also use the *XSOAR: Install/Update Demisto-SDK* command.
 Commands:
 
 * *XSOAR: Load integration/Script*: Loads an integration or a script to the UI.
-* *XSOAR: Validate/Lint*: Run linters and validators on opened file directory.
-* *XSOAR: Update Release Notes*: Update release notes of the opened file's pack.
+* *XSOAR: Demisto-SDK Validate/Lint*: Run linters and validators on opened file directory.
+* *XSOAR: Demisto-SDK Update Release Notes*: Update release notes of the opened file's pack.
+* You can also run the commands directry from the explorer menu:  
+![sidebar](documentation/changelog/0.0.3/sidebar.png)
 
 ## Configurations  
 
