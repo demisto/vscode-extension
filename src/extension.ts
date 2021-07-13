@@ -24,35 +24,56 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand('xsoar.loadScript', loadScriptYAML(context.extensionUri))
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.upload', dsdk.uploadToXSOAR)
+		vscode.commands.registerCommand('xsoar.upload', (file: vscode.Uri | undefined) => {
+			const fileToRun = getPathFromContext(file)
+			dsdk.uploadToXSOAR(fileToRun)
+		})
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.lint', dsdk.lint)
+		vscode.commands.registerCommand('xsoar.lint', (file: vscode.Uri | undefined) => {
+			const fileToRun = getPathFromContext(file)
+			dsdk.lint(fileToRun)
+		})
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.lintNoTests', () => { dsdk.lint(false) })
+		vscode.commands.registerCommand('xsoar.lintNoTests', (file: vscode.Uri | undefined) => {
+			const fileToRun = getPathFromContext(file)
+			dsdk.lint(fileToRun, false)
+		})
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.lintUsingGit', dsdk.lintUsingGit)
+		vscode.commands.registerCommand('xsoar.lintUsingGit', (file: vscode.Uri | undefined) => {
+			const fileToRun = getPathFromContext(file)
+			dsdk.lintUsingGit(fileToRun)
+		})
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.format', dsdk.formatCommand)
+		vscode.commands.registerCommand('xsoar.format', (file: vscode.Uri | undefined) => {
+			const fileToRun = getPathFromContext(file)
+			dsdk.formatCommand(fileToRun)
+		})
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.validate', dsdk.validateCommand)
+		vscode.commands.registerCommand('xsoar.validate', (file: vscode.Uri | undefined) => {
+			const fileToRun = getPathFromContext(file)
+			dsdk.validateCommand(fileToRun)
+		})
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.validateUsingGit', dsdk.validateUsingGit)
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.updateReleaseNotes', dsdk.updateReleaseNotesCommand)
+		vscode.commands.registerCommand('xsoar.updateReleaseNotes', (file: vscode.Uri | undefined) => {
+			const fileToRun = getPathFromContext(file)
+			dsdk.updateReleaseNotesCommand(fileToRun)
+		})
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.updateDSDK', tools.installDemistoSDK)
 	);
 	context.subscriptions.push(
 		vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
-			const showTerminal = <boolean>vscode.workspace.getConfiguration('xsoar') .get('linter.showOnSaveTerminal')
+			const showTerminal = <boolean>vscode.workspace.getConfiguration('xsoar').get('linter.showOnSaveTerminal')
 			Logger.info('Processing ' + document.fileName)
 			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.lint.enable')) {
 				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.lint.patterns'))) {
@@ -88,7 +109,7 @@ function autoGetProblems(
 		if (!fs.existsSync(fullReportPath)) {
 			fs.writeFileSync(fullReportPath, "[]");
 		}
-		
+
 		Logger.info('watching report ' + fullReportPath);
 		dsdk.getDiagnostics(fullReportPath);
 		const watcher = vscode.workspace.createFileSystemWatcher(fullReportPath);
@@ -175,3 +196,23 @@ function loadScript(filePath: string): AutomationI {
 	return loadYamlToObject(filePath) as AutomationI;
 }
 
+
+/**
+ * Will return a file path to an active text editor or a given URI.
+ * It for making the demisto-sdk commands to work with both open text editor and sidebar.
+ * @param  {vscode.Uri|undefined} path
+ * @returns string
+ */
+function getPathFromContext(path: vscode.Uri | undefined): string {
+	const activeWindow = vscode.window.activeTextEditor;
+	if (path) {
+		return path.fsPath
+	} else if (activeWindow) {
+		return activeWindow.document.fileName
+	} else {
+		const err = 'No active window to run the command on'
+		vscode.window.showErrorMessage(err);
+		Logger.error(err)
+		throw Error(err)
+	}
+}
