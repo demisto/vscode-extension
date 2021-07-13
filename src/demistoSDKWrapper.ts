@@ -4,98 +4,63 @@ import * as tools from './tools';
 import * as fs from 'fs';
 import minimatch = require('minimatch');
 
-import {TerminalManager} from './terminalManager';
+import { TerminalManager } from './terminalManager';
 import { Logger } from './logger';
-export function updateReleaseNotesCommand(): void {
-	const activeWindow = vscode.window.activeTextEditor;
-	if (activeWindow) {
-		const openeFile = activeWindow.document.fileName;
-		const regs = new RegExp("Packs/.*?/");
-		const packName = openeFile.match(regs);
-		if (packName) {
-			vscode.window.showQuickPick(
-				['revision', 'minor', 'major', 'maintenance', 'documentation'],
-				{
-					'placeHolder': 'What kind of update do you want to do?'
+export function updateReleaseNotesCommand(file: string): void {
+
+	const regs = new RegExp('Packs/[^/]*');  // TODO: Bug - Won't work in windows. 
+	const matchGroup = file.match(regs);
+	const packName = matchGroup ? matchGroup[0] : null;
+	if (packName) {
+		vscode.window.showQuickPick(
+			['revision', 'minor', 'major', 'maintenance', 'documentation'],
+			{
+				'placeHolder': 'What kind of update do you want to do?'
+			}
+		).then(
+			(value) => {
+				if (value) {
+					const command = ['update-release-notes -i', packName.toString(), '-u', value];
+					TerminalManager.sendDemistoSDKCommand(command);
 				}
-			).then(
-				(value) => {
-					if (value) {
-						const command = ['update-release-notes -i', packName.toString(), '-u', value];
-						TerminalManager.sendDemistoSDKCommand(command);
-					}
-				});
-		} else {
-			vscode.window.showErrorMessage('Could not find a valid pack to update');
-		}
-
-
+			});
 	} else {
-		vscode.window.showErrorMessage('No active window, please save your file.');
+		vscode.window.showErrorMessage('Could not find a valid pack to update');
 	}
 }
 
-export function validateCommand(): void {
-	const activeWindow = vscode.window.activeTextEditor;
-	if (activeWindow) {
-		const openeFile = activeWindow.document.fileName;
-
-		const json_path = tools.getReportPath(openeFile);
-		const command = ['validate -i', path.dirname(openeFile), '-j', json_path];
-		TerminalManager.sendDemistoSDKCommand(command);
-
-	} else {
-		vscode.window.showErrorMessage('No active window, please save your file.');
-	}
+export function validateCommand(file: string): void {
+	const json_path = tools.getReportPath(file);
+	const command = ['validate -i', path.dirname(file), '-j', json_path];
+	TerminalManager.sendDemistoSDKCommand(command);
 }
 
 export function validateUsingGit(workspace: vscode.WorkspaceFolder): void {
 	TerminalManager.sendDemistoSDKCommand(['validate', '-g', '-j', tools.getReportPathFromConf(workspace)]);
 }
-export function formatCommand(): void {
-	const activeWindow = vscode.window.activeTextEditor;
-	if (activeWindow) {
-		const openeFile = activeWindow.document.fileName;
-		const command = ['format', '-i', path.dirname(openeFile)];
-		tools.sendCommandExtraArgsWithUserInput(command);
+export function formatCommand(file: string): void {
 
-	} else {
-		vscode.window.showErrorMessage('No active window, please save your file.');
-	}
+	const command = ['format', '-i', path.dirname(file)];
+	TerminalManager.sendDemistoSDKCommand(command);
 }
-export function uploadToXSOAR(): void {
-	const activeWindow = vscode.window.activeTextEditor;
-	if (activeWindow) {
-		const openeFile = activeWindow.document.fileName;
-		const command = ['upload', '-i', path.dirname(openeFile)];
-		TerminalManager.sendDemistoSDKCommand(command);
+export function uploadToXSOAR(file: string): void {
+	const command = ['upload', '-i', path.dirname(file)];
+	TerminalManager.sendDemistoSDKCommand(command);
 
-	} else {
-		vscode.window.showErrorMessage('No active window, please save your file.');
-	}
+
 }
-export function lintUsingGit(): void {
-	const activeWindow = vscode.window.activeTextEditor;
-	if (activeWindow) {
-		const openedFile = activeWindow.document.fileName;
-		const command = ['lint', '-g', '-i ', path.dirname(openedFile)];
-		TerminalManager.sendDemistoSDKCommand(command);
-	} else {
-		vscode.window.showErrorMessage('No active window, please save your file.');
-	}
+export function lintUsingGit(file: string): void {
+	const command = ['lint', '-g', '-i ', path.dirname(file)];
+	TerminalManager.sendDemistoSDKCommand(command);
+
 }
-export function lint(tests = true): void {
-	const activeWindow = vscode.window.activeTextEditor;
-	if (activeWindow) {
-		const openedFile = activeWindow.document.fileName;
-		const command = ['lint', '-i', path.dirname(openedFile), '-j', tools.getReportPath(openedFile)];
-		if (!tests) {
-			command.push('--no-test', '--no-pwsh-test')
-		}
-		TerminalManager.sendDemistoSDKCommand(command);
-	} else {
-		vscode.window.showErrorMessage('No active window, please save your file.');
+export function lint(file: string, tests = true): void {
+	const command = ['lint', '-i', path.dirname(file), '-j', tools.getReportPath(file)];
+	if (!tests) {
+		command.push('--no-test', '--no-pwsh-test')
 	}
+	TerminalManager.sendDemistoSDKCommand(command);
+
 }
 
 interface demistoSDKReport {
@@ -193,14 +158,14 @@ export async function backgroundLint(document: vscode.TextDocument, showTerminal
 		'-j', tools.getReportPath(docUri.toString()),
 		'--no-test', '--no-pwsh-test'
 	]
-	
-	if (showTerminal){
+
+	if (showTerminal) {
 		TerminalManager.sendDemistoSDKCommand(command, true, false)
 	} else {
 		const cwd = vscode.workspace.getWorkspaceFolder(document.uri)
-		TerminalManager.sendDemistoSDKCommandBackground(command, {cwd: cwd?.uri.path})
+		TerminalManager.sendDemistoSDKCommandBackground(command, { cwd: cwd?.uri.path })
 	}
-	
+
 }
 
 
@@ -212,11 +177,11 @@ export async function backgroundValidate(document: vscode.TextDocument, showTerm
 		'-i', path.dirname(docUri.toString()),
 		'-j', tools.getReportPath(docUri.toString())
 	]
-	if (showTerminal){
+	if (showTerminal) {
 		TerminalManager.sendDemistoSDKCommand(command, true, false)
 	} else {
 		const cwd = vscode.workspace.getWorkspaceFolder(document.uri)
-		TerminalManager.sendDemistoSDKCommandBackground(command, {cwd: cwd?.uri.path})
+		TerminalManager.sendDemistoSDKCommandBackground(command, { cwd: cwd?.uri.path })
 	}
 
 }

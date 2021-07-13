@@ -13,7 +13,7 @@
     "Visualization",
     "Other"
   ],
-  "repository":{
+  "repository": {
     "type": "git",
     "url": "https://github.com/demisto/vscode-extension"
   },
@@ -49,42 +49,42 @@
       },
       {
         "command": "xsoar.upload",
-        "title": "Upload",
+        "title": "Demisto-SDK Upload",
         "category": "XSOAR"
       },
       {
         "command": "xsoar.lint",
-        "title": "Lint With Tests",
+        "title": "Demisto-SDK Lint (With Tests)",
         "category": "XSOAR"
       },
       {
         "command": "xsoar.lintNoTests",
-        "title": "Lint",
+        "title": "Demisto-SDK Lint",
         "category": "XSOAR"
       },
       {
         "command": "xsoar.lintUsingGit",
-        "title": "Lint Using Git",
+        "title": "Demisto-SDK Lint (Using Git)",
         "category": "XSOAR"
       },
       {
         "command": "xsoar.format",
-        "title": "Format",
+        "title": "Demisto-SDK Format",
         "category": "XSOAR"
       },
       {
         "command": "xsoar.validate",
-        "title": "Validate",
+        "title": "Demisto-SDK Validate",
         "category": "XSOAR"
       },
       {
         "command": "xsoar.validateUsingGit",
-        "title": "Validate Using Git",
+        "title": "Demisto-SDK Validate (Using Git)",
         "category": "XSOAR"
       },
       {
         "command": "xsoar.updateReleaseNotes",
-        "title": "Update Release Notes",
+        "title": "Demisto-SDK Update Release Notes",
         "category": "XSOAR"
       },
       {
@@ -93,6 +93,26 @@
         "category": "XSOAR"
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "xsoar.validate"
+        },
+        {
+          "command": "xsoar.lintNoTests"
+        },
+        {
+          "command": "xsoar.format"
+        },
+        {
+          "command": "xsoar.updateReleaseNotes",
+          "when": "resourcePath =~ /.*Packs\/.+/"
+        },
+        {
+          "command": "xsoar.upload"
+        }
+      ]
+    },
     "configuration": {
       "title": "Cortex XSOAR",
       "properties": {
