@@ -1,6 +1,12 @@
 # Change Log
 
-## [Unreleased]
+## [0.0.4] (2021-07-20)
+
+- Added the `xsoar.autoFindProblems.readProblems` setting that can enable/disable automatic-problem reading in workspace.
+- Added the command `XSOAR: Read Problems` that reads the demisto-sdk report file positioned in the `xsoar.autoFindProblems.reportPath` setting.
+- Added the demisto-sdk commands dropdown when right-clicking an opened file in `Packs/*` directory.
+- Limited the demisto-sdk commands dropdown when right-clicking a file in workspace to work only with file in `Packs/*` directory.  
+![right click](documentation/changelog/0.0.4/rightclick.png)
 
 ## [0.0.3] (2021-07-13)
 

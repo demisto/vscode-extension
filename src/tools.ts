@@ -21,10 +21,10 @@ export function sendCommandExtraArgsWithUserInput(command: string[]): void {
 
 export function getPythonpath(): string {
     let sdkPath = <string>vscode.workspace.getConfiguration('xsoar').get('demisto-sdk.pythonPath')
-    if (!sdkPath){
+    if (!sdkPath) {
         sdkPath = <string>vscode.workspace.getConfiguration('python').get('pythonPath')
     }
-    if (!sdkPath){
+    if (!sdkPath) {
         sdkPath = 'python'
     }
     return sdkPath
@@ -108,9 +108,10 @@ export function getReportPathFromConf(workspace: vscode.WorkspaceFolder): string
     return String(getAutofindProblems(workspace).get('reportPath'))
 }
 
-export function getProblemsFlag(workspace: vscode.WorkspaceFolder): boolean {
-    return Boolean(getAutofindProblems(workspace).get('getProblems'))
+export function getShouldReadProblems(workspace: vscode.WorkspaceFolder): boolean {
+    return Boolean(getAutofindProblems(workspace).get('readProblems'))
 }
+
 export function htmlspecialchars(
     str: string, quoteStyle: number | never[] | null, doubleEncode: boolean)
     : string {
@@ -186,7 +187,7 @@ export function saveYML(path: PathLike, obj: IntegrationI | AutomationI): void {
     writeFileSync(path, ymlString);
 }
 
-export function getWebviewRemoveCommandButton(commandIndex: number): string{
+export function getWebviewRemoveCommandButton(commandIndex: number): string {
     const buttonId = getRemoveCommandButtonId(commandIndex);
     return `
     <button id="${buttonId}">Remove Command</button>

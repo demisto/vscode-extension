@@ -72,6 +72,21 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand('xsoar.updateDSDK', tools.installDemistoSDK)
 	);
 	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.readProblems', () => {
+			const workspaces = vscode.workspace.workspaceFolders
+			if (workspaces) {
+				for (const workspace of workspaces) {
+					const reportPath = tools.getReportPathFromConf(workspace);
+					const fullReportPath = path.join(workspace.uri.fsPath, reportPath)
+					if (fs.existsSync(fullReportPath)) {
+						Logger.info(`Reading logs file from ${fullReportPath}`)
+						tools.publishDiagnostics(diagnosticCollection, dsdk.getDiagnostics(fullReportPath));
+					}
+				}
+			}
+		})
+	)
+	context.subscriptions.push(
 		vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
 			const showTerminal = <boolean>vscode.workspace.getConfiguration('xsoar').get('linter.showOnSaveTerminal')
 			Logger.info('Processing ' + document.fileName)
@@ -104,22 +119,26 @@ function autoGetProblems(
 	diagnosticCollection: vscode.DiagnosticCollection
 ) {
 	for (const workspace of workspaces) {
-		const reportPath = tools.getReportPathFromConf(workspace)
-		const fullReportPath = path.join(workspace.uri.fsPath, reportPath)
-		if (!fs.existsSync(fullReportPath)) {
-			fs.writeFileSync(fullReportPath, "[]");
-		}
+		if (tools.getShouldReadProblems(workspace)) {
+			const reportPath = tools.getReportPathFromConf(workspace)
+			const fullReportPath = path.join(workspace.uri.fsPath, reportPath)
+			if (!fs.existsSync(fullReportPath)) {
+				fs.writeFileSync(fullReportPath, "[]");
+			}
 
-		Logger.info('watching report ' + fullReportPath);
-		dsdk.getDiagnostics(fullReportPath);
-		const watcher = vscode.workspace.createFileSystemWatcher(fullReportPath);
-		watcher.onDidChange(() => {
-			console.debug('Report file was changed! ' + fullReportPath)
-			dsdk.getDiagnostics(fullReportPath).forEach((diags, filePath) => {
-				diagnosticCollection.set(vscode.Uri.parse(filePath), diags)
+			Logger.info('watching report ' + fullReportPath);
+			dsdk.getDiagnostics(fullReportPath);
+			const watcher = vscode.workspace.createFileSystemWatcher(fullReportPath);
+			watcher.onDidChange(() => {
+				console.debug('Report file was changed! ' + fullReportPath)
+				dsdk.getDiagnostics(fullReportPath).forEach((diags, filePath) => {
+					diagnosticCollection.set(vscode.Uri.parse(filePath), diags)
+				})
+
 			})
-
-		})
+		} else {
+			Logger.info(`Not watching the report of ${workspace.name}.`)
+		}
 
 	}
 }
