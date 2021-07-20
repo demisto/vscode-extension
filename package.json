@@ -2,7 +2,7 @@
   "name": "xsoar",
   "displayName": "Cortex XSOAR",
   "description": "Build, Format, and Validate Cortex XSOAR with ease.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -32,6 +32,7 @@
     "onCommand:xsoar.updateDSDK",
     "onCommand:xsoar.lint",
     "onCommand:xsoar.lintUsingGit",
+    "onCommand:xsoar.readProblems",
     "*"
   ],
   "main": "./out/extension.js",
@@ -91,31 +92,68 @@
         "command": "xsoar.updateDSDK",
         "title": "Install/Update Demisto-SDK",
         "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.readProblems",
+        "title": "Read Problems From The Report File.",
+        "shortTitle": "Read Problems",
+        "category": "XSOAR"
       }
     ],
     "menus": {
-      "explorer/context": [
+      "editor/context": [
         {
-          "command": "xsoar.validate"
+          "command": "xsoar.validate",
+          "when": "resourcePath =~ /.*Packs\/.+/"
         },
         {
-          "command": "xsoar.lintNoTests"
+          "command": "xsoar.lintNoTests",
+          "when": "resourcePath =~ /.*Packs\/.+/"
         },
         {
-          "command": "xsoar.format"
+          "command": "xsoar.format",
+          "when": "resourcePath =~ /.*Packs\/.+/"
         },
         {
           "command": "xsoar.updateReleaseNotes",
           "when": "resourcePath =~ /.*Packs\/.+/"
         },
         {
-          "command": "xsoar.upload"
+          "command": "xsoar.upload",
+          "when": "resourcePath =~ /.*Packs\/.+/"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "xsoar.validate",
+          "when": "resourcePath =~ /.*Packs\/.+/"
+        },
+        {
+          "command": "xsoar.lintNoTests",
+          "when": "resourcePath =~ /.*Packs\/.+/"
+        },
+        {
+          "command": "xsoar.format",
+          "when": "resourcePath =~ /.*Packs\/.+/"
+        },
+        {
+          "command": "xsoar.updateReleaseNotes",
+          "when": "resourcePath =~ /.*Packs\/.+/"
+        },
+        {
+          "command": "xsoar.upload",
+          "when": "resourcePath =~ /.*Packs\/.+/"
         }
       ]
     },
     "configuration": {
       "title": "Cortex XSOAR",
       "properties": {
+        "xsoar.autoFindProblems.readProblems": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Should auto-read the file in `#xsoar.autoFindProblems.reportPath#`. Disable this setting will also disable `#xsoar.linter.lint.enable#` and `#xsoar.linter.validate.enable#`."
+        },
         "xsoar.autoFindProblems.reportPath": {
           "type": "string",
           "default": ".demisto-sdk-report",
