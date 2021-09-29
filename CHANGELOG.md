@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.0.6] (2021-09-29)
+
+- **Hotfix**: Fixed an issue which caused the extension to fail.
+
 ## [0.0.5] (2021-09-29)
 
 - Fixed an issue where the right-click menu was not available on Windows systems.
