@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.0.5] (2021-09-29)
+
+- Fixed an issue where the right-click menu was not available on Windows systems.
+
 ## [0.0.4] (2021-07-20)
 
 - Added the `xsoar.autoFindProblems.readProblems` setting that can enable/disable automatic-problem reading in workspace.
