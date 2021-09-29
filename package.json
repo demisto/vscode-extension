@@ -2,7 +2,7 @@
   "name": "xsoar",
   "displayName": "Cortex XSOAR",
   "description": "Build, Format, and Validate Cortex XSOAR with ease.",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -104,45 +104,45 @@
       "editor/context": [
         {
           "command": "xsoar.validate",
-          "when": "resourcePath =~ /.*Packs\/.+/"
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
           "command": "xsoar.lintNoTests",
-          "when": "resourcePath =~ /.*Packs\/.+/"
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
           "command": "xsoar.format",
-          "when": "resourcePath =~ /.*Packs\/.+/"
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
           "command": "xsoar.updateReleaseNotes",
-          "when": "resourcePath =~ /.*Packs\/.+/"
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
           "command": "xsoar.upload",
-          "when": "resourcePath =~ /.*Packs\/.+/"
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ],
       "explorer/context": [
         {
           "command": "xsoar.validate",
-          "when": "resourcePath =~ /.*Packs\/.+/"
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
           "command": "xsoar.lintNoTests",
-          "when": "resourcePath =~ /.*Packs\/.+/"
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
           "command": "xsoar.format",
-          "when": "resourcePath =~ /.*Packs\/.+/"
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
           "command": "xsoar.updateReleaseNotes",
-          "when": "resourcePath =~ /.*Packs\/.+/"
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
           "command": "xsoar.upload",
-          "when": "resourcePath =~ /.*Packs\/.+/"
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ]
     },
