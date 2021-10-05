@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.0.7] (2021-10-05)
+
+- **Hotfix**: Fixed an issue which caused the extension to fail on all commands (on version 0.0.6).
+
 ## [0.0.6] (2021-09-29)
 
 - **Hotfix**: Fixed an issue which caused the extension to fail.

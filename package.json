@@ -2,7 +2,7 @@
   "name": "xsoar",
   "displayName": "Cortex XSOAR",
   "description": "Build, Format, and Validate Cortex XSOAR with ease.",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -13,6 +13,7 @@
     "Visualization",
     "Other"
   ],
+  "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",
     "url": "https://github.com/demisto/vscode-extension"
@@ -35,7 +36,7 @@
     "onCommand:xsoar.readProblems",
     "*"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -209,16 +210,14 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run -S esbuild-base -- --minify",
-    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
-    "esbuild": "npm run -S esbuild-base -- --sourcemap",
-    "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
-    "test-compile": "tsc -p ./",
-    "compile": "tsc -p ./",
+    "vscode:prepublish": "webpack --mode production",
+    "webpack": "webpack --mode development",
+    "webpack-dev": "webpack --mode development --watch",
+    "compile": "npm run webpack",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
+    "pretest": "npm run compile && npm run lint && tsc -p ./",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": " node ./out/test/runTest.js"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
@@ -229,13 +228,15 @@
     "@types/vscode": "^1.54.0",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
-    "esbuild": "^0.12.5",
+    "@vscode/test-electron": "^1.6.2",
     "eslint": "^7.28.0",
     "html-validator": "^5.1.17",
     "mocha": "^8.2.1",
-    "ts-loader": "^9.2.2",
+    "ts-loader": "^9.2.6",
     "typescript": "^4.1.3",
-    "vscode-test": "^1.5.0"
+    "vscode-test": "^1.5.0",
+    "webpack": "^5.56.1",
+    "webpack-cli": "^4.8.0"
   },
   "dependencies": {
     "glob": "^7.1.6",
