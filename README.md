@@ -3,8 +3,6 @@
 
 # Cortex  XSOAR VSCode Plugin
 
-> **Note:** The plugin is currently in `Beta` status. Updates to the Plugin during the `Beta` phase might include non-backward compatible features. We appreciate feedback to help us identify issues, fix them, and continually improve. Please report findings and feedback via the project's **[issues](https://github.com/demisto/vscode-extension/issues)** tab.
-
 Work with Visual Studio Code to edit, validate and format your Cortex XSOAR integrations and automations.
 
 To start using the extension, first of all, install [demisto-sdk](https://pypi.org/project/demisto-sdk/).  

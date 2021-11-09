@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.0] (2021-11-09)
+
+- The Cortex XSOAR extension for Visual Studio Code is now official GA!
+
 ## [0.0.7] (2021-10-05)
 
 - **Hotfix**: Fixed an issue which caused the extension to fail on all commands (on version 0.0.6).
