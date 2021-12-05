@@ -22,7 +22,13 @@ export class TerminalManager {
 		// options: vscode.TerminalOptions,
 		options: ProcessEnvOptions
 	): Promise<void> {
-		const cmd = `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
+		const sdkPath = tools.getSDKPath()
+		let cmd = '';
+		if (sdkPath){
+			cmd = `${tools.getSDKPath()} ${command.join(' ')}`
+		} else {
+			cmd = `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
+		}
 		Logger.info(`Executing command in background: \`${cmd}\``)
 		exec(cmd, options, (error, stdout) => {
 			if (error){
@@ -65,7 +71,7 @@ export class TerminalManager {
 			terminal = await this.openTerminalIfNeeded(show)
 		}
 		terminal.sendText('')
-		terminal.sendText(`${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`);
+		terminal.sendText(`${tools.getSDKPath()} ${command.join(' ')}`);
 	}
 	public static async sendText(
 		command: string[],

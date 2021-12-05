@@ -119,8 +119,14 @@ export function getDiagnostics(file: fs.PathLike): Map<string, vscode.Diagnostic
 				diagnostics.set(filePath, diag);
 			}
 		});
-	} catch (err) {
-		Logger.error(err);
+	} catch (e) {
+		let result = ''; // error under useUnknownInCatchVariables 
+		if (typeof e === "string") {
+			result = e // works, `e` narrowed to string
+		} else if (e instanceof Error) {
+			result = e.message // works, `e` narrowed to Error
+		}
+		Logger.error(result);
 	}
 	return diagnostics;
 }

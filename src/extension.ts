@@ -164,7 +164,13 @@ function loadYAML(extensionUri: vscode.Uri) {
 				vscode.window.showInformationMessage('YML Succesfully loaded 🚀');
 				integration.createViewFromYML(yml, ymlPath, extensionUri);
 			} catch (exception) {
-				vscode.window.showErrorMessage(exception.message);
+				let result = ''
+				if (typeof exception === 'string'){
+					result = exception
+				} else if (exception instanceof Error){
+					result = exception.message
+				}
+				vscode.window.showErrorMessage(result);
 				return;
 			}
 
@@ -195,7 +201,13 @@ function loadScriptYAML(extensionUri: vscode.Uri) {
 				vscode.window.showInformationMessage('YML Succesfully loaded 🚀');
 				automation.createViewFromYML(yml, ymlPath, extensionUri)
 			} catch (exception) {
-				vscode.window.showErrorMessage(exception.message);
+				let result = ''
+				if (typeof exception === 'string'){
+					result = exception
+				} else if (exception instanceof Error){
+					result = exception.message
+				}
+				vscode.window.showErrorMessage(result);
 				return;
 			}
 

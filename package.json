@@ -152,7 +152,7 @@
       "properties": {
         "xsoar.autoFindProblems.readProblems": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "markdownDescription": "Should auto-read the file in `#xsoar.autoFindProblems.reportPath#`. Disable this setting will also disable `#xsoar.linter.lint.enable#` and `#xsoar.linter.validate.enable#`."
         },
         "xsoar.autoFindProblems.reportPath": {
@@ -160,9 +160,10 @@
           "default": ".demisto-sdk-report",
           "description": "The name of the file to write reports to. The file will be located in the local workspace."
         },
-        "xsoar.demisto-sdk.pythonPath": {
+        "xsoar.demisto-sdk.Path": {
           "type": "string",
-          "description": "The path to a python interpeter with demisto-sdk. If not provided, will use python.pythonPath."
+          "default": "demisto-sdk",
+          "description": "The path to the demisto-sdk. can be obtained with `which demisto-sdk`"
         },
         "xsoar.autoSave": {
           "type": "boolean",

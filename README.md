@@ -19,10 +19,16 @@ Commands:
 
 ## Configurations  
 
+
+### Demisto-SDK Path
+
+The default behavior of the extension when running a demisto-sdk command is to run `demisto-sdk <command>`. You can set a different demisto-sdk path (if you want to run always on the same demisto-sdk or when you're using a tool like pipx). You can set the `xsoar.demisto-sdk.Path` to the demisto-sdk executable.
+
 ### Auto Linters
 
 The Cortex XSOAR extension will automatically use the demisto-sdk to lint (code files) and validate (.yml files) your packs.
 
+To turn on auto-linters in your workspace, set the `xsoar.autoFindProblems.readProblems` setting to `true`.
 To control the auto-lints behaviour:  
 
 * `xsoar.linter.[linter-name].enable`: Whether to enable the auto-lint.
