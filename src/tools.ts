@@ -29,6 +29,12 @@ export function getPythonpath(): string {
     }
     return sdkPath
 }
+
+export function getSDKPath(): string {
+    const sdkPath = <string>vscode.workspace.getConfiguration('xsoar').get('demisto-sdk.Path')
+    return sdkPath
+}
+
 export async function installDemistoSDK(): Promise<void> {
     TerminalManager.sendText([getPythonpath(), '-m', 'pip', 'install', 'demisto-sdk', '--upgrade']);
 }

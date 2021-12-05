@@ -1,5 +1,12 @@
 # Change Log
 
+## [Unreleased]
+
+- The **xsoar.autoFindProblems.readProblems** setting is defaults to ***false*** which prevents the log file from appearing in each workspace opened.
+- The **xsoar.demisto-sdk.pythonPath** is now deprecated.  
+    Please use the new **xsoar.demisto-sdk.Path** settings. The default behavior is to run all commands with `demisto-sdk <command>`. You may set the demisto-sdk executable with the given setting and use tools such as pipx.  
+    Alternatively, you may also use it with your python of choice (`<python-path> -m demisto_sdk` as an example.)
+
 ## [0.1.0] (2021-11-09)
 
 - The Cortex XSOAR extension for Visual Studio Code is now official GA!
