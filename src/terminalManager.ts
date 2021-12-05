@@ -25,7 +25,7 @@ export class TerminalManager {
 		const sdkPath = tools.getSDKPath()
 		let cmd = '';
 		if (sdkPath){
-			cmd = `${tools.getSDKPath()} -m demisto_sdk ${command.join(' ')}`
+			cmd = `${tools.getSDKPath()} ${command.join(' ')}`
 		} else {
 			cmd = `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
 		}
