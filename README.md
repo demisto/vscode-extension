@@ -28,7 +28,7 @@ The default behaviour of the extension when running a demisto-sdk command is to 
 
 The Cortex XSOAR extension will automatically use the demisto-sdk to lint (code files) and validate (.yml files) your packs.
 
-To turn on auto-linters in your workspace, set `xsoar.autoFindProblems.readProblems` settings to `true`.
+To turn on auto-linters in your workspace, set the `xsoar.autoFindProblems.readProblems` setting to `true`.
 To control the auto-lints behaviour:  
 
 * `xsoar.linter.[linter-name].enable`: Whether to enable the auto-lint.
