@@ -102,7 +102,7 @@
       },
       {
         "command": "xsoar.run",
-        "title": "Run XSOAR command",
+        "title": "Run Command in XSOAR",
         "category": "XSOAR"
       }
     ],
