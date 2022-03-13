@@ -66,7 +66,7 @@ export function lint(file: string, tests = true): void {
 export function run(): void {
 	vscode.window.showInputBox(
 		{
-			value: "Choose query to run"
+			value: "Command to run"
 		}
 	).then(
 		(value) => {
