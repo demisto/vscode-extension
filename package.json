@@ -99,6 +99,11 @@
         "title": "Read Problems From The Report File.",
         "shortTitle": "Read Problems",
         "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.run",
+        "title": "Run XSOAR command",
+        "category": "XSOAR"
       }
     ],
     "menus": {
@@ -225,7 +230,7 @@
     "@types/html-validator": "^5.0.0",
     "@types/minimatch": "^3.0.4",
     "@types/mocha": "^8.0.4",
-    "@types/node": "^12.11.7",
+    "@types/node": "^12.20.47",
     "@types/vscode": "^1.54.0",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
