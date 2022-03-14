@@ -63,6 +63,23 @@ export function lint(file: string, tests = true): void {
 
 }
 
+export function run(): void {
+	vscode.window.showInputBox(
+		{
+			value: "Command to run"
+		}
+	).then(
+		(value) => {
+			if (value) {
+				value = JSON.stringify(value)
+				const command = ['run', '-q', value];
+				TerminalManager.sendDemistoSDKCommand(command);
+			}
+		});
+
+
+}
+
 interface demistoSDKReport {
 	"filePath": string,
 	"fileType": string,

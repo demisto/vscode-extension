@@ -6,6 +6,7 @@
 - The **xsoar.demisto-sdk.pythonPath** is now deprecated.  
     Please use the **xsoar.demisto-sdk.Path** setting. The default behavior is to run all commands with `demisto-sdk <command>`. You may set the demisto-sdk executable with the given setting and use tools such as pipx.  
     Alternatively, you may also use it with your python executable of choice (`<python-path> -m demisto_sdk` as an example.)
+- Added the **Run a Command in XSOAR** command.
 
 ## [0.1.0] (2021-11-09)
 
