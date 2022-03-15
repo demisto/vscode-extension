@@ -13,7 +13,7 @@ export function updateReleaseNotesCommand(file: string): void {
 	const packName = matchGroup ? matchGroup[0] : null;
 	if (packName) {
 		vscode.window.showQuickPick(
-			['revision', 'minor', 'major', 'maintenance', 'documentation'],
+			['revision', 'minor', 'major', 'documentation'],
 			{
 				'placeHolder': 'What kind of update do you want to do?'
 			}
