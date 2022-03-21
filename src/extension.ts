@@ -28,37 +28,55 @@ export function activate(context: vscode.ExtensionContext): void {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.upload', (file: vscode.Uri | undefined) => {
-			const fileToRun = getPathFromContext(file)
+			let fileToRun = getPathFromContext(file)
+			if (!fs.lstatSync(fileToRun).isDirectory()) {
+				fileToRun = path.dirname(fileToRun)
+			}
 			dsdk.uploadToXSOAR(fileToRun)
 		})
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.lint', (file: vscode.Uri | undefined) => {
-			const fileToRun = getPathFromContext(file)
+			let fileToRun = getPathFromContext(file)
+			if (!fs.lstatSync(fileToRun).isDirectory()) {
+				fileToRun = path.dirname(fileToRun)
+			}
 			dsdk.lint(fileToRun)
 		})
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.lintNoTests', (file: vscode.Uri | undefined) => {
-			const fileToRun = getPathFromContext(file)
+			let fileToRun = getPathFromContext(file)
+			if (!fs.lstatSync(fileToRun).isDirectory()) {
+				fileToRun = path.dirname(fileToRun)
+			}
 			dsdk.lint(fileToRun, false)
 		})
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.lintUsingGit', (file: vscode.Uri | undefined) => {
-			const fileToRun = getPathFromContext(file)
+			let fileToRun = getPathFromContext(file)
+			if (!fs.lstatSync(fileToRun).isDirectory()) {
+				fileToRun = path.dirname(fileToRun)
+			}
 			dsdk.lintUsingGit(fileToRun)
 		})
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.format', (file: vscode.Uri | undefined) => {
-			const fileToRun = getPathFromContext(file)
+			let fileToRun = getPathFromContext(file)
+			if (!fs.lstatSync(fileToRun).isDirectory()) {
+				fileToRun = path.dirname(fileToRun)
+			}
 			dsdk.formatCommand(fileToRun)
 		})
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.validate', (file: vscode.Uri | undefined) => {
-			const fileToRun = getPathFromContext(file)
+			let fileToRun = getPathFromContext(file)
+			if (!fs.lstatSync(fileToRun).isDirectory()) {
+				fileToRun = path.dirname(fileToRun)
+			}
 			dsdk.validateCommand(fileToRun)
 		})
 	);
@@ -67,7 +85,10 @@ export function activate(context: vscode.ExtensionContext): void {
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.updateReleaseNotes', (file: vscode.Uri | undefined) => {
-			const fileToRun = getPathFromContext(file)
+			let fileToRun = getPathFromContext(file)
+			if (!fs.lstatSync(fileToRun).isDirectory()) {
+				fileToRun = path.dirname(fileToRun)
+			}
 			dsdk.updateReleaseNotesCommand(fileToRun)
 		})
 	);
@@ -168,9 +189,9 @@ function loadYAML(extensionUri: vscode.Uri) {
 				integration.createViewFromYML(yml, ymlPath, extensionUri);
 			} catch (exception) {
 				let result = ''
-				if (typeof exception === 'string'){
+				if (typeof exception === 'string') {
 					result = exception
-				} else if (exception instanceof Error){
+				} else if (exception instanceof Error) {
 					result = exception.message
 				}
 				vscode.window.showErrorMessage(result);
@@ -205,9 +226,9 @@ function loadScriptYAML(extensionUri: vscode.Uri) {
 				automation.createViewFromYML(yml, ymlPath, extensionUri)
 			} catch (exception) {
 				let result = ''
-				if (typeof exception === 'string'){
+				if (typeof exception === 'string') {
 					result = exception
-				} else if (exception instanceof Error){
+				} else if (exception instanceof Error) {
 					result = exception.message
 				}
 				vscode.window.showErrorMessage(result);
