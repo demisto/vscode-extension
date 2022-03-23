@@ -8,7 +8,7 @@
     Alternatively, you may also use it with your python executable of choice (`<python-path> -m demisto_sdk` as an example.)
 - Added the **Run a Command in XSOAR** command.
 - Removed the support of the **maintenance** option from the *Update Release Notes* command.
-- Fixed running demisto-sdk commands in menus from directories.
+- Fixed running demisto-sdk commands in menus from directories to run in the correct directory.
 - Added an option to run lint with tests in menu.
 
 ## [0.1.0] (2021-11-09)
