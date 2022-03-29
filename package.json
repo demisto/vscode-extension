@@ -61,7 +61,7 @@
       },
       {
         "command": "xsoar.lintNoTests",
-        "title": "Demisto-SDK Lint",
+        "title": "Demisto-SDK Lint (Without Tests)",
         "category": "XSOAR"
       },
       {
@@ -117,6 +117,10 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
+          "command": "xsoar.lint",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
           "command": "xsoar.format",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
@@ -136,6 +140,10 @@
         },
         {
           "command": "xsoar.lintNoTests",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.lint",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {

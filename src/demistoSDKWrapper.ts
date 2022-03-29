@@ -31,7 +31,7 @@ export function updateReleaseNotesCommand(file: string): void {
 
 export function validateCommand(file: string): void {
 	const json_path = tools.getReportPath(file);
-	const command = ['validate -i', path.dirname(file), '-j', json_path];
+	const command = ['validate -i', file, '-j', json_path];
 	TerminalManager.sendDemistoSDKCommand(command);
 }
 
@@ -40,22 +40,22 @@ export function validateUsingGit(workspace: vscode.WorkspaceFolder): void {
 }
 export function formatCommand(file: string): void {
 
-	const command = ['format', '-i', path.dirname(file)];
+	const command = ['format', '-i', file];
 	TerminalManager.sendDemistoSDKCommand(command);
 }
 export function uploadToXSOAR(file: string): void {
-	const command = ['upload', '-i', path.dirname(file)];
+	const command = ['upload', '-i', file];
 	TerminalManager.sendDemistoSDKCommand(command);
 
 
 }
 export function lintUsingGit(file: string): void {
-	const command = ['lint', '-g', '-i ', path.dirname(file)];
+	const command = ['lint', '-g', '-i ', file];
 	TerminalManager.sendDemistoSDKCommand(command);
 
 }
 export function lint(file: string, tests = true): void {
-	const command = ['lint', '-i', path.dirname(file), '-j', tools.getReportPath(file)];
+	const command = ['lint', '-i', file, '-j', tools.getReportPath(file)];
 	if (!tests) {
 		command.push('--no-test', '--no-pwsh-test')
 	}
