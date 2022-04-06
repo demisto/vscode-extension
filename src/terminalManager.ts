@@ -43,7 +43,7 @@ export class TerminalManager {
 
 	public static sendDemistoSDKCommandSync(command: string[], options: SpawnSyncOptions): void{
 		this.openTerminalIfNeeded(true)
-		this.terminal.sendText(`echo Running ${command.join(' ')}, please wait...`)
+		this.terminal.sendText(`Running ${command.join(' ')}, please wait...`)
 		const sdkPath = tools.getSDKPath()
 		let cmd = '';
 		let args: string[]
