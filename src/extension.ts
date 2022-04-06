@@ -136,14 +136,17 @@ function createDevContainer(fileName: string) {
 	const ymlFilePath = path.join(fileName, filePath.name.concat('.yml'))
 	const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
 	const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+	Logger.info(`docker image is ${dockerImage}`)
 	devcontainer.build.args.IMAGENAME = dockerImage
 	const devcontainerFolder = path.join(fileName, '.devcontainer')
 	fs.copySync(path.resolve(__dirname, '../src/Templates/.devcontainer'), devcontainerFolder)
 	fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
+	Logger.info('devcontainer folder created')
 	let cmd = ''
 	cmd = `sh -x ${path.join(devcontainerFolder, 'create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
 	Logger.info(cmd)
 	execSync(cmd, {cwd: fileName})
+	Logger.info('certs.crt created, now creating container')
 	vscode.commands.executeCommand('remote-containers.openFolder', vscode.Uri.file(fileName))
 }
 
