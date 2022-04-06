@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { ProcessEnvOptions, exec } from "child_process";
+import { exec, ProcessEnvOptions, spawnSync, SpawnSyncOptions } from "child_process";
 import * as tools from "./tools";
 import { Logger } from "./logger";
 /**
@@ -24,7 +24,7 @@ export class TerminalManager {
 	): Promise<void> {
 		const sdkPath = tools.getSDKPath()
 		let cmd = '';
-		if (sdkPath){
+		if (sdkPath) {
 			cmd = `${tools.getSDKPath()} ${command.join(' ')}`
 		} else {
 			cmd = `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
@@ -37,15 +37,35 @@ export class TerminalManager {
 			} else {
 				Logger.info(stdout)
 			}
-			
+
 		})
 	}
-	private static createTerminal(options: vscode.TerminalOptions): vscode.Terminal{
+
+	public static sendDemistoSDKCommandSync(command: string[], options: SpawnSyncOptions): void{
+		const sdkPath = tools.getSDKPath()
+		let cmd = '';
+		let args: string[]
+		if (sdkPath) {
+			cmd = `${tools.getSDKPath()}`
+			args = command
+		} else {
+			cmd = `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
+			args = ['-m', 'demisto_sdk', ...command]
+		}
+		Logger.info(`Executing command in sync: \`${cmd}\``)
+		const {stdout, stderr} = spawnSync(cmd, args, options)
+		Logger.info(stdout.toString('utf-8'))
+		Logger.error(stderr.toString('utf-8'))
+		this.openTerminalIfNeeded(true)
+		this.terminal.sendText(`echo Running ${command.join(' ')}, please wait...`)
+	}
+
+	private static createTerminal(options: vscode.TerminalOptions): vscode.Terminal {
 		return vscode.window.createTerminal(options)
 	}
 	public static async openTerminalIfNeeded(show = true): Promise<vscode.Terminal> {
 		if (!this.terminal || this.terminal.exitStatus !== undefined) {
-			this.terminal = this.createTerminal({name: 'XSOAR Extension Terminal'});
+			this.terminal = this.createTerminal({ name: 'XSOAR Extension Terminal' });
 			this.terminal.sendText('echo Welcome to the Cortex XSOAR Terminal!', true);
 			await this.delay(5000)
 		}
@@ -62,16 +82,21 @@ export class TerminalManager {
 	public static async sendDemistoSDKCommand(
 		command: string[],
 		show = true,
-		newTerminal = false
+		newTerminal = false,
+		timeout = 10000
 	): Promise<void> {
 		let terminal: vscode.Terminal
-		if (newTerminal){
-			terminal = this.createTerminal({name: 'Demisto-SDK Terminal'})
+		if (newTerminal) {
+			terminal = this.createTerminal({ name: 'Demisto-SDK Terminal' })
 		} else {
 			terminal = await this.openTerminalIfNeeded(show)
 		}
+		if (!show){
+			terminal.hide()
+		}
 		terminal.sendText('')
-		terminal.sendText(`${tools.getSDKPath()} ${command.join(' ')}`);
+		terminal.sendText(`${tools.getSDKPath()} ${command.join(' ')}`)
+		await this.delay(timeout)
 	}
 	public static async sendText(
 		command: string[],

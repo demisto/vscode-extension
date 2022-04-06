@@ -60,7 +60,13 @@ export function lint(file: string, tests = true): void {
 		command.push('--no-test', '--no-pwsh-test')
 	}
 	TerminalManager.sendDemistoSDKCommand(command);
-
+}
+export function lintSync(file: string, tests = true): void {
+	const command = ['lint', '-i', file];
+	if (!tests) {
+		command.push('--no-test', '--no-pwsh-test')
+	}
+	TerminalManager.sendDemistoSDKCommandSync(command, {cwd: file})
 }
 
 export function run(): void {

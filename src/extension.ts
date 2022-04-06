@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as yaml from "yaml";
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import * as path from "path";
 import * as tools from "./tools";
 import * as dsdk from "./demistoSDKWrapper";
@@ -10,6 +10,8 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
+import devcontainer from './Templates/.devcontainer/devcontainer.json'
+import {execSync, spawnSync } from 'child_process';
 
 // this function returns the directory path of the file
 export function getDirPath(file: vscode.Uri | undefined): string {
@@ -26,6 +28,12 @@ export function activate(context: vscode.ExtensionContext): void {
 	Logger.createLogger()
 	const diagnosticCollection = vscode.languages.createDiagnosticCollection('XSOAR problems');
 	context.subscriptions.push(diagnosticCollection);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.container', (file: vscode.Uri | undefined) => {
+			const fileToRun = getDirPath(file)
+			createDevContainer(fileToRun)
+		})
+	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.load', loadYAML(context.extensionUri))
 	);
@@ -120,6 +128,23 @@ export function activate(context: vscode.ExtensionContext): void {
 	if (workspaces) {
 		autoGetProblems(workspaces, diagnosticCollection)
 	}
+}
+
+function createDevContainer(fileName: string) {
+	dsdk.lintSync(fileName, false);
+	const filePath = path.parse(fileName)
+	const ymlFilePath = path.join(fileName, filePath.name.concat('.yml'))
+	const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
+	const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+	devcontainer.build.args.IMAGENAME = dockerImage
+	const devcontainerFolder = path.join(fileName, '.devcontainer')
+	fs.copySync(path.resolve(__dirname, '../src/Templates/.devcontainer'), devcontainerFolder)
+	fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
+	let cmd = ''
+	cmd = `sh -x ${path.join(devcontainerFolder, 'create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
+	Logger.info(cmd)
+	execSync(cmd, {cwd: fileName})
+	vscode.commands.executeCommand('remote-containers.openFolder', vscode.Uri.file(fileName))
 }
 
 // this method is called when your extension is deactivated
