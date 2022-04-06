@@ -42,6 +42,8 @@ export class TerminalManager {
 	}
 
 	public static sendDemistoSDKCommandSync(command: string[], options: SpawnSyncOptions): void{
+		this.openTerminalIfNeeded(true)
+		this.terminal.sendText(`echo Running ${command.join(' ')}, please wait...`)
 		const sdkPath = tools.getSDKPath()
 		let cmd = '';
 		let args: string[]
@@ -56,8 +58,6 @@ export class TerminalManager {
 		const {stdout, stderr} = spawnSync(cmd, args, options)
 		Logger.info(stdout.toString('utf-8'))
 		Logger.error(stderr.toString('utf-8'))
-		this.openTerminalIfNeeded(true)
-		this.terminal.sendText(`echo Running ${command.join(' ')}, please wait...`)
 	}
 
 	private static createTerminal(options: vscode.TerminalOptions): vscode.Terminal {
