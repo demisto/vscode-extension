@@ -1,5 +1,5 @@
 import { after } from 'mocha';
-import * as validator from 'html-validator';
+import validator from 'html-validator';
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it

@@ -11,7 +11,7 @@ import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
 import devcontainer from './Templates/.devcontainer/devcontainer.json'
-import {execSync } from 'child_process';
+import { execSync } from 'child_process';
 
 // this function returns the directory path of the file
 export function getDirPath(file: vscode.Uri | undefined): string {

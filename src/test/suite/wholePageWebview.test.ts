@@ -1,7 +1,7 @@
 import { IntegrationHolder } from "../../contentObject";
 import * as yaml from 'yaml';
 import * as fs from 'fs';
-import * as validator from 'html-validator';
+import validator from 'html-validator';
 import * as path from 'path';
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
