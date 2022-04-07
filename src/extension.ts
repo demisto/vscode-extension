@@ -10,7 +10,6 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
-import devcontainer from './Templates/.devcontainer/devcontainer.json'
 import { execSync } from 'child_process';
 
 // this function returns the directory path of the file
@@ -137,9 +136,12 @@ function createDevContainer(fileName: string) {
 	const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
 	const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
 	Logger.info(`docker image is ${dockerImage}`)
+	Logger.debug(__dirname)
+	const devcontainerJsonPath = path.resolve(__dirname, '../Templates/.devcontainer/devcontainer.json')
+	const devcontainer = JSON.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
 	devcontainer.build.args.IMAGENAME = dockerImage
 	const devcontainerFolder = path.join(fileName, '.devcontainer')
-	fs.copySync(path.resolve(__dirname, '../src/Templates/.devcontainer'), devcontainerFolder)
+	fs.copySync(path.resolve(__dirname, '../Templates/.devcontainer'), devcontainerFolder)
 	fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
 	Logger.info('devcontainer folder created')
 	let cmd = ''
