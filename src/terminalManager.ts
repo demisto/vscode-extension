@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { exec, ProcessEnvOptions, spawnSync, SpawnSyncOptions } from "child_process";
+import { exec, ProcessEnvOptions } from "child_process";
 import * as tools from "./tools";
 import { Logger } from "./logger";
 /**
@@ -31,7 +31,7 @@ export class TerminalManager {
 		}
 		Logger.info(`Executing command in background: \`${cmd}\``)
 		exec(cmd, options, (error, stdout) => {
-			if (error){
+			if (error) {
 				Logger.error(error.message)
 				Logger.error(stdout)
 			} else {
@@ -68,14 +68,14 @@ export class TerminalManager {
 						disposable.dispose();
 						resolve();
 					}
-					
+
 				})
 				progress.report({ message: "Proccessing..." });
 			});
-	
+
 		})
 	}
-	
+
 	private static createTerminal(options: vscode.TerminalOptions): vscode.Terminal {
 		return vscode.window.createTerminal(options)
 	}
@@ -107,7 +107,7 @@ export class TerminalManager {
 		} else {
 			terminal = await this.openTerminalIfNeeded(show)
 		}
-		if (!show){
+		if (!show) {
 			terminal.hide()
 		}
 		terminal.sendText('')

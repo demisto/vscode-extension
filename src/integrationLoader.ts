@@ -100,10 +100,10 @@ export function createViewFromYML(yml: IntegrationI, ymlPath: PathLike, extensio
                     break;
             }
             const autoSave = vscode.workspace.getConfiguration('xsoar').get('autoSave')
-            if (autoSave){
+            if (autoSave) {
                 saveYML(integrationHolder.path, integrationHolder.integration)
             }
-            
+
         }
     );
     styleSrc = vscode.Uri.joinPath(cssPath, 'panel.css');
