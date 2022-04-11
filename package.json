@@ -236,7 +236,6 @@
       }
     }
   },
-  "extensionDependencies": ["ms-vscode-remote.remote-containers"],
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
     "webpack": "webpack --mode development",

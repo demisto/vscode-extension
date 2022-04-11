@@ -40,28 +40,42 @@ export class TerminalManager {
 
 		})
 	}
-
-	public static sendDemistoSDKCommandSync(command: string[], options: SpawnSyncOptions): void{
-		this.openTerminalIfNeeded(true)
-		Logger.info("Executing Lint sync")
-		this.terminal.sendText(`echo Running ${command.join(' ')}, please wait...`)
+	public static async sendDemistoSdkCommandWithProgress(command: string[]): Promise<void> {
 		const sdkPath = tools.getSDKPath()
 		let cmd = '';
-		let args: string[]
 		if (sdkPath) {
-			cmd = `${tools.getSDKPath()}`
-			args = command
+			cmd = `${tools.getSDKPath()} ${command.join(' ')}`
 		} else {
 			cmd = `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
-			args = ['-m', 'demisto_sdk', ...command]
 		}
-		Logger.info(`Executing command in sync: \`${cmd}\``)
-		const {stdout, stderr} = spawnSync(cmd, args, options)
-		Logger.info(stdout.toString('utf-8'))
-		Logger.error(stderr.toString('utf-8'))
-		Logger.info('Finished lint')
+		const task = new vscode.Task(
+			{ type: 'demisto-sdk', name: command[0] },
+			vscode.TaskScope.Workspace,
+			command[0],
+			'demisto-sdk',
+			new vscode.ShellExecution(cmd));
+		return new Promise<void>(resolve => {
+			vscode.window.withProgress({
+				cancellable: false,
+				title: `demisto-sdk ${command}`,
+				location: vscode.ProgressLocation.Notification
+			}, async (progress) => {
+				progress.report({ message: `Starting demisto-sdk ${command}, please wait` })
+				const execution = await vscode.tasks.executeTask(task);
+				const disposable = vscode.tasks.onDidEndTask(e => {
+					if (e.execution == execution) {
+						progress.report({ message: "Finished", increment: 100 })
+						disposable.dispose();
+						resolve();
+					}
+					
+				})
+				progress.report({ message: "Proccessing..." });
+			});
+	
+		})
 	}
-
+	
 	private static createTerminal(options: vscode.TerminalOptions): vscode.Terminal {
 		return vscode.window.createTerminal(options)
 	}

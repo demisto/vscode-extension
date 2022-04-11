@@ -129,27 +129,36 @@ export function activate(context: vscode.ExtensionContext): void {
 	}
 }
 
-function createDevContainer(fileName: string) {
-	dsdk.lintSync(fileName, false);
-	const filePath = path.parse(fileName)
-	const ymlFilePath = path.join(fileName, filePath.name.concat('.yml'))
-	const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
-	const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
-	Logger.info(`docker image is ${dockerImage}`)
-	Logger.debug(__dirname)
-	const devcontainerJsonPath = path.resolve(__dirname, '../Templates/.devcontainer/devcontainer.json')
-	const devcontainer = JSON.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
-	devcontainer.build.args.IMAGENAME = dockerImage
+async function createDevContainer(fileName: string) {
 	const devcontainerFolder = path.join(fileName, '.devcontainer')
-	fs.copySync(path.resolve(__dirname, '../Templates/.devcontainer'), devcontainerFolder)
-	fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
-	Logger.info('devcontainer folder created')
-	let cmd = ''
-	cmd = `sh -x ${path.join(devcontainerFolder, 'create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
-	Logger.info(cmd)
-	execSync(cmd, {cwd: fileName})
-	Logger.info('certs.crt created, now creating container')
-	vscode.commands.executeCommand('remote-containers.openFolder', vscode.Uri.file(fileName))
+	if (!await fs.pathExists(devcontainerFolder)) {
+		vscode.window.showInformationMessage("Starting demisto-sdk lint, please wait")
+		await dsdk.lint(fileName, false, false, true)
+		vscode.window.showInformationMessage("Building devcontainer folder")
+		const filePath = path.parse(fileName)
+		const ymlFilePath = path.join(fileName, filePath.name.concat('.yml'))
+		const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
+		const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+		Logger.info(`docker image is ${dockerImage}`)
+		const devcontainerJsonPath = path.resolve(__dirname, '../Templates/.devcontainer/devcontainer.json')
+		const devcontainer = JSON.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
+		devcontainer.build.args.IMAGENAME = dockerImage
+		fs.copySync(path.resolve(__dirname, '../Templates/.devcontainer'), devcontainerFolder)
+		fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
+		Logger.info('devcontainer folder created')
+		let cmd = ''
+		cmd = `sh -x ${path.join(devcontainerFolder, 'create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
+		Logger.info(cmd)
+		execSync(cmd, { cwd: fileName })
+		Logger.info('certs.crt created, now creating container')
+	}
+	if (!vscode.extensions.getExtension('ms-vscode-remote.remote-containers')) {
+		vscode.window.showErrorMessage('install ms-vscode-remote.remote-containers and run again')
+	}
+	else {
+		vscode.commands.executeCommand('remote-containers.openFolder', vscode.Uri.file(fileName))
+	}
+
 }
 
 // this method is called when your extension is deactivated
