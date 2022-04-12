@@ -106,8 +106,13 @@
         "category": "XSOAR"
       },
       {
-        "command": "xsoar.container",
-        "title": "Open in Dev Container",
+        "command": "xsoar.integrationContainer",
+        "title": "Open integration/script in Dev Container",
+        "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.contentContainer",
+        "title": "Open content in Dev Container",
         "category": "XSOAR"
       }
     ],
@@ -138,7 +143,11 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.container",
+          "command": "xsoar.integrationContainer",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.contentContainer",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ],
@@ -168,7 +177,11 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.container",
+          "command": "xsoar.integrationContainer",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.contentContainer",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ]

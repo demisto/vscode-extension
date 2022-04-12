@@ -10,7 +10,7 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
-import { execSync } from 'child_process';
+import { createContentDevContainer, createIntegrationDevContainer } from './container';
 
 // this function returns the directory path of the file
 export function getDirPath(file: vscode.Uri | undefined): string {
@@ -28,9 +28,14 @@ export function activate(context: vscode.ExtensionContext): void {
 	const diagnosticCollection = vscode.languages.createDiagnosticCollection('XSOAR problems');
 	context.subscriptions.push(diagnosticCollection);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.container', (file: vscode.Uri | undefined) => {
+		vscode.commands.registerCommand('xsoar.integrationContainer', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)
-			createDevContainer(fileToRun)
+			createIntegrationDevContainer(fileToRun)
+		})
+	)
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.contentContainer', () => {
+			createContentDevContainer()
 		})
 	)
 	context.subscriptions.push(
@@ -127,38 +132,6 @@ export function activate(context: vscode.ExtensionContext): void {
 	if (workspaces) {
 		autoGetProblems(workspaces, diagnosticCollection)
 	}
-}
-
-async function createDevContainer(fileName: string) {
-	const devcontainerFolder = path.join(fileName, '.devcontainer')
-	if (!await fs.pathExists(devcontainerFolder)) {
-		vscode.window.showInformationMessage("Starting demisto-sdk lint, please wait")
-		await dsdk.lint(fileName, false, false, true)
-		vscode.window.showInformationMessage("Building devcontainer folder")
-		const filePath = path.parse(fileName)
-		const ymlFilePath = path.join(fileName, filePath.name.concat('.yml'))
-		const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
-		const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
-		Logger.info(`docker image is ${dockerImage}`)
-		const devcontainerJsonPath = path.resolve(__dirname, '../Templates/.devcontainer/devcontainer.json')
-		const devcontainer = JSON.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
-		devcontainer.build.args.IMAGENAME = dockerImage
-		fs.copySync(path.resolve(__dirname, '../Templates/.devcontainer'), devcontainerFolder)
-		fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
-		Logger.info('devcontainer folder created')
-		let cmd = ''
-		cmd = `sh -x ${path.join(devcontainerFolder, 'create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
-		Logger.info(cmd)
-		execSync(cmd, { cwd: fileName })
-		Logger.info('certs.crt created, now creating container')
-	}
-	if (!vscode.extensions.getExtension('ms-vscode-remote.remote-containers')) {
-		vscode.window.showErrorMessage('install ms-vscode-remote.remote-containers and run again')
-	}
-	else {
-		vscode.commands.executeCommand('remote-containers.openFolder', vscode.Uri.file(fileName))
-	}
-
 }
 
 // this method is called when your extension is deactivated
