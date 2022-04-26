@@ -18,13 +18,14 @@
 			"--ignore-missing-imports",
 			"--show-column-numbers",
 			"--no-pretty",
-			"--allow-redefinition",
+			"--allow-redefinition"
 		],
         "python.testing.cwd": "${containerWorkspaceFolder}",
         "python.testing.pytestEnabled": true,
         "files.autoSave": "afterDelay"
 
 	},
+	"postCreateCommand": "pip install -r /extra-requirements.txt --no-cache-dir --disable-pip-version-check && pip install -r /extra-requirements-py3.txt --disable-pip-version-check",
 	"extensions": [
 		"ms-python.python",
 		"ms-python.vscode-pylance",

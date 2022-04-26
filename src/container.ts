@@ -9,6 +9,7 @@ import * as fs from "fs-extra";
 
 export async function createIntegrationDevContainer(fileName: string): Promise<void> {
     const devcontainerFolder = path.join(fileName, '.devcontainer')
+    Logger.info(`devcontainerFolder is ${devcontainerFolder}`)
     if (!await fs.pathExists(path.join(devcontainerFolder, 'devcontainer.json'))) {
         vscode.window.showInformationMessage("Starting demisto-sdk lint, please wait")
         await dsdk.lint(fileName, false, false, true)
@@ -24,8 +25,7 @@ export async function createIntegrationDevContainer(fileName: string): Promise<v
         fs.copySync(path.resolve(__dirname, '../Templates/.devcontainer'), devcontainerFolder)
         fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
         Logger.info('devcontainer folder created')
-        let cmd = ''
-        cmd = `sh -x ${path.resolve(__dirname, '../Templates/create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
+        const cmd = `sh -x ${path.resolve(__dirname, '../Templates/create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
         Logger.info(cmd)
         execSync(cmd, { cwd: fileName })
         Logger.info('certs.crt created, now creating container')
@@ -66,11 +66,11 @@ export async function createContentDevContainer(): Promise<void> {
     }
     const workspaceFolder = workspaceFolders[0]
     const devcontainerFolder = path.join(workspaceFolder.uri.fsPath, '.devcontainer')
+    Logger.info(`devcontainerFolder is ${devcontainerFolder}`)
     if (!await fs.pathExists(path.join(devcontainerFolder, 'devcontainer.json'))) {
         fs.copySync(path.resolve(__dirname, '../Templates/.devcontainer'), devcontainerFolder)
         fs.copySync(path.resolve(__dirname, '../Templates/devcontainer.json'), path.join(devcontainerFolder, 'devcontainer.json'))
-        let cmd = ''
-        cmd = `sh -x ${path.resolve(__dirname, '../Templates/create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
+        const cmd = `sh -x ${path.resolve(__dirname, '../Templates/create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
         Logger.info(cmd)
         execSync(cmd, { cwd: devcontainerFolder })
     }

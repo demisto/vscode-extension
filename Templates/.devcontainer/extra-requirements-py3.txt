@@ -1,11 +1,4 @@
-pytest
-pytest-mock
-requests-mock
-flake8
-autopep8
-freezegun
 mypy
-typed-ast
 types-dateparser
 types-PyYAML
 types-requests
@@ -20,5 +13,3 @@ types-chardet
 types-six
 types-PyMySQL
 types-protobuf
-
-
