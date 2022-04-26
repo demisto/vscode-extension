@@ -7,7 +7,7 @@
 			"LOCAL_WORKSPACE_PATH": "${localWorkspaceFolder}"
 		}
 	},
-	"containerUser": "root",
+	"containerUser": "demisto",
 	"settings": { 
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "python.linting.enabled": true,
@@ -19,14 +19,12 @@
 			"--show-column-numbers",
 			"--no-pretty",
 			"--allow-redefinition",
-			"--install-types"
 		],
         "python.testing.cwd": "${containerWorkspaceFolder}",
         "python.testing.pytestEnabled": true,
         "files.autoSave": "afterDelay"
 
 	},
-	"postCreateCommand": "pip install pytest pytest-mock requests-mock mypy flake8 autopep8 freezegun --no-cache-dir --disable-pip-version-check",
 	"extensions": [
 		"ms-python.python",
 		"ms-python.vscode-pylance",
