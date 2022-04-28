@@ -18,9 +18,7 @@
 			"--ignore-missing-imports",
 			"--show-column-numbers",
 			"--no-pretty",
-			"--allow-redefinition",
-			"--install-types",
-			"--non-interactive"
+			"--allow-redefinition"
 		],
         "python.testing.pytestEnabled": true,
         "files.autoSave": "afterDelay"
