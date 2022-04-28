@@ -51,6 +51,7 @@ There are two options:
    To activate, run the command `Open integration/script in Dev Container` from the command pallette or right click in file or editor inside a specific integration or a script.
    If running an integration which is on `python 2`, the installation of `mypy` will fail because it's not supported on `python 2`. In addition, in order to debug the tests it is required to install `Python` extension version `2022.2`:
    ![image](https://user-images.githubusercontent.com/88267954/165749900-0a152f16-f715-4144-ab79-0d34f16b1a6a.png)
+   
    ![image](https://user-images.githubusercontent.com/88267954/165750018-897fb6ac-b6e2-48a5-ad4b-e7d4533bb8b2.png)
 
 * Make sure you have `ms-vscode-remote.remote-containers` extension installed.
