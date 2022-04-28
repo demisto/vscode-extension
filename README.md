@@ -45,13 +45,13 @@ The Cortex XSOAR extension can run content on development container.
 
 There are two options:
 
-1. Run content repository on Dev Container. This opens the repository on [demisto-sdk docker](https://github.com/demisto/dockerfiles/tree/master/docker/demisto-sdk), which contains `demisto-sdk` and content `content` basic requirements.
+1. Run content repository on Dev Container. This opens the repository on [demisto-sdk docker](https://github.com/demisto/dockerfiles/tree/master/docker/demisto-sdk), which contains `demisto-sdk` and `content` basic requirements.
    To activate, run the command `Open content in Dev Container` from the command pallette or right click in file or editor.
 2. Run an integration of script on dev container. This opens a workspace inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment.
    To activate, run the command `Open integration/script in Dev Container` from the command pallette or right click in file or editor inside a specific integration or a script.
    If running an integration which is on `python 2`, the installation of `mypy` will fail because it's not supported on `python 2`. In addition, in order to debug the tests it is required to install `Python` extension version `2022.2`:
    ![image](https://user-images.githubusercontent.com/88267954/165749900-0a152f16-f715-4144-ab79-0d34f16b1a6a.png)
-   
+
    ![image](https://user-images.githubusercontent.com/88267954/165750018-897fb6ac-b6e2-48a5-ad4b-e7d4533bb8b2.png)
 
 * Make sure you have `ms-vscode-remote.remote-containers` extension installed.
