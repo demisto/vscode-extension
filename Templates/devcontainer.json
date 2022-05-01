@@ -3,7 +3,7 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": {
-			"IMAGENAME": "demisto/demisto-sdk:1.6.1.27477",
+			"IMAGENAME": "demisto/demisto-sdk:latest",
 			"LOCAL_WORKSPACE_PATH": "${localWorkspaceFolder}"
 		}
 	},
