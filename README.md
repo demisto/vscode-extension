@@ -84,7 +84,7 @@ Using a Python 2.* container, *mypy* will not be able to be installed. For debug
 ![image](https://user-images.githubusercontent.com/88267954/165750018-897fb6ac-b6e2-48a5-ad4b-e7d4533bb8b2.png)
 
 * Make sure you have [`ms-vscode-remote.remote-containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)` extension installed.
-* Make sure you have `docker daemon` running (`docker` is used to pull and build the development container)/
+* Make sure you have `docker daemon` running (you can check with executing `docker ps`).
 * It is possible to open content in Dev Container, and inside this container open integration/script in Dev Container.
 * The integration/script Dev Container does not have `demisto-sdk` or `git`.
 * The workspace folder is bind with the local folder. It is possible to work simultaneously on the same files locally and with Dev Container, because they are mirrored.
