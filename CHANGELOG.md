@@ -10,7 +10,7 @@
 - Removed the support of the **maintenance** option from the *Update Release Notes* command.
 - Fixed running demisto-sdk commands in menus from directories to run in the correct directory.
 - Added an option to run lint with tests in menu.
-- Added an option to run content and integrations/scripts on development container.
+- Added an option to run content and integrations/scripts in a development container with right-click and pick <command-name>.  also add a gif/screenshot of it.
 ## [0.1.0] (2021-11-09)
 
 - The Cortex XSOAR extension for Visual Studio Code is now official GA!
