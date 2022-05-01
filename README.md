@@ -39,6 +39,29 @@ The linters will write its data to the path configured in `xsoar.autoFindProblem
 
 If you wish to see the process running (or check why it's failing or not working), change `xsoar.linter.showOnSaveTerminal` to `true`.
 
+### Auto Save  
+
+By default, the extension will automatically save changes made to the integration/automation file made in the webview (opened with *XSOAR: Load Integration/Script*).
+to disable it, change `xsoar.autoSave` to `false`.
+
+## Contributing
+
+Contributions are welcome and appreciated. To contribute follow the instructions below and submit a PR.
+
+Before merging any PRs, we need all contributors to sign a contributor license agreement. By signing a contributor license agreement, we ensure that the community is free to use your contributions.
+
+When you open a new pull request, a bot will evaluate whether you have signed the CLA. If required, the bot will comment on the pull request, including a link to accept the agreement. The CLA document is also available for review as a [PDF](https://github.com/demisto/content/blob/master/docs/cla.pdf).
+
+If the `license/cla` status check remains on *Pending*, even though all contributors have accepted the CLA, you can recheck the CLA status by visiting the following link (replace **[PRID]** with the ID of your PR): <https://cla-assistant.io/check/demisto/vscode-extension?pullRequest=[PRID]> .
+
+## Development
+
+### Dev Setup Environment  
+
+* `npm install`
+* `npm run compile`
+* `pip demisto-sdk` or use [pipenv](https://pipenv.pypa.io/en/latest/) to install the demisto-sdk from the Pipfile.
+
 ### Dev Containers
 
 The Cortex XSOAR extension can run content on development container.
@@ -65,28 +88,6 @@ Using a Python 2.* container, *mypy* will not be able to be installed. For debug
 * It is possible to open content in Dev Container, and inside this container open integration/script in Dev Container.
 * The integration/script Dev Container does not have `demisto-sdk` or `git`.
 * The workspace folder is bind with the local folder. It is possible to work simultaneously on the same files locally and with Dev Container, because they are mirrored.
-### Auto Save  
-
-By default, the extension will automatically save changes made to the integration/automation file made in the webview (opened with *XSOAR: Load Integration/Script*).
-to disable it, change `xsoar.autoSave` to `false`.
-
-## Contributing
-
-Contributions are welcome and appreciated. To contribute follow the instructions below and submit a PR.
-
-Before merging any PRs, we need all contributors to sign a contributor license agreement. By signing a contributor license agreement, we ensure that the community is free to use your contributions.
-
-When you open a new pull request, a bot will evaluate whether you have signed the CLA. If required, the bot will comment on the pull request, including a link to accept the agreement. The CLA document is also available for review as a [PDF](https://github.com/demisto/content/blob/master/docs/cla.pdf).
-
-If the `license/cla` status check remains on *Pending*, even though all contributors have accepted the CLA, you can recheck the CLA status by visiting the following link (replace **[PRID]** with the ID of your PR): <https://cla-assistant.io/check/demisto/vscode-extension?pullRequest=[PRID]> .
-
-## Development
-
-### Dev Setup Environment  
-
-* `npm install`
-* `npm run compile`
-* `pip demisto-sdk` or use [pipenv](https://pipenv.pypa.io/en/latest/) to install the demisto-sdk from the Pipfile.
 
 ### Main Locations
 
