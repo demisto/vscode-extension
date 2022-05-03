@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { ProcessEnvOptions, exec } from "child_process";
+import { exec, ProcessEnvOptions } from "child_process";
 import * as tools from "./tools";
 import { Logger } from "./logger";
 /**
@@ -24,28 +24,64 @@ export class TerminalManager {
 	): Promise<void> {
 		const sdkPath = tools.getSDKPath()
 		let cmd = '';
-		if (sdkPath){
+		if (sdkPath) {
 			cmd = `${tools.getSDKPath()} ${command.join(' ')}`
 		} else {
 			cmd = `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
 		}
 		Logger.info(`Executing command in background: \`${cmd}\``)
 		exec(cmd, options, (error, stdout) => {
-			if (error){
+			if (error) {
 				Logger.error(error.message)
 				Logger.error(stdout)
 			} else {
 				Logger.info(stdout)
 			}
-			
+
 		})
 	}
-	private static createTerminal(options: vscode.TerminalOptions): vscode.Terminal{
+	public static async sendDemistoSdkCommandWithProgress(command: string[]): Promise<void> {
+		const sdkPath = tools.getSDKPath()
+		let cmd = '';
+		if (sdkPath) {
+			cmd = `${tools.getSDKPath()} ${command.join(' ')}`
+		} else {
+			cmd = `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
+		}
+		const task = new vscode.Task(
+			{ type: 'demisto-sdk', name: command[0] },
+			vscode.TaskScope.Workspace,
+			command[0],
+			'demisto-sdk',
+			new vscode.ShellExecution(cmd));
+		return new Promise<void>(resolve => {
+			vscode.window.withProgress({
+				cancellable: false,
+				title: `demisto-sdk ${command}`,
+				location: vscode.ProgressLocation.Notification
+			}, async (progress) => {
+				progress.report({ message: `Starting demisto-sdk ${command}, please wait` })
+				const execution = await vscode.tasks.executeTask(task);
+				const disposable = vscode.tasks.onDidEndTask(e => {
+					if (e.execution == execution) {
+						progress.report({ message: "Finished", increment: 100 })
+						disposable.dispose();
+						resolve();
+					}
+
+				})
+				progress.report({ message: "Proccessing..." });
+			});
+
+		})
+	}
+
+	private static createTerminal(options: vscode.TerminalOptions): vscode.Terminal {
 		return vscode.window.createTerminal(options)
 	}
 	public static async openTerminalIfNeeded(show = true): Promise<vscode.Terminal> {
 		if (!this.terminal || this.terminal.exitStatus !== undefined) {
-			this.terminal = this.createTerminal({name: 'XSOAR Extension Terminal'});
+			this.terminal = this.createTerminal({ name: 'XSOAR Extension Terminal' });
 			this.terminal.sendText('echo Welcome to the Cortex XSOAR Terminal!', true);
 			await this.delay(5000)
 		}
@@ -62,16 +98,21 @@ export class TerminalManager {
 	public static async sendDemistoSDKCommand(
 		command: string[],
 		show = true,
-		newTerminal = false
+		newTerminal = false,
+		timeout = 10000
 	): Promise<void> {
 		let terminal: vscode.Terminal
-		if (newTerminal){
-			terminal = this.createTerminal({name: 'Demisto-SDK Terminal'})
+		if (newTerminal) {
+			terminal = this.createTerminal({ name: 'Demisto-SDK Terminal' })
 		} else {
 			terminal = await this.openTerminalIfNeeded(show)
 		}
+		if (!show) {
+			terminal.hide()
+		}
 		terminal.sendText('')
-		terminal.sendText(`${tools.getSDKPath()} ${command.join(' ')}`);
+		terminal.sendText(`${tools.getSDKPath()} ${command.join(' ')}`)
+		await this.delay(timeout)
 	}
 	public static async sendText(
 		command: string[],

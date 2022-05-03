@@ -1,0 +1,39 @@
+{
+	"name": "XSOAR Content",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			"IMAGENAME": "demisto/demisto-sdk:1.6.4.29231",
+			"LOCAL_WORKSPACE_PATH": "${localWorkspaceFolder}"
+		}
+	},
+	"containerUser": "root",
+	"settings": { 
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.linting.mypyEnabled": true,
+		"python.linting.mypyArgs": [
+			"--follow-imports=silent",
+			"--ignore-missing-imports",
+			"--show-column-numbers",
+			"--no-pretty",
+			"--allow-redefinition"
+		],
+        "python.testing.pytestEnabled": true,
+        "files.autoSave": "afterDelay"
+
+	},
+	"extensions": [
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"ms-vscode.PowerShell",
+		"cortexxsoarext.xsoar"
+	],
+	"features": {
+		"docker-from-docker": "20.10",
+		"git": "os-provided",
+		"github-cli": "latest"
+	}
+
+}

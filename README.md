@@ -62,6 +62,31 @@ If the `license/cla` status check remains on *Pending*, even though all contribu
 * `npm run compile`
 * `pip demisto-sdk` or use [pipenv](https://pipenv.pypa.io/en/latest/) to install the demisto-sdk from the Pipfile.
 
+### Dev Containers
+
+The Cortex XSOAR extension can run content on development container.
+
+There are two options:
+
+1. Run content repository on Dev Container. This opens the repository on [demisto-sdk docker](https://github.com/demisto/dockerfiles/tree/master/docker/demisto-sdk), which contains `demisto-sdk` and `content` basic requirements.
+To activate, run the command `Open content in Dev Container` from the command pallette or right click in file or editor.
+
+2. Run an integration of script on dev container. This opens a workspace inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment.      
+To activate, run the command `Open integration/script in Dev Container` from the command pallette or right click in file or editor inside a specific integration or a script.
+   
+We do not support Python 2.*.
+
+Using a Python 2.* container, *mypy* will not be able to be installed. For debugging the tests, it is necessary to install Python version `2022.2`:
+![image](https://user-images.githubusercontent.com/88267954/165749900-0a152f16-f715-4144-ab79-0d34f16b1a6a.png)
+
+![image](https://user-images.githubusercontent.com/88267954/165750018-897fb6ac-b6e2-48a5-ad4b-e7d4533bb8b2.png)
+
+* Make sure you have [`ms-vscode-remote.remote-containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)` extension installed.
+* Make sure you have `docker daemon` running (you can check with executing `docker ps`).
+* It is possible to open content in Dev Container, and inside this container open integration/script in Dev Container.
+* The integration/script Dev Container does not have `demisto-sdk` or `git`.
+* The workspace folder is bind with the local folder. It is possible to work simultaneously on the same files locally and with Dev Container, because they are mirrored.
+
 ### Main Locations
 
 * _package.json_: Define commands

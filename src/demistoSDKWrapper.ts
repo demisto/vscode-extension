@@ -54,13 +54,20 @@ export function lintUsingGit(file: string): void {
 	TerminalManager.sendDemistoSDKCommand(command);
 
 }
-export function lint(file: string, tests = true): void {
+export async function lint(file: string, tests = true, lints = true, progress = false): Promise<void> {
 	const command = ['lint', '-i', file, '-j', tools.getReportPath(file)];
 	if (!tests) {
 		command.push('--no-test', '--no-pwsh-test')
 	}
-	TerminalManager.sendDemistoSDKCommand(command);
-
+	if (!lints) {
+		command.push('--no-flake8', '--no-mypy', '--no-bandit', '--no-xsoar-linter', '--no-vulture', '--no-pylint')
+	}
+	if (progress) {
+		await TerminalManager.sendDemistoSdkCommandWithProgress(command)
+	}
+	else {
+		TerminalManager.sendDemistoSDKCommand(command);
+	}
 }
 
 export function run(): void {

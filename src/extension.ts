@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as yaml from "yaml";
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import * as path from "path";
 import * as tools from "./tools";
 import * as dsdk from "./demistoSDKWrapper";
@@ -10,6 +10,7 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
+import { createContentDevContainer, createIntegrationDevContainer } from './container';
 
 // this function returns the directory path of the file
 export function getDirPath(file: vscode.Uri | undefined): string {
@@ -26,6 +27,17 @@ export function activate(context: vscode.ExtensionContext): void {
 	Logger.createLogger()
 	const diagnosticCollection = vscode.languages.createDiagnosticCollection('XSOAR problems');
 	context.subscriptions.push(diagnosticCollection);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.integrationContainer', (file: vscode.Uri | undefined) => {
+			const fileToRun = getDirPath(file)
+			createIntegrationDevContainer(fileToRun)
+		})
+	)
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.contentContainer', () => {
+			createContentDevContainer()
+		})
+	)
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.load', loadYAML(context.extensionUri))
 	);
