@@ -1,5 +1,7 @@
 # Change Log
 
+## [Unreleased]
+
 ## [0.2.0] (2022-05-09)
 
 - The **xsoar.autoFindProblems.readProblems** setting defaults to ***false*** which prevents the log file from appearing in each workspace opened.
