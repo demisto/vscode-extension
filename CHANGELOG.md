@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [0.2.0] (2022-05-09)
 
 - The **xsoar.autoFindProblems.readProblems** setting defaults to ***false*** which prevents the log file from appearing in each workspace opened.
 - The **xsoar.demisto-sdk.pythonPath** is now deprecated.  
@@ -10,7 +10,8 @@
 - Removed the support of the **maintenance** option from the *Update Release Notes* command.
 - Fixed running demisto-sdk commands in menus from directories to run in the correct directory.
 - Added an option to run lint with tests in menu.
-- Added an option to run content and integrations/scripts in a development container with right-click and pick *Open content in Dev Container* or *Open integration/script in Dev Container*.  
+- Added an option to run content and integrations/scripts in a development container with right-click and pick *Open content in Dev Container* or *Open integration/script in Dev Container*.
+
 ## [0.1.0] (2021-11-09)
 
 - The Cortex XSOAR extension for Visual Studio Code is now official GA!
