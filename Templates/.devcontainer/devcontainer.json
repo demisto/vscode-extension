@@ -1,0 +1,36 @@
+{
+	"name": "XSOAR Integration",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			"IMAGENAME": "demisto/python3:3.10.1.25933",
+			"LOCAL_WORKSPACE_PATH": "${localWorkspaceFolder}"
+		}
+	},
+	"containerUser": "demisto",
+	"settings": { 
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.linting.mypyEnabled": true,
+		"python.linting.mypyArgs": [
+			"--follow-imports=silent",
+			"--ignore-missing-imports",
+			"--show-column-numbers",
+			"--no-pretty",
+			"--allow-redefinition"
+		],
+        "python.testing.cwd": "${containerWorkspaceFolder}",
+        "python.testing.pytestEnabled": true,
+        "files.autoSave": "afterDelay"
+
+	},
+	"postCreateCommand": "pip install -r /extra-requirements.txt --no-cache-dir --disable-pip-version-check && pip install -r /extra-requirements-py3.txt --disable-pip-version-check",
+	"extensions": [
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"ms-vscode.PowerShell",
+		"cortexxsoarext.xsoar"
+	]
+
+}
