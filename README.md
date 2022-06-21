@@ -50,11 +50,10 @@ The Cortex XSOAR extension can run content in a development container.
 
 There are two options:
 
-1. Run content repository on Dev Container. This opens the repository on [demisto-sdk docker](https://github.com/demisto/dockerfiles/tree/master/docker/demisto-sdk), which contains `demisto-sdk`.
-In addition, `git`, `pyenv`, `zsh` with recommended settings and `PYTHONPATH` are configured in the container. 
-To activate, run the command `Open content environment in Dev Container` from the command pallette or right click in file or editor.
+1. Run content repository on Dev Container. This opens the repository on [demisto-sdk docker](https://github.com/demisto/dockerfiles/tree/master/docker/demisto-sdk), which contains `demisto-sdk` and `content` basic requirements.
+To activate, run the command `Open content in Dev Container` from the command pallette or right click in file or editor.
 
-1. Run an integration of script on dev container. This opens a workspace inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment.      
+2. Run an integration of script on dev container. This opens a workspace inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment.      
 To activate, run the command `Open integration/script in Dev Container` from the command pallette or right click in file or editor inside a specific integration or a script.
    
 #### Python 2.* Support
