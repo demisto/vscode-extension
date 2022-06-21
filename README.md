@@ -44,6 +44,36 @@ If you wish to see the process running (or check why it's failing or not working
 By default, the extension will automatically save changes made to the integration/automation file made in the webview (opened with *XSOAR: Load Integration/Script*).
 to disable it, change `xsoar.autoSave` to `false`.
 
+## Dev Containers
+
+The Cortex XSOAR extension can run content in a development container.
+
+There are two options:
+
+1. Run content repository on Dev Container. This opens the repository on [demisto-sdk docker](https://github.com/demisto/dockerfiles/tree/master/docker/demisto-sdk), which contains `demisto-sdk`.
+In addition, `git`, `pyenv`, `zsh` with recommended settings and `PYTHONPATH` are configured in the container. 
+To activate, run the command `Open content environment in Dev Container` from the command pallette or right click in file or editor.
+
+1. Run an integration of script on dev container. This opens a workspace inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment.      
+To activate, run the command `Open integration/script in Dev Container` from the command pallette or right click in file or editor inside a specific integration or a script.
+   
+#### Python 2.* Support
+
+Using a Python 2.* container, *mypy* will not be able to be installed. For debugging the tests, it is necessary to install The VSCode Python extension version `2022.2`:
+![Python 2](documentation/changelog/0.2.0/python2_1.png)
+
+![Python 2](documentation/changelog/0.2.0/python2_2.png)
+
+#### Dev Container Notes
+
+* Make sure you have [`ms-vscode-remote.remote-containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)` extension installed.
+* Make sure you have `docker daemon` running (you can check with executing `docker ps`).
+* It is possible to open content in Dev Container, and inside this container open integration/script in Dev Container.
+* The integration/script Dev Container does not have `demisto-sdk` or `git`.
+* The workspace folder is bind with the local folder. It is possible to work simultaneously on the same files locally and with Dev Container, because they are mirrored.
+
+
+
 ## Contributing
 
 Contributions are welcome and appreciated. To contribute follow the instructions below and submit a PR.
@@ -61,31 +91,6 @@ If the `license/cla` status check remains on *Pending*, even though all contribu
 * `npm install`
 * `npm run compile`
 * `pip demisto-sdk` or use [pipenv](https://pipenv.pypa.io/en/latest/) to install the demisto-sdk from the Pipfile.
-
-### Dev Containers
-
-The Cortex XSOAR extension can run content on development container.
-
-There are two options:
-
-1. Run content repository on Dev Container. This opens the repository on [demisto-sdk docker](https://github.com/demisto/dockerfiles/tree/master/docker/demisto-sdk), which contains `demisto-sdk` and `content` basic requirements.
-To activate, run the command `Open content in Dev Container` from the command pallette or right click in file or editor.
-
-2. Run an integration of script on dev container. This opens a workspace inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment.      
-To activate, run the command `Open integration/script in Dev Container` from the command pallette or right click in file or editor inside a specific integration or a script.
-   
-We do not support Python 2.*.
-
-Using a Python 2.* container, *mypy* will not be able to be installed. For debugging the tests, it is necessary to install Python version `2022.2`:
-![Python 2](documentation/changelog/0.2.0/python2_1.png)
-
-![Python 2](documentation/changelog/0.2.0/python2_2.png)
-
-* Make sure you have [`ms-vscode-remote.remote-containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)` extension installed.
-* Make sure you have `docker daemon` running (you can check with executing `docker ps`).
-* It is possible to open content in Dev Container, and inside this container open integration/script in Dev Container.
-* The integration/script Dev Container does not have `demisto-sdk` or `git`.
-* The workspace folder is bind with the local folder. It is possible to work simultaneously on the same files locally and with Dev Container, because they are mirrored.
 
 ### Main Locations
 
