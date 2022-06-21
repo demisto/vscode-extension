@@ -40,6 +40,7 @@ export async function createIntegrationDevContainer(fileName: string): Promise<v
     Logger.info(`fileName is: ${fileName}`)
     Logger.info(`uri schema is ${vscode.env.uriScheme}`)
     let fileNameUri = vscode.Uri.file(fileName)
+    // if we are already inside a remote, the URI prefix should be `vscode://`
     if (vscode.env.remoteName === 'dev-container') {
         const local_workspace_path = process.env.LOCAL_WORKSPACE_PATH
         if (!local_workspace_path) {
@@ -59,6 +60,7 @@ export async function createIntegrationDevContainer(fileName: string): Promise<v
         vscode.window.showErrorMessage('Please install remote-containers extension to use this feature')
     }
     else {
+        // second argument is open in new window
         vscode.commands.executeCommand('remote-containers.openFolder', fileNameUri, true)
     }
 
