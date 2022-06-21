@@ -3,8 +3,7 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": {
-			"IMAGENAME": "demisto/python3:3.10.1.25933",
-			"LOCAL_WORKSPACE_PATH": "${localWorkspaceFolder}"
+			"IMAGENAME": "demisto/python3:3.10.1.25933"
 		}
 	},
 	"containerUser": "demisto",
