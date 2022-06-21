@@ -112,7 +112,7 @@
       },
       {
         "command": "xsoar.contentContainer",
-        "title": "Open content environment in Dev Container",
+        "title": "Open content in Dev Container",
         "category": "XSOAR"
       }
     ],
