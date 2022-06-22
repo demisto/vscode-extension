@@ -5,7 +5,7 @@
 - Content environment now fully configured with `demisto-sdk`, `git`, `pyenv`, `zsh`,
   recommended environment variables and live `lint`.
 - Fixed an issue on which the updated docker image in YML wasn't updated in the devcontainer. 
-- Open the integration dev container in new folder.
+- Open the integration dev container in new window.
 
 ## [0.2.0] (2022-05-09)
 
