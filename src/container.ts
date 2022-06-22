@@ -1,5 +1,9 @@
 import { execSync } from "child_process"
 import { Logger } from "./logger"
+import fetch from 'node-fetch'
+import { Cache, CacheContainer } from 'node-ts-cache'
+import { MemoryStorage } from 'node-ts-cache-storage-memory'
+
 import vscode from 'vscode'
 import path from 'path'
 import * as dsdk from "./demistoSDKWrapper";
@@ -10,8 +14,14 @@ import * as fs from "fs-extra";
 export async function createIntegrationDevContainer(fileName: string): Promise<void> {
     const devcontainerFolder = path.join(fileName, '.devcontainer')
     Logger.info(`devcontainerFolder is ${devcontainerFolder}`)
+    Logger.info('Create json configuration for debugging')
+    const launchJsonPath = path.resolve(__dirname, '../Templates/launch.json')
+    const launchJsonOutput = path.join(fileName, '.vscode', 'launch.json')
+    fs.copySync(launchJsonPath, launchJsonOutput)
+
     const filePath = path.parse(fileName)
     const ymlFilePath = path.join(fileName, filePath.name.concat('.yml'))
+
     const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
     const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
     Logger.info(`docker image is ${dockerImage}`)
@@ -75,7 +85,15 @@ export async function createContentDevContainer(): Promise<void> {
     const workspaceFolder = workspaceFolders[0]
     const devcontainerFolder = path.join(workspaceFolder.uri.fsPath, '.devcontainer')
     Logger.info(`devcontainerFolder is ${devcontainerFolder}`)
-    fs.copySync(path.resolve(__dirname, '../Templates/content_env/.devcontainer'), devcontainerFolder)
+    const devcontainerJsonPath = path.resolve(__dirname, '../Templates/content_env/.devcontainer/devcontainer.json')
+    fs.copySync(path.resolve(__dirname, '../Templates/integration_env/.devcontainer'), devcontainerFolder)
+    const devcontainer = JSON.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
+    const dockerImage = await LatestDockerService.getLatestImage()
+    if (dockerImage) {
+        devcontainer.build.args.IMAGENAME = dockerImage
+        fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
+    }
+
     const cmd = `sh -x ${path.resolve(__dirname, '../Templates/create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
     Logger.info(cmd)
     execSync(cmd, { cwd: devcontainerFolder })
@@ -84,5 +102,28 @@ export async function createContentDevContainer(): Promise<void> {
     }
     else {
         vscode.commands.executeCommand('remote-containers.openFolder', vscode.Uri.file(workspaceFolder.uri.fsPath))
+    }
+}
+interface Docker {
+    name: string
+}
+
+interface Dockers {
+    results: Docker[]
+}
+
+const imageCache = new CacheContainer(new MemoryStorage())
+class LatestDockerService {
+    @Cache(imageCache, { ttl: 60 * 60 * 24 })
+    public static async getLatestImage(): Promise<string> {
+        const url = `https://registry.hub.docker.com/v2/repositories/demisto/demisto-sdk/tags/`
+        const response = await fetch(url)
+        const json = await response.json() as Dockers
+        try {
+            return json.results[0].name
+        }
+        catch (error) {
+            return ''
+        }
     }
 }

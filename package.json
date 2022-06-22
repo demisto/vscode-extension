@@ -283,6 +283,9 @@
     "fs-extra": "^10.0.1",
     "glob": "^7.1.6",
     "minimatch": "^3.0.4",
+    "node-fetch": "^3.2.6",
+    "node-ts-cache": "^4.4.0",
+    "node-ts-cache-storage-memory": "^4.4.0",
     "yaml": "^1.10.2"
   }
 }
