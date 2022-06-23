@@ -3,7 +3,7 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": {
-			"IMAGENAME": "devdemisto/demisto-sdk:1.6.8.30976"
+			"IMAGENAME": "devdemisto/demisto-sdk:1.6.8.31009"
 		}
 	},
 	"containerUser": "root",
@@ -28,6 +28,7 @@
 			"--namespace-packages"
 		],
 		"python.testing.pytestEnabled": true,
+		"python.testing.cwd": "'${env:INTEGRATION_PATH'",
 		"files.autoSave": "afterDelay"
 	},
 	"extensions": [
@@ -50,13 +51,12 @@
 		"KevinRose.vsc-python-indent",
 		"Gruntfuggly.todo-tree",
 		"redhat.vscode-yaml"
-
 	],
 	"containerEnv": {
 		"LOCAL_WORKSPACE_PATH": "${localWorkspaceFolder}",
 		"CONTENT": "${containerWorkspaceFolder}",
-		"PYTHONPATH": "${containerWorkspaceFolder}/Packs/Base/Scripts/CommonServerPython/:${containerWorkspaceFolder}/Tests/demistomock/:${containerWorkspaceFolder}/Packs/ApiModules/Scripts:$PYTHONPATH",
-		"MYPYPATH": "${containerWorkspaceFolder}/Packs/Base/Scripts/CommonServerPython/:${containerWorkspaceFolder}/Tests/demistomock/:${containerWorkspaceFolder}/Packs/ApiModules/Scripts:$MYPYPATH",
+		"PYTHONPATH": "${containerWorkspaceFolder}/Packs/Base/Scripts/CommonServerPython/:${containerWorkspaceFolder}/Tests/demistomock/",
+		"MYPYPATH": "${containerWorkspaceFolder}/Packs/Base/Scripts/CommonServerPython/:${containerWorkspaceFolder}/Tests/demistomock/",
 		"DEMISTO_BASE_URL": "${localEnv:DEMISTO_BASE_URL}",
 		"DEMISTO_USERNAME": "${localEnv:DEMISTO_USERNAME}",
 		"DEMISTO_PASSWORD": "${localEnv:DEMISTO_PASSWORD}",
@@ -66,5 +66,7 @@
 		"docker-from-docker": "20.10",
 		"git": "os-provided",
 		"github-cli": "latest"
-	}
+	},
+	// init ApiModule env variable to pythonpath
+	"postCreateCommand": "echo 'export PYTHONPATH=$(printf '%s: ' ${containerWorkspaceFolder}/Packs/ApiModules/Scripts/*):$PYTHONPATH' >> ~/.zshrc &&  echo 'export MYPYPATH=$(printf '%s: ' ${containerWorkspaceFolder}/Packs/ApiModules/Scripts/*):$MYPYPATH' >> ~/.zshrc"
 }

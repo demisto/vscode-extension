@@ -3,13 +3,15 @@ import { Logger } from "./logger"
 import fetch from 'node-fetch'
 import { Cache, CacheContainer } from 'node-ts-cache'
 import { MemoryStorage } from 'node-ts-cache-storage-memory'
-
+import os from 'os'
 import vscode from 'vscode'
 import path from 'path'
+import JSON5 from 'json5'
 import * as dsdk from "./demistoSDKWrapper";
 import * as yaml from "yaml";
 import * as fs from "fs-extra";
 
+const testVersion = true
 
 export async function createIntegrationDevContainer(fileName: string): Promise<void> {
     const devcontainerFolder = path.join(fileName, '.devcontainer')
@@ -35,14 +37,21 @@ export async function createIntegrationDevContainer(fileName: string): Promise<v
         fs.copySync(path.resolve(__dirname, '../Templates/integration_env/.devcontainer'), devcontainerFolder)
         fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
         Logger.info('devcontainer folder created')
-        const cmd = `sh -x ${path.resolve(__dirname, '../Templates/create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
+        let cmd
+        const output = path.join(devcontainerFolder, 'certs.crt') 
+        if (os.platform() === 'win32'){
+            cmd = `${path.resolve(__dirname, '../Templates/create_certs.ps1')} ${output}`
+        }
+        else{
+            cmd = `${path.resolve(__dirname, '../Templates/create_certs.sh')} ${output}`
+        }
         Logger.info(cmd)
         execSync(cmd, { cwd: fileName })
         Logger.info('certs.crt created, now creating container')
     }
     else {
         Logger.info(`devcontainer folder exists. Updating Image to ${dockerImage}`)
-        const devcontainer = JSON.parse(fs.readFileSync(path.join(devcontainerFolder, 'devcontainer.json'), 'utf-8'))
+        const devcontainer = JSON5.parse(fs.readFileSync(path.join(devcontainerFolder, 'devcontainer.json'), 'utf-8'))
         devcontainer.build.args.IMAGENAME = dockerImage
         fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
     }
@@ -86,15 +95,23 @@ export async function createContentDevContainer(): Promise<void> {
     const devcontainerFolder = path.join(workspaceFolder.uri.fsPath, '.devcontainer')
     Logger.info(`devcontainerFolder is ${devcontainerFolder}`)
     const devcontainerJsonPath = path.resolve(__dirname, '../Templates/content_env/.devcontainer/devcontainer.json')
-    fs.copySync(path.resolve(__dirname, '../Templates/integration_env/.devcontainer'), devcontainerFolder)
-    const devcontainer = JSON.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
+    fs.copySync(path.resolve(__dirname, '../Templates/content_env/.devcontainer'), devcontainerFolder)
+    const devcontainer = JSON5.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
     const dockerImage = await LatestDockerService.getLatestImage()
-    if (dockerImage) {
+    Logger.info(`docker image is ${dockerImage}`)
+    if (!testVersion && dockerImage) {
         devcontainer.build.args.IMAGENAME = dockerImage
         fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
     }
 
-    const cmd = `sh -x ${path.resolve(__dirname, '../Templates/create_certs.sh')} ${path.join(devcontainerFolder, 'certs.crt')}`
+    let cmd
+    const output = path.join(devcontainerFolder, 'certs.crt')
+    if (os.platform() === 'win32') {
+        cmd = `${path.resolve(__dirname, '../Templates/create_certs.ps1')} ${output}`
+    }
+    else {
+        cmd = `${path.resolve(__dirname, '../Templates/create_certs.sh')} ${output}`
+    }
     Logger.info(cmd)
     execSync(cmd, { cwd: devcontainerFolder })
     if (!(await vscode.commands.getCommands()).includes('remote-containers.openFolder')) {
@@ -112,9 +129,11 @@ interface Dockers {
     results: Docker[]
 }
 
+
 const imageCache = new CacheContainer(new MemoryStorage())
+//get latest image from docker hub
 class LatestDockerService {
-    @Cache(imageCache, { ttl: 60 * 60 * 24 })
+    @Cache(imageCache, { ttl: 60 * 60 })
     public static async getLatestImage(): Promise<string> {
         const url = `https://registry.hub.docker.com/v2/repositories/demisto/demisto-sdk/tags/`
         const response = await fetch(url)

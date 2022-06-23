@@ -6,6 +6,7 @@
   recommended environment variables and live `lint`.
 - Fixed an issue on which the updated docker image in YML wasn't updated in the devcontainer. 
 - Open the integration dev container in new window.
+- Added option to `Configure XSOAR Tests` in `Content` workspace.
 
 ## [0.2.0] (2022-05-09)
 

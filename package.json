@@ -114,6 +114,11 @@
         "command": "xsoar.contentContainer",
         "title": "Open content environment in Dev Container",
         "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.configureTests",
+        "title": "Configure XSOAR tests",
+        "category": "XSOAR"
       }
     ],
     "menus": {
@@ -148,6 +153,10 @@
         },
         {
           "command": "xsoar.contentContainer",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.configureTests",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ],
@@ -282,6 +291,7 @@
   "dependencies": {
     "fs-extra": "^10.0.1",
     "glob": "^7.1.6",
+    "json5": "^2.2.1",
     "minimatch": "^3.0.4",
     "node-fetch": "^3.2.6",
     "node-ts-cache": "^4.4.0",

@@ -25,7 +25,8 @@ export function createViewFromYML(yml: IntegrationI, ymlPath: PathLike, extensio
     try {
         integrationHolder = new IntegrationHolder(yml, ymlPath, imagePath);
     } catch (err) {
-        vscode.window.showErrorMessage(err);
+        const error = err as Error
+        vscode.window.showErrorMessage(error.message);
         panel.dispose()
         return
     }
