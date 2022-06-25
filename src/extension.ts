@@ -12,7 +12,6 @@ import * as automation from './automation';
 import { Logger } from './logger';
 import { createContentDevContainer, createIntegrationDevContainer } from './container';
 import JSON5 from 'json5'
-import { execSync } from 'child_process';
 
 // this function returns the directory path of the file
 export function getDirPath(file: vscode.Uri | undefined): string {

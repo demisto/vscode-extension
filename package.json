@@ -232,7 +232,7 @@
         },
         "xsoar.linter.lint.enable": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Whether to run the lint command on the files (Checks the code file."
         },
         "xsoar.linter.validate.enable": {

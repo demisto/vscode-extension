@@ -3,7 +3,7 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": {
-			"IMAGENAME": "devdemisto/demisto-sdk:1.6.8.31009"
+			"IMAGENAME": "devdemisto/content-env:1.0.0.31131"
 		}
 	},
 	"containerUser": "root",
@@ -14,7 +14,7 @@
 				"path": "/bin/zsh"
 			}
 		},
-		"python.defaultInterpreterPath": "/usr/local/bin/python",
+		"python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
 		"python.linting.enabled": true,
 		"python.linting.flake8Enabled": true,
 		"python.linting.mypyEnabled": true,
@@ -28,7 +28,7 @@
 			"--namespace-packages"
 		],
 		"python.testing.pytestEnabled": true,
-		"python.testing.cwd": "'${env:INTEGRATION_PATH'",
+		"python.testing.pytestArgs": ["."],
 		"files.autoSave": "afterDelay"
 	},
 	"extensions": [
@@ -55,8 +55,8 @@
 	"containerEnv": {
 		"LOCAL_WORKSPACE_PATH": "${localWorkspaceFolder}",
 		"CONTENT": "${containerWorkspaceFolder}",
-		"PYTHONPATH": "${containerWorkspaceFolder}/Packs/Base/Scripts/CommonServerPython/:${containerWorkspaceFolder}/Tests/demistomock/",
-		"MYPYPATH": "${containerWorkspaceFolder}/Packs/Base/Scripts/CommonServerPython/:${containerWorkspaceFolder}/Tests/demistomock/",
+		"PYTHONPATH": "${containerWorkspaceFolder}/Packs/Base/Scripts/CommonServerPython/:${containerWorkspaceFolder}/Packs/Base/Scripts/CommonServerUserPython/:${containerWorkspaceFolder}/Tests/demistomock/",
+		"MYPYPATH": "${containerWorkspaceFolder}/Packs/Base/Scripts/CommonServerPython/:${containerWorkspaceFolder}/Packs/Base/Scripts/CommonServerUserPython/:${containerWorkspaceFolder}/Tests/demistomock/",
 		"DEMISTO_BASE_URL": "${localEnv:DEMISTO_BASE_URL}",
 		"DEMISTO_USERNAME": "${localEnv:DEMISTO_USERNAME}",
 		"DEMISTO_PASSWORD": "${localEnv:DEMISTO_PASSWORD}",
@@ -68,5 +68,5 @@
 		"github-cli": "latest"
 	},
 	// init ApiModule env variable to pythonpath
-	"postCreateCommand": "echo 'export PYTHONPATH=$(printf '%s: ' ${containerWorkspaceFolder}/Packs/ApiModules/Scripts/*):$PYTHONPATH' >> ~/.zshrc &&  echo 'export MYPYPATH=$(printf '%s: ' ${containerWorkspaceFolder}/Packs/ApiModules/Scripts/*):$MYPYPATH' >> ~/.zshrc"
+	"onCreateCommand": "echo 'export PYTHONPATH=$(printf '%s: ' ${containerWorkspaceFolder}/Packs/ApiModules/Scripts/*):$PYTHONPATH' >> ~/.zshrc"
 }

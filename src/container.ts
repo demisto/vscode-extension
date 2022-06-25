@@ -10,6 +10,7 @@ import JSON5 from 'json5'
 import * as dsdk from "./demistoSDKWrapper";
 import * as yaml from "yaml";
 import * as fs from "fs-extra";
+import { TerminalManager } from "./terminalManager"
 
 const testVersion = true
 
@@ -38,15 +39,15 @@ export async function createIntegrationDevContainer(fileName: string): Promise<v
         fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
         Logger.info('devcontainer folder created')
         let cmd
-        const output = path.join(devcontainerFolder, 'certs.crt') 
+        const output = path.join(devcontainerFolder, 'certs.crt')
         if (os.platform() === 'win32'){
-            cmd = `${path.resolve(__dirname, '../Templates/create_certs.ps1')} ${output}`
+            cmd = `powershell ${path.resolve(__dirname, '../Templates/create_certs.ps1')} ${output}`
         }
         else{
-            cmd = `${path.resolve(__dirname, '../Templates/create_certs.sh')} ${output}`
+            cmd = `sh -x ${path.resolve(__dirname, '../Templates/create_certs.sh')} ${output}`
         }
         Logger.info(cmd)
-        execSync(cmd, { cwd: fileName })
+        TerminalManager.sendText(cmd, false)
         Logger.info('certs.crt created, now creating container')
     }
     else {
@@ -67,7 +68,7 @@ export async function createIntegrationDevContainer(fileName: string): Promise<v
         }
         const reltaveFileName = vscode.workspace.asRelativePath(fileName)
         Logger.debug(`relative pack is ${reltaveFileName}`)
-        const localFileName = path.join(local_workspace_path, reltaveFileName)
+        const localFileName = path.join(local_workspace_path, reltaveFileName).replaceAll('\\', '/')
         Logger.debug(`local file path is ${localFileName}`)
         fileNameUri = vscode.Uri.parse(`vscode://${localFileName}`)
     }
@@ -107,13 +108,14 @@ export async function createContentDevContainer(): Promise<void> {
     let cmd
     const output = path.join(devcontainerFolder, 'certs.crt')
     if (os.platform() === 'win32') {
-        cmd = `${path.resolve(__dirname, '../Templates/create_certs.ps1')} ${output}`
+        cmd = `powershell ${path.resolve(__dirname, '../Templates/create_certs.ps1')} ${output}`
     }
     else {
-        cmd = `${path.resolve(__dirname, '../Templates/create_certs.sh')} ${output}`
+        cmd = `sh -x ${path.resolve(__dirname, '../Templates/create_certs.sh')} ${output}`
     }
     Logger.info(cmd)
-    execSync(cmd, { cwd: devcontainerFolder })
+    TerminalManager.sendText(cmd, false)
+    Logger.info('certs.crt created, now creating container')
     if (!(await vscode.commands.getCommands()).includes('remote-containers.openFolder')) {
         vscode.window.showErrorMessage('Please install remote-containers extension to use this feature')
     }
@@ -135,7 +137,7 @@ const imageCache = new CacheContainer(new MemoryStorage())
 class LatestDockerService {
     @Cache(imageCache, { ttl: 60 * 60 })
     public static async getLatestImage(): Promise<string> {
-        const url = `https://registry.hub.docker.com/v2/repositories/demisto/demisto-sdk/tags/`
+        const url = `https://registry.hub.docker.com/v2/repositories/demisto/content-env/tags/`
         const response = await fetch(url)
         const json = await response.json() as Dockers
         try {
