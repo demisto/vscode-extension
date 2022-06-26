@@ -1,79 +1,61 @@
-import { execSync } from "child_process"
 import { Logger } from "./logger"
-import fetch from 'node-fetch'
-import { Cache, CacheContainer } from 'node-ts-cache'
-import { MemoryStorage } from 'node-ts-cache-storage-memory'
-import os from 'os'
 import vscode from 'vscode'
 import path from 'path'
 import JSON5 from 'json5'
 import * as dsdk from "./demistoSDKWrapper";
 import * as yaml from "yaml";
 import * as fs from "fs-extra";
-import { TerminalManager } from "./terminalManager"
 
-const testVersion = true
-
-export async function createIntegrationDevContainer(fileName: string): Promise<void> {
-    const devcontainerFolder = path.join(fileName, '.devcontainer')
+export async function createIntegrationDevContainer(dirPath: string): Promise<void> {
+    const devcontainerFolder = path.join(dirPath, '.devcontainer')
     Logger.info(`devcontainerFolder is ${devcontainerFolder}`)
     Logger.info('Create json configuration for debugging')
     const launchJsonPath = path.resolve(__dirname, '../Templates/launch.json')
-    const launchJsonOutput = path.join(fileName, '.vscode', 'launch.json')
+    const launchJsonOutput = path.join(dirPath, '.vscode', 'launch.json')
     fs.copySync(launchJsonPath, launchJsonOutput)
 
-    const filePath = path.parse(fileName)
-    const ymlFilePath = path.join(fileName, filePath.name.concat('.yml'))
+    const filePath = path.parse(dirPath)
+    const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
 
     const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
     const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
     Logger.info(`docker image is ${dockerImage}`)
     if (!await fs.pathExists(path.join(devcontainerFolder, 'devcontainer.json'))) {
         vscode.window.showInformationMessage("Starting demisto-sdk lint, please wait")
-        await dsdk.lint(fileName, false, false, true)
+        await dsdk.lint(dirPath, false, false, true)
         vscode.window.showInformationMessage("Building devcontainer folder")
         const devcontainerJsonPath = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/devcontainer.json')
         const devcontainer = JSON.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
         devcontainer.build.args.IMAGENAME = dockerImage
         fs.copySync(path.resolve(__dirname, '../Templates/integration_env/.devcontainer'), devcontainerFolder)
-        fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
+        fs.copySync(path.resolve(__dirname, '../Scripts/create_certs.sh'), devcontainerFolder)
+        fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer, { spaces: 2 })
         Logger.info('devcontainer folder created')
-        let cmd
-        const output = path.join(devcontainerFolder, 'certs.crt')
-        if (os.platform() === 'win32'){
-            cmd = `powershell ${path.resolve(__dirname, '../Templates/create_certs.ps1')} ${output}`
-        }
-        else{
-            cmd = `sh -x ${path.resolve(__dirname, '../Templates/create_certs.sh')} ${output}`
-        }
-        Logger.info(cmd)
-        TerminalManager.sendText(cmd, false)
-        Logger.info('certs.crt created, now creating container')
     }
     else {
         Logger.info(`devcontainer folder exists. Updating Image to ${dockerImage}`)
         const devcontainer = JSON5.parse(fs.readFileSync(path.join(devcontainerFolder, 'devcontainer.json'), 'utf-8'))
         devcontainer.build.args.IMAGENAME = dockerImage
-        fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
+        fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer, { spaces: 2 })
     }
     Logger.info(`remote name is: ${vscode.env.remoteName}`)
-    Logger.info(`fileName is: ${fileName}`)
+    Logger.info(`fileName is: ${dirPath}`)
     Logger.info(`uri schema is ${vscode.env.uriScheme}`)
-    let fileNameUri = vscode.Uri.file(fileName)
+    let fileNameUri = vscode.Uri.file(dirPath)
     // if we are already inside a remote, the URI prefix should be `vscode://`
     if (vscode.env.remoteName === 'dev-container') {
         const local_workspace_path = process.env.LOCAL_WORKSPACE_PATH
         if (!local_workspace_path) {
             return
         }
-        const reltaveFileName = vscode.workspace.asRelativePath(fileName)
+        const reltaveFileName = vscode.workspace.asRelativePath(dirPath)
         Logger.debug(`relative pack is ${reltaveFileName}`)
         const localFileName = path.join(local_workspace_path, reltaveFileName).replaceAll('\\', '/')
         Logger.debug(`local file path is ${localFileName}`)
         fileNameUri = vscode.Uri.parse(`vscode://${localFileName}`)
     }
     else if (vscode.env.remoteName === "wsl") {
-        fileNameUri = vscode.Uri.parse(`vscode://${fileName}`)
+        fileNameUri = vscode.Uri.parse(`vscode://${dirPath}`)
     }
 
     if (!(await vscode.commands.getCommands()).includes('remote-containers.openFolder')) {
@@ -83,68 +65,98 @@ export async function createIntegrationDevContainer(fileName: string): Promise<v
         // second argument is open in new window
         vscode.commands.executeCommand('remote-containers.openFolder', fileNameUri, true)
     }
+}
 
+export async function createVirtualenv(dirPath: string): Promise<void> {
+    Logger.info(`Creating virtualenv in ${dirPath}`)
+    const filePath = path.parse(dirPath)
+
+    let createVirtualenv = true
+    if (await fs.pathExists(path.join(dirPath, 'venv'))) {
+        //show input dialog if create virtualenv
+        Logger.info('Virtualenv exists.')
+        await vscode.window.showInformationMessage(`Found virtualenv in ${filePath.name}. Open existing virtualenv?`, "Yes", "No")
+            .then(async (answer) => {
+                if (answer === "Yes") {
+                    createVirtualenv = false
+                }
+                else{
+                    //remove venv dir
+                    await fs.remove(path.join(dirPath, 'venv'))
+                    createVirtualenv = true
+                }
+            }
+            )
+    }
+    const launchJsonPath = path.resolve(__dirname, '../Templates/launch.json')
+    const launchJsonOutput = path.join(dirPath, '.vscode', 'launch.json')
+    Logger.info('Copy launch.json')
+    fs.copySync(launchJsonPath, launchJsonOutput)
+    if (createVirtualenv) {
+        Logger.info('Run lint')
+        await dsdk.lint(dirPath, false, false, true)
+        const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
+        const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
+        const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+        Logger.info(`docker image is ${dockerImage}, getting data`)
+        vscode.window.showInformationMessage(`Creating virtualenv, please wait`)
+        await virtualenvTask(filePath.name, dirPath, dockerImage)
+    }
+
+    // get settings path
+    const vsCodePath = path.join(dirPath, '.vscode')
+    if (!await fs.pathExists(vsCodePath)) {
+        Logger.info('Creating .vscode folder')
+        fs.mkdirSync(vsCodePath)
+    }
+
+    const settingsPath = path.join(vsCodePath, 'settings.json')
+    // create if not exists
+    if (!await fs.pathExists(settingsPath)) {
+        Logger.info('Creating settings.json')
+        fs.writeJSONSync(settingsPath, {})
+    }
+    Logger.info('Getting settings.json')
+    const settings = JSON5.parse(fs.readFileSync(settingsPath, 'utf-8'))
+    Logger.info('Setting settings.json to venv')
+    settings['python.defaultInterpreterPath'] = `${dirPath}/venv/bin/python`
+    fs.writeJSONSync(settingsPath, settings, { spaces: 2 })
+    // open folder in new window
+    Logger.info('Opening folder')
+    vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(dirPath), true)
 
 }
 
-export async function createContentDevContainer(): Promise<void> {
-    const workspaceFolders = vscode.workspace.workspaceFolders
-    if (!workspaceFolders) {
-        return
-    }
-    const workspaceFolder = workspaceFolders[0]
-    const devcontainerFolder = path.join(workspaceFolder.uri.fsPath, '.devcontainer')
-    Logger.info(`devcontainerFolder is ${devcontainerFolder}`)
-    const devcontainerJsonPath = path.resolve(__dirname, '../Templates/content_env/.devcontainer/devcontainer.json')
-    fs.copySync(path.resolve(__dirname, '../Templates/content_env/.devcontainer'), devcontainerFolder)
-    const devcontainer = JSON5.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
-    const dockerImage = await LatestDockerService.getLatestImage()
-    Logger.info(`docker image is ${dockerImage}`)
-    if (!testVersion && dockerImage) {
-        devcontainer.build.args.IMAGENAME = dockerImage
-        fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer)
-    }
+async function virtualenvTask(name: string, dirPath: string, dockerImage: string): Promise<void> {
+    Logger.info('Running virtualenv task')
+    const extraReqs = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/extra-requirements.txt')
+    const extraReqsPY3 = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/extra-requirements-py3.txt')
+    const setupVenvScript = path.resolve(__dirname, '../Scripts/setup_venv.sh')
+    const cmd = `sh -x ${setupVenvScript} ${dockerImage} ${name} ${dirPath} ${extraReqs} ${extraReqsPY3}`
+    const task = new vscode.Task(
+        { type: 'virtualenv', name: 'Setup virtualenv' },
+        vscode.TaskScope.Workspace,
+        'virtualenv',
+        dockerImage,
+        new vscode.ShellExecution(cmd));
+    return new Promise<void>(resolve => {
+        vscode.window.withProgress({
+            cancellable: false,
+            title: `Creating virtualenv in ${dirPath}`,
+            location: vscode.ProgressLocation.Notification
+        }, async (progress) => {
+            progress.report({ message: `Creating virtualenv please wait` })
+            const execution = await vscode.tasks.executeTask(task);
+            const disposable = vscode.tasks.onDidEndTask(e => {
+                if (e.execution == execution) {
+                    progress.report({ message: "Finished setup virtualenv", increment: 100 })
+                    disposable.dispose();
+                    resolve();
+                }
 
-    let cmd
-    const output = path.join(devcontainerFolder, 'certs.crt')
-    if (os.platform() === 'win32') {
-        cmd = `powershell ${path.resolve(__dirname, '../Templates/create_certs.ps1')} ${output}`
-    }
-    else {
-        cmd = `sh -x ${path.resolve(__dirname, '../Templates/create_certs.sh')} ${output}`
-    }
-    Logger.info(cmd)
-    TerminalManager.sendText(cmd, false)
-    Logger.info('certs.crt created, now creating container')
-    if (!(await vscode.commands.getCommands()).includes('remote-containers.openFolder')) {
-        vscode.window.showErrorMessage('Please install remote-containers extension to use this feature')
-    }
-    else {
-        vscode.commands.executeCommand('remote-containers.openFolder', vscode.Uri.file(workspaceFolder.uri.fsPath))
-    }
-}
-interface Docker {
-    name: string
-}
+            })
+            progress.report({ message: "Proccessing..." });
+        });
 
-interface Dockers {
-    results: Docker[]
-}
-
-
-const imageCache = new CacheContainer(new MemoryStorage())
-//get latest image from docker hub
-class LatestDockerService {
-    @Cache(imageCache, { ttl: 60 * 60 })
-    public static async getLatestImage(): Promise<string> {
-        const url = `https://registry.hub.docker.com/v2/repositories/demisto/content-env/tags/`
-        const response = await fetch(url)
-        const json = await response.json() as Dockers
-        try {
-            return json.results[0].name
-        }
-        catch (error) {
-            return ''
-        }
-    }
+    })
 }

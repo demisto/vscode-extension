@@ -10,7 +10,7 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
-import { createContentDevContainer, createIntegrationDevContainer } from './container';
+import { createIntegrationDevContainer, createVirtualenv } from './container';
 import JSON5 from 'json5'
 
 // this function returns the directory path of the file
@@ -36,8 +36,9 @@ export function activate(context: vscode.ExtensionContext): void {
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.contentContainer', () => {
-			createContentDevContainer()
+		vscode.commands.registerCommand('xsoar.integrationVirtualenv', (file: vscode.Uri | undefined) => {
+			const fileToRun = getDirPath(file)
+			createVirtualenv(fileToRun)
 		})
 	)
 	context.subscriptions.push(
@@ -270,14 +271,14 @@ function configureTests(dirPath: string) {
 	const settingsPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'settings.json')
 	let settings
 	if (!fs.existsSync(settingsPath)) {
-		fs.writeFileSync(settingsPath, "{}")
+		fs.writeJSONSync(settingsPath, {})
 	}
 	try {
 		settings = JSON5.parse(fs.readFileSync(settingsPath, 'utf-8'))
 	}
 	catch (err) {
 		vscode.window.showErrorMessage("Could not parse settings file")
-		fs.writeFileSync(settingsPath, "{}")
+		fs.writeJSONSync(settingsPath, {})
 		settings = JSON5.parse(fs.readFileSync(settingsPath, 'utf-8'))
 
 	}

@@ -111,8 +111,8 @@
         "category": "XSOAR"
       },
       {
-        "command": "xsoar.contentContainer",
-        "title": "Open content environment in Dev Container",
+        "command": "xsoar.integrationVirtualenv",
+        "title": "Open integration/script in virtual environment",
         "category": "XSOAR"
       },
       {
@@ -152,7 +152,7 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.contentContainer",
+          "command": "xsoar.integrationVirtualenv",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
@@ -190,7 +190,11 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.contentContainer",
+          "command": "xsoar.integrationVirtualenv",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.configureTests",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ]
@@ -293,9 +297,6 @@
     "glob": "^7.1.6",
     "json5": "^2.2.1",
     "minimatch": "^3.0.4",
-    "node-fetch": "^3.2.6",
-    "node-ts-cache": "^4.4.0",
-    "node-ts-cache-storage-memory": "^4.4.0",
     "yaml": "^1.10.2"
   }
 }
