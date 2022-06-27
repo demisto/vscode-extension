@@ -3,7 +3,7 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": {
-			"IMAGENAME": "demisto/python3:3.10.1.25933"
+			"IMAGENAME": ""
 		}
 	},
 	"containerUser": "demisto",
@@ -24,7 +24,6 @@
         "files.autoSave": "afterDelay"
 
 	},
-	"postCreateCommand": "pip install -r /extra-requirements.txt --no-cache-dir --disable-pip-version-check && pip install -r /extra-requirements-py3.txt --disable-pip-version-check",
 	"extensions": [
 		"ms-python.python",
 		"ms-python.vscode-pylance",

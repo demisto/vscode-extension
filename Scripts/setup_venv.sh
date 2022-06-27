@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -6,17 +6,19 @@ dockerImage=$1
 name=$2
 dirPath=$3
 extraReqs=$4
-extraReqsPY3=$5
 
 cd "$dirPath"
+testImage=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep devtest"$dockerImage")
+echo "Using test image env: $testImage"
 docker rm -f "${name}" || true
-pythonVersion=$(docker run --name "${name}" "${dockerImage}" python -c 'import sys; print(sys.version_info[0])')
+pythonVersion=$(docker run --name "${name}" "${testImage}" \"python -c 'import sys; print(sys.version_info[0])\"')
+echo "Using python version: $pythonVersion"
+docker rm -f "${name}" || true
+docker run --name "${name}" "$testImage" 'pip freeze > /requirements.txt'
 docker cp "${name}":/requirements.txt .
 docker rm -f "${name}" || true
-
-virtualenv -p python"${pythonVersion}" "${dirPath}"/venv
+virtualenv -p python"${pythonVersion}" "${dirPath}"/venv --clear
 "${dirPath}"/venv/bin/pip install -r "${dirPath}"/requirements.txt
-"${dirPath}"/venv/bin/pip install -r "${extraReqs}"
-if [ "${pythonVersion}" = "3" ]; then
-    "${dirPath}"/venv/bin/pip install -r "${extraReqsPY3}"
+if [ "${pythonVersion}"  ==  "3" ]; then
+    "${dirPath}"/venv/bin/pip install "$extraReqs"
 fi

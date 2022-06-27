@@ -5,6 +5,7 @@ import JSON5 from 'json5'
 import * as dsdk from "./demistoSDKWrapper";
 import * as yaml from "yaml";
 import * as fs from "fs-extra";
+import { execSync } from "child_process";
 
 export async function createIntegrationDevContainer(dirPath: string): Promise<void> {
     const devcontainerFolder = path.join(dirPath, '.devcontainer')
@@ -20,23 +21,23 @@ export async function createIntegrationDevContainer(dirPath: string): Promise<vo
     const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
     const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
     Logger.info(`docker image is ${dockerImage}`)
-    if (!await fs.pathExists(path.join(devcontainerFolder, 'devcontainer.json'))) {
-        vscode.window.showInformationMessage("Starting demisto-sdk lint, please wait")
-        await dsdk.lint(dirPath, false, false, true)
-        vscode.window.showInformationMessage("Building devcontainer folder")
-        const devcontainerJsonPath = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/devcontainer.json')
-        const devcontainer = JSON.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
-        devcontainer.build.args.IMAGENAME = dockerImage
-        fs.copySync(path.resolve(__dirname, '../Templates/integration_env/.devcontainer'), devcontainerFolder)
-        fs.copySync(path.resolve(__dirname, '../Scripts/create_certs.sh'), devcontainerFolder)
+    const devcontainerJsonPath = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/devcontainer.json')
+    const devcontainer = JSON5.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
+    vscode.window.showInformationMessage("Building devcontainer folder")
+    fs.copySync(path.resolve(__dirname, '../Templates/integration_env/.devcontainer'), devcontainerFolder)
+    fs.copySync(path.resolve(__dirname, '../Scripts/create_certs.sh'), path.join(devcontainerFolder, 'create_certs.sh'))
+    Logger.info('devcontainer folder created')
+    vscode.window.showInformationMessage("Starting demisto-sdk lint, please wait")
+    await dsdk.lint(dirPath, false, false, true)
+    try {
+        const testDockerImage = execSync(`docker images --format "{{.Repository}}:{{.Tag}}" | grep devtest${dockerImage}`,
+            { cwd: dirPath, }).toString().trim()
+        devcontainer.build.args.IMAGENAME = testDockerImage
         fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer, { spaces: 2 })
-        Logger.info('devcontainer folder created')
     }
-    else {
-        Logger.info(`devcontainer folder exists. Updating Image to ${dockerImage}`)
-        const devcontainer = JSON5.parse(fs.readFileSync(path.join(devcontainerFolder, 'devcontainer.json'), 'utf-8'))
-        devcontainer.build.args.IMAGENAME = dockerImage
-        fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer, { spaces: 2 })
+    catch (err) {
+        Logger.error(`Could not find docker image ${dockerImage}: ${err}}`)
+        throw new Error(`Could not find docker image ${dockerImage}: ${err}}`)
     }
     Logger.info(`remote name is: ${vscode.env.remoteName}`)
     Logger.info(`fileName is: ${dirPath}`)
@@ -80,7 +81,7 @@ export async function createVirtualenv(dirPath: string): Promise<void> {
                 if (answer === "Yes") {
                     createVirtualenv = false
                 }
-                else{
+                else {
                     //remove venv dir
                     await fs.remove(path.join(dirPath, 'venv'))
                     createVirtualenv = true
@@ -100,7 +101,7 @@ export async function createVirtualenv(dirPath: string): Promise<void> {
         const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
         Logger.info(`docker image is ${dockerImage}, getting data`)
         vscode.window.showInformationMessage(`Creating virtualenv, please wait`)
-        await virtualenvTask(filePath.name, dirPath, dockerImage)
+        await virtualenv(filePath.name, dirPath, dockerImage)
     }
 
     // get settings path
@@ -127,17 +128,16 @@ export async function createVirtualenv(dirPath: string): Promise<void> {
 
 }
 
-async function virtualenvTask(name: string, dirPath: string, dockerImage: string): Promise<void> {
+async function virtualenv(name: string, dirPath: string, dockerImage: string): Promise<void> {
     Logger.info('Running virtualenv task')
-    const extraReqs = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/extra-requirements.txt')
     const extraReqsPY3 = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/extra-requirements-py3.txt')
     const setupVenvScript = path.resolve(__dirname, '../Scripts/setup_venv.sh')
-    const cmd = `sh -x ${setupVenvScript} ${dockerImage} ${name} ${dirPath} ${extraReqs} ${extraReqsPY3}`
+    const cmd = `${setupVenvScript} ${dockerImage} ${name} ${dirPath} ${extraReqsPY3}`
     const task = new vscode.Task(
         { type: 'virtualenv', name: 'Setup virtualenv' },
         vscode.TaskScope.Workspace,
         'virtualenv',
-        dockerImage,
+        'virtualenv',
         new vscode.ShellExecution(cmd));
     return new Promise<void>(resolve => {
         vscode.window.withProgress({
@@ -147,16 +147,19 @@ async function virtualenvTask(name: string, dirPath: string, dockerImage: string
         }, async (progress) => {
             progress.report({ message: `Creating virtualenv please wait` })
             const execution = await vscode.tasks.executeTask(task);
-            const disposable = vscode.tasks.onDidEndTask(e => {
-                if (e.execution == execution) {
-                    progress.report({ message: "Finished setup virtualenv", increment: 100 })
-                    disposable.dispose();
-                    resolve();
+            const disposable = vscode.tasks.onDidEndTaskProcess(e => {
+                if (e.execution === execution) {
+                    if (e.exitCode === 0) {
+                        disposable.dispose()
+                        resolve()
+                    }
+                    else {
+                        vscode.window.showErrorMessage('Could not create virtualenv')
+                        throw new Error('Could not create virtualenv')
+                    }
                 }
-
             })
             progress.report({ message: "Proccessing..." });
-        });
-
+        })
     })
 }
