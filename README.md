@@ -19,6 +19,13 @@ Commands:
 
 ## Configurations  
 
+To use this extension, `demisto-sdk` needs to be correctly configured.
+Configure it locally with:
+```bash
+pip install demisto-sdk
+```
+
+You can follow [this guide](https://xsoar.pan.dev/docs/tutorials/tut-setup-env) to configure a fully configured remote development environnement. 
 
 ### Demisto-SDK Path
 
@@ -51,9 +58,6 @@ When working on an integration or a script, you can right click on it, and click
 ## Dev Containers
 
 VSCode supports in [developing inside a container](https://code.visualstudio.com/docs/remote/containers).
-The `content` repository contains a `devcontainer` folder, which contains a full environment configure for development and debugging. It's possible to modify this folder in your branch or fork in order to suite your needs.
-
-To activate, run the command `Open integration/script in virtualenv` from the command pallette or right click in file or editor inside a specific integration or a script.
 
 ### System requirements
 
@@ -84,7 +88,6 @@ Using a Python 2.* container, *mypy* will not be able to be installed. For debug
 * It is possible to open content in Dev Container, and inside this container open integration/script in Dev Container.
 * The integration/script Dev Container does not have `demisto-sdk` or `git`.
 * The workspace folder is bind with the local folder. It is possible to work simultaneously on the same files locally and with Dev Container, because they are mirrored.
-
 
 
 ## Contributing
