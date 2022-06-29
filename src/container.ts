@@ -133,12 +133,13 @@ async function virtualenv(name: string, dirPath: string, dockerImage: string): P
     const extraReqsPY3 = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/extra-requirements-py3.txt')
     const setupVenvScript = path.resolve(__dirname, '../Scripts/setup_venv.sh')
     const cmd = `${setupVenvScript} ${dockerImage} ${name} ${dirPath} ${extraReqsPY3}`
+    
     const task = new vscode.Task(
         { type: 'virtualenv', name: 'Setup virtualenv' },
         vscode.TaskScope.Workspace,
         'virtualenv',
         'virtualenv',
-        new vscode.ShellExecution(cmd));
+        new vscode.ShellExecution(cmd, { cwd: dirPath }));
     return new Promise<void>(resolve => {
         vscode.window.withProgress({
             cancellable: false,
@@ -159,7 +160,7 @@ async function virtualenv(name: string, dirPath: string, dockerImage: string): P
                     }
                 }
             })
-            progress.report({ message: "Proccessing..." });
+            progress.report({ message: "Processing..." });
         })
     })
 }

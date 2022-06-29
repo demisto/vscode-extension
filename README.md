@@ -31,7 +31,7 @@ The Cortex XSOAR extension will automatically use the demisto-sdk to lint (code 
 To turn on auto-linters in your workspace, set the `xsoar.autoFindProblems.readProblems` setting to `true`.
 To control the auto-lints behaviour:  
 
-* `xsoar.linter.[linter-name].enable`: Whether to enable the auto-lint.
+* `xsoar.linter.[linter-name].enable`: Whether to enable the auto-lint. Default to false.
 
 * `xsoar.linter.[linter-name].patterns`: Which file patterns (glob) to run with the linter.
 
@@ -44,17 +44,30 @@ If you wish to see the process running (or check why it's failing or not working
 By default, the extension will automatically save changes made to the integration/automation file made in the webview (opened with *XSOAR: Load Integration/Script*).
 to disable it, change `xsoar.autoSave` to `false`.
 
+## Open in virtual environment
+
+When working on an integration or a script, you can right click on it, and click on `Open integration/script in virtual environment`. This will open the integration or the script in a new folder, with configured `python` virtual environment. This environment consists exactly the same environment of the `docker image` of the integration or a script, with testing and linting libraries added.  
+
 ## Dev Containers
 
-The Cortex XSOAR extension can run content in a development container.
+VSCode supports in [developing inside a container](https://code.visualstudio.com/docs/remote/containers).
+The `content` repository contains a `devcontainer` folder, which contains a full environment configure for development and debugging. It's possible to modify this folder in your branch or fork in order to suite your needs.
 
-There are two options:
+To activate, run the command `Open integration/script in virtualenv` from the command pallette or right click in file or editor inside a specific integration or a script.
 
-1. Run content repository on Dev Container. This opens the repository on [demisto-sdk docker](https://github.com/demisto/dockerfiles/tree/master/docker/demisto-sdk), which contains `demisto-sdk`.
-In addition, `git`, `pyenv`, `zsh` with recommended settings and `PYTHONPATH` are configured in the container. 
-To activate, run the command `Open content environment in Dev Container` from the command pallette or right click in file or editor.
+### System requirements
 
-2. Run an integration of script on dev container. This opens a workspace inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment.      
+
+**Windows**: Docker Desktop 2.0+ on Windows 10 Pro/Enterprise. Windows 10 Home (2004+) requires Docker Desktop 2.3+ and the WSL 2 back-end.
+**macOS**: Docker Desktop 2.0+.
+**Linux**: Docker CE/EE 18.06+ and Docker Compose 1.21+
+**Remote hosts**: 1 GB RAM is required, but at least 2 GB RAM and a 2-core CPU is recommended.
+
+Follow the [VSCode instructions](https://code.visualstudio.com/docs/remote/containers#_installation) for the installation process.
+
+### Usage
+
+Run an integration of script on dev container. This opens a workspace inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment.      
 To activate, run the command `Open integration/script in Dev Container` from the command pallette or right click in file or editor inside a specific integration or a script.
    
 #### Python 2.* Support
