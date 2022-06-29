@@ -18,13 +18,8 @@ docker run --name "${name}" "$testImage" 'pip freeze > /requirements.txt'
 docker cp "${name}":/requirements.txt .
 docker rm -f "${name}" || true
 
-# check if virutalenv command exists
-if ! [ -x "$(command -v virutalenv)" ]; then
-    echo 'virtualenv is not installed. Sourcing the poetry'
-    source "$(poetry env info -p)"/bin/activate
-fi
+poetry run python -m virtualenv -p python"${pythonVersion}" "${dirPath}"/venv --clear
 
-virtualenv -p python"${pythonVersion}" "${dirPath}"/venv --clear
 "${dirPath}"/venv/bin/pip install -r "${dirPath}"/requirements.txt
 if [ "${pythonVersion}" = "3" ]; then
     "${dirPath}"/venv/bin/pip install -r "$extraReqs"
