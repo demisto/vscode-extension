@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.3.1] (2022-07-03)
+- Hotfix for integration Dev Containers.
+
 ## [0.3.0] (2022-07-03)
 - Added an option to create a virtualenv for integrations or scripts.
 - Integration Dev Container now use the test image,
