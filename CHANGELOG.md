@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [0.3.0] (2022-07-03)
 - Added an option to create a virtualenv for integrations or scripts.
 - Integration Dev Container now use the test image,
 - Fixed an issue on which the updated docker image in YML wasn't updated in the devcontainer. 
