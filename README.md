@@ -51,7 +51,9 @@ If you wish to see the process running (or check why it's failing or not working
 By default, the extension will automatically save changes made to the integration/automation file made in the webview (opened with *XSOAR: Load Integration/Script*).
 to disable it, change `xsoar.autoSave` to `false`.
 
-## Open in virtual environment
+## Python Virtual Environment
+
+The extension supports opening an integration or a script in their python virtual environnement.
 
 When working on an integration or a script, you can right click on it, and click on `Open integration/script in virtual environment`. This will open the integration or the script in a new folder, with configured `python` virtual environment. This environment consists exactly the same python environment of the `docker image` of the integration or a script, with testing and linting libraries added.
 
