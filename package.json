@@ -107,12 +107,17 @@
       },
       {
         "command": "xsoar.integrationContainer",
-        "title": "Open integration/script in Dev Container",
+        "title": "Open integration/script in Dev Container (advanced)",
         "category": "XSOAR"
       },
       {
-        "command": "xsoar.contentContainer",
-        "title": "Open content in Dev Container",
+        "command": "xsoar.integrationVirtualenv",
+        "title": "Open integration/script in virtual environment (recommended)",
+        "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.configureTests",
+        "title": "Configure XSOAR unit tests",
         "category": "XSOAR"
       }
     ],
@@ -147,7 +152,11 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.contentContainer",
+          "command": "xsoar.integrationVirtualenv",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.configureTests",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ],
@@ -181,7 +190,11 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.contentContainer",
+          "command": "xsoar.integrationVirtualenv",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.configureTests",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ]
@@ -223,7 +236,7 @@
         },
         "xsoar.linter.lint.enable": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Whether to run the lint command on the files (Checks the code file."
         },
         "xsoar.linter.validate.enable": {
@@ -282,6 +295,7 @@
   "dependencies": {
     "fs-extra": "^10.0.1",
     "glob": "^7.1.6",
+    "json5": "^2.2.1",
     "minimatch": "^3.0.4",
     "yaml": "^1.10.2"
   }

@@ -1,8 +1,0 @@
-pytest
-pytest-mock
-requests-mock
-flake8
-autopep8
-freezegun
-
-

@@ -40,6 +40,7 @@ export class TerminalManager {
 
 		})
 	}
+
 	public static async sendDemistoSdkCommandWithProgress(command: string[]): Promise<void> {
 		const sdkPath = tools.getSDKPath()
 		let cmd = '';
@@ -115,13 +116,19 @@ export class TerminalManager {
 		await this.delay(timeout)
 	}
 	public static async sendText(
-		command: string[],
+		command: string[] | string,
 		show = true
 	): Promise<void> {
 		this.openTerminalIfNeeded(show)
 		this.terminal.sendText('')
-		const cmd = command.join(' ')
-		Logger.info(`Executing command: \`${cmd}\``)
-		this.terminal.sendText(cmd);
+		//check if command is array
+		if (Array.isArray(command)) {
+			command = command.join(' ')
+		}
+		Logger.info(`Executing command: \`${command}\``)
+		this.terminal.sendText(command);
+		//wait for command to finish
+		await this.delay(5000)
 	}
+
 }

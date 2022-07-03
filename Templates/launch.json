@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}", // File example: Packs/Pasta/Integrations/Pasta/Pasta.py
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}" // workspaceFolder is the content repository
+        }
+    ]
+}

@@ -289,7 +289,8 @@ export function createViewFromYML(yml: AutomationI, ymlPath: PathLike, extension
     try{
         scriptHolder = new ScriptHolder(yml, ymlPath);
     } catch (err){
-        vscode.window.showErrorMessage(err);
+        const error = err as Error
+        vscode.window.showErrorMessage(error.message);
         panel.dispose()
         return
     }

@@ -10,7 +10,8 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
-import { createContentDevContainer, createIntegrationDevContainer } from './container';
+import { createIntegrationDevContainer, createVirtualenv } from './container';
+import JSON5 from 'json5'
 
 // this function returns the directory path of the file
 export function getDirPath(file: vscode.Uri | undefined): string {
@@ -33,11 +34,20 @@ export function activate(context: vscode.ExtensionContext): void {
 			createIntegrationDevContainer(fileToRun)
 		})
 	)
+
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.contentContainer', () => {
-			createContentDevContainer()
+		vscode.commands.registerCommand('xsoar.integrationVirtualenv', (file: vscode.Uri | undefined) => {
+			const fileToRun = getDirPath(file)
+			createVirtualenv(fileToRun)
 		})
 	)
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.configureTests', (file: vscode.Uri | undefined) => {
+			const fileToRun = getDirPath(file)
+			configureTests(fileToRun)
+		})
+	)
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.load', loadYAML(context.extensionUri))
 	);
@@ -249,6 +259,32 @@ function loadIntegration(filePath: string): IntegrationI {
 
 function loadScript(filePath: string): AutomationI {
 	return loadYamlToObject(filePath) as AutomationI;
+}
+
+function configureTests(dirPath: string) {
+	const workspaceFolders = vscode.workspace.workspaceFolders
+	if (!workspaceFolders) {
+		return
+	}
+	const workspaceFolder = workspaceFolders[0]
+	// read settings file
+	const settingsPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'settings.json')
+	let settings
+	if (!fs.existsSync(settingsPath)) {
+		fs.writeJSONSync(settingsPath, {})
+	}
+	try {
+		settings = JSON5.parse(fs.readFileSync(settingsPath, 'utf-8'))
+	}
+	catch (err) {
+		vscode.window.showErrorMessage("Could not parse settings file")
+		fs.writeJSONSync(settingsPath, {})
+		settings = JSON5.parse(fs.readFileSync(settingsPath, 'utf-8'))
+
+	}
+
+	settings["python.testing.cwd"] = dirPath
+	fs.writeJSONSync(settingsPath, settings, { spaces: 2 })
 }
 
 

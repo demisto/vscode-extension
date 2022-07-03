@@ -1,6 +1,13 @@
 # Change Log
 
 ## [Unreleased]
+- Added an option to create a virtualenv for integrations or scripts.
+- Integration Dev Container now use the test image,
+- Fixed an issue on which the updated docker image in YML wasn't updated in the devcontainer. 
+- Opens integration environment in new windos (virtualenv or Dev Container)
+- Added option to `Configure XSOAR Tests` for integrations or scripts.
+- Deleted content dev container since it's available on `content` repo.
+- Setting **xsoar.linter.lint.enable** default to ***false*** because of lint performance issues.
 
 ## [0.2.0] (2022-05-09)
 

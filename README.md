@@ -19,6 +19,13 @@ Commands:
 
 ## Configurations  
 
+To use this extension, `demisto-sdk` needs to be correctly configured.
+Either configure it locally with:
+```bash
+pip install demisto-sdk
+```
+
+Or you can follow [this guide](https://xsoar.pan.dev/docs/tutorials/tut-setup-env) to configure a fully configured remote development environnement, with `demisto-sdk` and more features preinstalled.
 
 ### Demisto-SDK Path
 
@@ -31,7 +38,7 @@ The Cortex XSOAR extension will automatically use the demisto-sdk to lint (code 
 To turn on auto-linters in your workspace, set the `xsoar.autoFindProblems.readProblems` setting to `true`.
 To control the auto-lints behaviour:  
 
-* `xsoar.linter.[linter-name].enable`: Whether to enable the auto-lint.
+* `xsoar.linter.[linter-name].enable`: Whether to enable the auto-lint. Default to false.
 
 * `xsoar.linter.[linter-name].patterns`: Which file patterns (glob) to run with the linter.
 
@@ -44,34 +51,58 @@ If you wish to see the process running (or check why it's failing or not working
 By default, the extension will automatically save changes made to the integration/automation file made in the webview (opened with *XSOAR: Load Integration/Script*).
 to disable it, change `xsoar.autoSave` to `false`.
 
-## Dev Containers
+## Configure XSOAR unit tests
 
-The Cortex XSOAR extension can run content in a development container.
+The extension supports configuring the integration/script unit tests.
 
-There are two options:
+When working on an integration or a script, you can right click on it, and click on **Configure XSOAR unit tests**. This will configure the XSOAR unit-tests to run and debug them in the **_test.py** to run from the test file or from the `Test Explorer`:
 
-1. Run content repository on Dev Container. This opens the repository on [demisto-sdk docker](https://github.com/demisto/dockerfiles/tree/master/docker/demisto-sdk), which contains `demisto-sdk` and `content` basic requirements.
-To activate, run the command `Open content in Dev Container` from the command pallette or right click in file or editor.
+![Test Explorer](documentation/changelog/0.3.0/Test%20Explorer.png)
 
-2. Run an integration of script on dev container. This opens a workspace inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment.      
-To activate, run the command `Open integration/script in Dev Container` from the command pallette or right click in file or editor inside a specific integration or a script.
+If you there is a **Pytest discovery error**, there is a probably missing dependencies. Either install the missing dependencies, or use [python virtual environnement](#python-virtual-environment) instead.
+
+## Python Virtual Environment
+
+The extension supports opening an integration or a script in their python virtual environnement.
+
+When working on an integration or a script, you can right click on it, and click on **Open integration/script in virtual environment**. This will open the integration or the script in a new folder, with configured `python` virtual environment. This environment consists exactly the same python environment of the `docker image` of the integration or a script, with testing and linting libraries added.
+
+This is the recommended way to develop and debug your integration.
+
+## Dev Containers (Advanced)
+
+The extension supports opening an integration or a script in a dev container.
+This opens a new folder inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment. 
+### System requirements
+
+
+**Windows**: Docker Desktop 2.0+ on Windows 10 Pro/Enterprise. Windows 10 Home (2004+) requires Docker Desktop 2.3+ and the WSL 2 back-end.
+**macOS**: Docker Desktop 2.0+.
+**Linux**: Docker CE/EE 18.06+ and Docker Compose 1.21+
+
+Follow the [VSCode instructions](https://code.visualstudio.com/docs/remote/containers#_installation) for the installation process.
+
+### Usage
+
+When working on an integration or a script, you can right click on it, and click on **Open integration/script in virtual environment**. This will open the integration or the script in a new folder, exactly the same environment of the `docker image` of the integration or a script, with testing and linting libraries added.
+
+This is mainly used to debug your integration.
    
-#### Python 2.* Support
-
-Using a Python 2.* container, *mypy* will not be able to be installed. For debugging the tests, it is necessary to install The VSCode Python extension version `2022.2`:
-![Python 2](documentation/changelog/0.2.0/python2_1.png)
-
-![Python 2](documentation/changelog/0.2.0/python2_2.png)
-
 #### Dev Container Notes
 
 * Make sure you have [`ms-vscode-remote.remote-containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)` extension installed.
 * Make sure you have `docker daemon` running (you can check with executing `docker ps`).
-* It is possible to open content in Dev Container, and inside this container open integration/script in Dev Container.
 * The integration/script Dev Container does not have `demisto-sdk` or `git`.
 * The workspace folder is bind with the local folder. It is possible to work simultaneously on the same files locally and with Dev Container, because they are mirrored.
 
+## Python 2.* Support
 
+Using a Python 2.* virtual environnement or container, *mypy* will not be able to be installed.
+
+For debugging the tests, it is necessary to install The VSCode Python extension version `2022.2`:
+![Python 2](documentation/changelog/0.2.0/python2_1.png)
+
+![Python 2](documentation/changelog/0.2.0/python2_2.png)
 
 ## Contributing
 
