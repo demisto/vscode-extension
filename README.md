@@ -69,7 +69,6 @@ This opens a new folder inside a container that is based upon the integration or
 **Windows**: Docker Desktop 2.0+ on Windows 10 Pro/Enterprise. Windows 10 Home (2004+) requires Docker Desktop 2.3+ and the WSL 2 back-end.
 **macOS**: Docker Desktop 2.0+.
 **Linux**: Docker CE/EE 18.06+ and Docker Compose 1.21+
-**Remote hosts**: 1 GB RAM is required, but at least 2 GB RAM and a 2-core CPU is recommended.
 
 Follow the [VSCode instructions](https://code.visualstudio.com/docs/remote/containers#_installation) for the installation process.
 
