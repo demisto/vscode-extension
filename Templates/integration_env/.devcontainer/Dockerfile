@@ -2,7 +2,7 @@ ARG IMAGENAME
 
 FROM ${IMAGENAME}
 
-ADD create_certs.sh .
+ADD create_certs.sh /
 RUN chmod +x /create_certs.sh \ 
     && /create_certs.sh /usr/local/share/ca-certificates/certs.crt \
     && update-ca-certificates \
