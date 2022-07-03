@@ -124,11 +124,14 @@ export async function createVirtualenv(dirPath: string): Promise<void> {
     fs.writeJSONSync(settingsPath, settings, { spaces: 2 })
     // open folder in new window
     Logger.info('Opening folder')
+    // second argument is open in new window
     vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(dirPath), true)
 
 }
 
 async function virtualenv(name: string, dirPath: string, dockerImage: string): Promise<void> {
+    // this implemented in a script, should be a command in SDK.
+    // When SDK added this command, change to use it as wrapper.
     Logger.info('Running virtualenv task')
     const extraReqsPY3 = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/extra-requirements-py3.txt')
     const setupVenvScript = path.resolve(__dirname, '../Scripts/setup_venv.sh')
