@@ -55,7 +55,7 @@ to disable it, change `xsoar.autoSave` to `false`.
 
 The extension supports opening an integration or a script in their python virtual environnement.
 
-When working on an integration or a script, you can right click on it, and click on `Open integration/script in virtual environment`. This will open the integration or the script in a new folder, with configured `python` virtual environment. This environment consists exactly the same python environment of the `docker image` of the integration or a script, with testing and linting libraries added.
+When working on an integration or a script, you can right click on it, and click on **Open integration/script in virtual environment**. This will open the integration or the script in a new folder, with configured `python` virtual environment. This environment consists exactly the same python environment of the `docker image` of the integration or a script, with testing and linting libraries added.
 
 This is the recommended way to develop and debug your integration.
 
@@ -75,7 +75,7 @@ Follow the [VSCode instructions](https://code.visualstudio.com/docs/remote/conta
 
 ### Usage
 
-When working on an integration or a script, you can right click on it, and click on `Open integration/script in virtual environment`. This will open the integration or the script in a new folder, exactly the same environment of the `docker image` of the integration or a script, with testing and linting libraries added.
+When working on an integration or a script, you can right click on it, and click on **Open integration/script in virtual environment**. This will open the integration or the script in a new folder, exactly the same environment of the `docker image` of the integration or a script, with testing and linting libraries added.
 
 This is mainly used to debug your integration.
    
