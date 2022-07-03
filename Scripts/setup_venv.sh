@@ -23,7 +23,7 @@ if ! [ -x "$(command -v virtualenv)" ]; then
   source $(poetry env info --path)/bin/activate
 fi
 
-python -m virtualenv -p python"${pythonVersion}" "${dirPath}"/venv --clear
+python -m virtualenv -p python"${pythonVersion}" "${dirPath}"/venv
 
 "${dirPath}"/venv/bin/pip install -r "${dirPath}"/requirements.txt
 if [ "${pythonVersion}" = "3" ]; then
