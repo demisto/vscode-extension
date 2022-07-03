@@ -90,7 +90,7 @@ This is mainly used to debug your integration.
    
 #### Dev Container Notes
 
-* Make sure you have [`ms-vscode-remote.remote-containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)` extension installed.
+* Make sure you have [ms-vscode-remote.remote-containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension installed.
 * Make sure you have `docker daemon` running (you can check with executing `docker ps`).
 * The integration/script Dev Container does not have `demisto-sdk` or `git`.
 * The workspace folder is bind with the local folder. It is possible to work simultaneously on the same files locally and with Dev Container, because they are mirrored.
