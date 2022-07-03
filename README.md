@@ -20,12 +20,12 @@ Commands:
 ## Configurations  
 
 To use this extension, `demisto-sdk` needs to be correctly configured.
-Configure it locally with:
+Either configure it locally with:
 ```bash
 pip install demisto-sdk
 ```
 
-You can follow [this guide](https://xsoar.pan.dev/docs/tutorials/tut-setup-env) to configure a fully configured remote development environnement. 
+Or you can follow [this guide](https://xsoar.pan.dev/docs/tutorials/tut-setup-env) to configure a fully configured remote development environnement, with `demisto-sdk` and more features preinstalled.
 
 ### Demisto-SDK Path
 
@@ -53,12 +53,14 @@ to disable it, change `xsoar.autoSave` to `false`.
 
 ## Open in virtual environment
 
-When working on an integration or a script, you can right click on it, and click on `Open integration/script in virtual environment`. This will open the integration or the script in a new folder, with configured `python` virtual environment. This environment consists exactly the same environment of the `docker image` of the integration or a script, with testing and linting libraries added.  
+When working on an integration or a script, you can right click on it, and click on `Open integration/script in virtual environment`. This will open the integration or the script in a new folder, with configured `python` virtual environment. This environment consists exactly the same python environment of the `docker image` of the integration or a script, with testing and linting libraries added.
+
+This is the recommended way to develop and debug your integration.
 
 ## Dev Containers
 
-VSCode supports in [developing inside a container](https://code.visualstudio.com/docs/remote/containers).
-
+The extension supports opening an integration or a script in a dev container.
+This opens a new folder inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment. 
 ### System requirements
 
 
@@ -71,24 +73,25 @@ Follow the [VSCode instructions](https://code.visualstudio.com/docs/remote/conta
 
 ### Usage
 
-Run an integration of script on dev container. This opens a workspace inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment.      
-To activate, run the command `Open integration/script in Dev Container` from the command pallette or right click in file or editor inside a specific integration or a script.
+When working on an integration or a script, you can right click on it, and click on `Open integration/script in virtual environment`. This will open the integration or the script in a new folder, exactly the same environment of the `docker image` of the integration or a script, with testing and linting libraries added.
+
+This is mainly used to debug your integration.
    
-#### Python 2.* Support
-
-Using a Python 2.* container, *mypy* will not be able to be installed. For debugging the tests, it is necessary to install The VSCode Python extension version `2022.2`:
-![Python 2](documentation/changelog/0.2.0/python2_1.png)
-
-![Python 2](documentation/changelog/0.2.0/python2_2.png)
-
 #### Dev Container Notes
 
 * Make sure you have [`ms-vscode-remote.remote-containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)` extension installed.
 * Make sure you have `docker daemon` running (you can check with executing `docker ps`).
-* It is possible to open content in Dev Container, and inside this container open integration/script in Dev Container.
 * The integration/script Dev Container does not have `demisto-sdk` or `git`.
 * The workspace folder is bind with the local folder. It is possible to work simultaneously on the same files locally and with Dev Container, because they are mirrored.
 
+## Python 2.* Support
+
+Using a Python 2.* virtual environnement or container, *mypy* will not be able to be installed.
+
+For debugging the tests, it is necessary to install The VSCode Python extension version `2022.2`:
+![Python 2](documentation/changelog/0.2.0/python2_1.png)
+
+![Python 2](documentation/changelog/0.2.0/python2_2.png)
 
 ## Contributing
 
