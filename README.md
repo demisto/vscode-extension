@@ -51,6 +51,16 @@ If you wish to see the process running (or check why it's failing or not working
 By default, the extension will automatically save changes made to the integration/automation file made in the webview (opened with *XSOAR: Load Integration/Script*).
 to disable it, change `xsoar.autoSave` to `false`.
 
+## Configure XSOAR unit tests
+
+The extension supports configuring the integration/script unit tests.
+
+When working on an integration or a script, you can right click on it, and click on **Configure XSOAR unit tests**. This will configure the XSOAR unit-tests to run and debug them in the **_test.py** to run from the test file or from the `Test Explorer`:
+
+![Test Explorer](documentation/changelog/0.3.0/Test%20Explorer.png)
+
+If you there is a **Pytest discovery error**, there is a probably missing dependencies. Either install the missing dependencies, or use [python virtual environnement](#python-virtual-environment) instead.
+
 ## Python Virtual Environment
 
 The extension supports opening an integration or a script in their python virtual environnement.
@@ -59,7 +69,7 @@ When working on an integration or a script, you can right click on it, and click
 
 This is the recommended way to develop and debug your integration.
 
-## Dev Containers
+## Dev Containers (Advanced)
 
 The extension supports opening an integration or a script in a dev container.
 This opens a new folder inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment. 

@@ -107,17 +107,17 @@
       },
       {
         "command": "xsoar.integrationContainer",
-        "title": "Open integration/script in Dev Container",
+        "title": "Open integration/script in Dev Container (advanced)",
         "category": "XSOAR"
       },
       {
         "command": "xsoar.integrationVirtualenv",
-        "title": "Open integration/script in virtual environment",
+        "title": "Open integration/script in virtual environment (recommended)",
         "category": "XSOAR"
       },
       {
         "command": "xsoar.configureTests",
-        "title": "Configure XSOAR tests",
+        "title": "Configure XSOAR unit tests",
         "category": "XSOAR"
       }
     ],
