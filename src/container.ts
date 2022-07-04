@@ -121,6 +121,7 @@ export async function createVirtualenv(dirPath: string): Promise<void> {
     const settings = JSON5.parse(fs.readFileSync(settingsPath, 'utf-8'))
     Logger.info('Setting settings.json to venv')
     settings['python.defaultInterpreterPath'] = `${dirPath}/venv/bin/python`
+    settings['python.testing.cwd'] = dirPath
     fs.writeJSONSync(settingsPath, settings, { spaces: 2 })
     // open folder in new window
     Logger.info('Opening folder')
