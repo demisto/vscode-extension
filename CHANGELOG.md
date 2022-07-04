@@ -1,4 +1,6 @@
 # Change Log
+## [0.3.2] (2022-07-03)
+- Hotfix to add test settings when creating a virtual environment.
 
 ## [0.3.1] (2022-07-03)
 - Hotfix for integration Dev Containers.
