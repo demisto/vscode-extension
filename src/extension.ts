@@ -284,6 +284,8 @@ function configureTests(dirPath: string) {
 	}
 
 	settings["python.testing.cwd"] = dirPath
+	settings["python.testing.pytestEnabled"] = true
+	settings["python.testing.pytestArgs"] = ["."]
 	fs.writeJSONSync(settingsPath, settings, { spaces: 2 })
 }
 

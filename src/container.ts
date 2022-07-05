@@ -122,6 +122,8 @@ export async function createVirtualenv(dirPath: string): Promise<void> {
     Logger.info('Setting settings.json to venv')
     settings['python.defaultInterpreterPath'] = `${dirPath}/venv/bin/python`
     settings['python.testing.cwd'] = dirPath
+    settings["python.testing.pytestEnabled"] = true
+    settings["python.testing.pytestArgs"] = ["."]
     fs.writeJSONSync(settingsPath, settings, { spaces: 2 })
     // open folder in new window
     Logger.info('Opening folder')
