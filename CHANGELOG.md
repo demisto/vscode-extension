@@ -1,4 +1,8 @@
 # Change Log
+
+## [0.3.3] (2022-07-05)
+- Disabled auto-save configuration in dev containers.
+- Enable pytest in the command `Configure XSOAR unit tests` and in `Open integration/script in virtual environment`
 ## [0.3.2] (2022-07-03)
 - Hotfix to add test settings when creating a virtual environment.
 
