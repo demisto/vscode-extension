@@ -15,15 +15,14 @@ docker rm -f "${name}" || true
 pythonVersion=$(docker run --name ${name} ${testImage} "python -c 'import sys; print(sys.version_info[0])'")
 echo "Using python version: $pythonVersion"
 docker rm -f "${name}" || true
-docker run --name "${name}" "$testImage" 'pip freeze > /requirements.txt'
+docker run --name "${name}" "$testImage" 'pip list --format=freeze > /requirements.txt'
 docker cp "${name}":/requirements.txt .
 docker rm -f "${name}" || true
 source "${pythonPath}"/activate
 
-
 python -m virtualenv -p python"${pythonVersion}" "${dirPath}"/venv
-
-"${dirPath}"/venv/bin/pip install -r "${dirPath}"/requirements.txt
+cat requirements.txt | xargs -n 1 "${dirPath}"/venv/bin/pip install --disable-pip-version-check
+"${dirPath}"/venv/bin/pip install autopep8 --disable-pip-version-check
 if [ "${pythonVersion}" = "3" ]; then
-    "${dirPath}"/venv/bin/pip install -r "$extraReqs"
+    "${dirPath}"/venv/bin/pip install -r "$extraReqs" --disable-pip-version-check
 fi

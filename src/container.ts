@@ -124,6 +124,15 @@ export async function createVirtualenv(dirPath: string): Promise<void> {
     settings['python.testing.cwd'] = dirPath
     settings["python.testing.pytestEnabled"] = true
     settings["python.testing.pytestArgs"] = ["."]
+    settings["python.linting.mypyEnabled"] = true
+    settings["python.linting.mypyArgs"] = [
+        "--follow-imports=silent",
+        "--ignore-missing-imports",
+        "--show-column-numbers",
+        "--no-pretty",
+        "--allow-redefinition"
+    ]
+    settings["python.linting.flake8Enabled"] = true
     fs.writeJSONSync(settingsPath, settings, { spaces: 2 })
     // open folder in new window
     Logger.info('Opening folder')

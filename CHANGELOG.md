@@ -1,5 +1,11 @@
 # Change Log
 
+# [0.3.5] (2022-07-11)
+- Fixed installation of `mypy` in python3 Dev Containers.
+- Added `flake8` and `mypy` settings in virtual environment.
+- Fixed handling `pip` conflicts when installing virtual environment.
+- Added installation of `autopep8` to the virtual environment and containers.
+
 # [0.3.4] (2022-07-11)
 - Fixed finding the docker test image when same test images are available locally.
 - Using the VSCode selected python interpreter when creating a Dev Container or a Virtual Environment. 
