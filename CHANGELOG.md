@@ -1,5 +1,9 @@
 # Change Log
 
+# [0.3.4] (2022-07-11)
+- Fixed finding the docker test image when same test images are available locally.
+- Using the VSCode selected python interpreter when creating a Dev Container or a Virtual Environment. 
+
 ## [0.3.3] (2022-07-05)
 - Disabled auto-save configuration in dev containers.
 - Enable pytest in the command `Configure XSOAR unit tests` and in `Open integration/script in virtual environment`

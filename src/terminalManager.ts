@@ -43,11 +43,11 @@ export class TerminalManager {
 
 	public static async sendDemistoSdkCommandWithProgress(command: string[]): Promise<void> {
 		const sdkPath = tools.getSDKPath()
-		let cmd = '';
+		let cmd = "source $(dirname '${command:python.interpreterPath}')/activate && "
 		if (sdkPath) {
-			cmd = `${tools.getSDKPath()} ${command.join(' ')}`
+			cmd += `${tools.getSDKPath()} ${command.join(' ')}`
 		} else {
-			cmd = `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
+			cmd += `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
 		}
 		const task = new vscode.Task(
 			{ type: 'demisto-sdk', name: command[0] },
@@ -71,7 +71,7 @@ export class TerminalManager {
 					}
 
 				})
-				progress.report({ message: "Proccessing..." });
+				progress.report({ message: "Processing..." });
 			});
 
 		})

@@ -30,7 +30,7 @@ export async function createIntegrationDevContainer(dirPath: string): Promise<vo
     vscode.window.showInformationMessage("Starting demisto-sdk lint, please wait")
     await dsdk.lint(dirPath, false, false, true)
     try {
-        const testDockerImage = execSync(`docker images --format "{{.Repository}}:{{.Tag}}" | grep devtest${dockerImage}`,
+        const testDockerImage = execSync(`docker images --format "{{.Repository}}:{{.Tag}}" | grep devtest${dockerImage} | head -1`,
             { cwd: dirPath, }).toString().trim()
         devcontainer.build.args.IMAGENAME = testDockerImage
         fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer, { spaces: 2 })
@@ -138,8 +138,7 @@ async function virtualenv(name: string, dirPath: string, dockerImage: string): P
     Logger.info('Running virtualenv task')
     const extraReqsPY3 = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/extra-requirements-py3.txt')
     const setupVenvScript = path.resolve(__dirname, '../Scripts/setup_venv.sh')
-    const cmd = `${setupVenvScript} ${dockerImage} ${name} ${dirPath} ${extraReqsPY3}`
-    
+    const cmd = `${setupVenvScript} ${dockerImage} ${name} ${dirPath} ${extraReqsPY3} ` + "$(dirname '${command:python.interpreterPath}')"
     const task = new vscode.Task(
         { type: 'virtualenv', name: 'Setup virtualenv' },
         vscode.TaskScope.Workspace,

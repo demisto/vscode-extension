@@ -6,9 +6,10 @@ dockerImage=$1
 name=$2
 dirPath=$3
 extraReqs=$4
+pythonPath=$5
 
 cd "$dirPath"
-testImage=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep devtest"$dockerImage")
+testImage=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep devtest"$dockerImage" | head -1)
 echo "Using test image env: $testImage"
 docker rm -f "${name}" || true
 pythonVersion=$(docker run --name ${name} ${testImage} "python -c 'import sys; print(sys.version_info[0])'")
@@ -17,11 +18,8 @@ docker rm -f "${name}" || true
 docker run --name "${name}" "$testImage" 'pip freeze > /requirements.txt'
 docker cp "${name}":/requirements.txt .
 docker rm -f "${name}" || true
-# check if virtualenv command exists
-if ! [ -x "$(command -v virtualenv)" ]; then
-  echo 'virtualenv is not installed. Source to poetry env.'
-  source $(poetry env info --path)/bin/activate
-fi
+source "${pythonPath}"/activate
+
 
 python -m virtualenv -p python"${pythonVersion}" "${dirPath}"/venv
 
