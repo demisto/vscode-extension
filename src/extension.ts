@@ -83,7 +83,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.format', (file: vscode.Uri | undefined) => {
-			const fileToRun = getDirPath(file)
+			const fileToRun = getPathFromContext(file) // here we want to use the actual file, not directory!
 			dsdk.formatCommand(fileToRun)
 		})
 	);
