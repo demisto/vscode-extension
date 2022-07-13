@@ -18,7 +18,7 @@ docker rm -f "${name}" || true
 docker run --name "${name}" "$testImage" 'pip list --format=freeze > /requirements.txt'
 docker cp "${name}":/requirements.txt .
 docker rm -f "${name}" || true
-source "${pythonPath}"/activate
+source "${pythonPath}"/activate || true
 
 python -m virtualenv -p python"${pythonVersion}" "${dirPath}"/venv
 cat requirements.txt | xargs -n 1 "${dirPath}"/venv/bin/pip install --disable-pip-version-check

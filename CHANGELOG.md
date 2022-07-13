@@ -1,6 +1,7 @@
 # Change Log
-# [Unreleased]
+# [0.3.6] (2022-07-13)
 - Fixed format to use the current file as input, not the current folder
+- Fixed activating python environment when using system interpreter.
 
 # [0.3.5] (2022-07-11)
 - Fixed installation of `mypy` in python3 Dev Containers.

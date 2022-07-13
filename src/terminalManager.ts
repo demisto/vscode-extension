@@ -43,7 +43,7 @@ export class TerminalManager {
 
 	public static async sendDemistoSdkCommandWithProgress(command: string[]): Promise<void> {
 		const sdkPath = tools.getSDKPath()
-		let cmd = "source $(dirname '${command:python.interpreterPath}')/activate && "
+		let cmd = "source $(dirname '${command:python.interpreterPath}')/activate || true && "
 		if (sdkPath) {
 			cmd += `${tools.getSDKPath()} ${command.join(' ')}`
 		} else {
