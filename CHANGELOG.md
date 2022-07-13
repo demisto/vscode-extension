@@ -1,4 +1,6 @@
 # Change Log
+# [Unreleased]
+- Fixed format to use the current file as input, not the current folder
 
 # [0.3.5] (2022-07-11)
 - Fixed installation of `mypy` in python3 Dev Containers.
