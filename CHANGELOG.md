@@ -1,5 +1,8 @@
 # Change Log
 
+# [0.3.6] (2022-07-14)
+- Hotfix for integration Dev Containers.
+
 # [0.3.5] (2022-07-11)
 - Fixed installation of `mypy` in python3 Dev Containers.
 - Added `flake8` and `mypy` settings in virtual environment.
