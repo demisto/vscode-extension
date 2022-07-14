@@ -1,4 +1,7 @@
 # Change Log
+# [0.3.6] (2022-07-13)
+- Fixed format to use the current file as input, not the current folder
+- Fixed activating python environment when using system interpreter.
 
 # [0.3.6] (2022-07-14)
 - Hotfix for integration Dev Containers.
