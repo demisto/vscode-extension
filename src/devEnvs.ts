@@ -7,18 +7,38 @@ import * as yaml from "yaml";
 import * as fs from "fs-extra";
 import { execSync } from "child_process";
 
-export async function createIntegrationDevContainer(dirPath: string): Promise<void> {
+export async function openIntegrationDevContainer(dirPath: string): Promise<void> {
+    const filePath = path.parse(dirPath)
+    const vsCodePath = path.join(dirPath, '.vscode')
+
     const devcontainerFolder = path.join(dirPath, '.devcontainer')
     Logger.info(`devcontainerFolder is ${devcontainerFolder}`)
     Logger.info('Create json configuration for debugging')
-    const launchJsonPath = path.resolve(__dirname, '../Templates/launch.json')
-    const launchJsonOutput = path.join(dirPath, '.vscode', 'launch.json')
-    fs.copySync(launchJsonPath, launchJsonOutput)
-
-    const filePath = path.parse(dirPath)
+    if (!await fs.pathExists(vsCodePath)) {
+        fs.mkdirSync(vsCodePath)
+    }
     const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
-
     const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
+
+    let launchJson
+    if (ymlObject.type === 'powershell') {
+        const launchJsonPath = path.resolve(__dirname, '../Templates/launch-powershell.json')
+        launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, 'utf-8'))
+        launchJson.configurations[0].script = "${workspaceFolder}/" + `${filePath.name}.ps1`
+
+    }
+    else {
+        const launchJsonPath = path.resolve(__dirname, '../Templates/launch-python.json')
+        launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, 'utf-8'))
+        launchJson.configurations[0].program = "${workspaceFolder}/" + `${filePath.name}.py`
+    }
+    const launchJsonOutput = path.join(vsCodePath, 'launch.json')
+    if (!await fs.pathExists(vsCodePath)) {
+        fs.mkdirSync(vsCodePath)
+    }
+    Logger.info('Copy launch.json')
+    fs.writeJsonSync(launchJsonOutput, launchJson, { spaces: 2 })
+
     const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
     Logger.info(`docker image is ${dockerImage}`)
     const devcontainerJsonPath = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/devcontainer.json')
@@ -68,47 +88,57 @@ export async function createIntegrationDevContainer(dirPath: string): Promise<vo
     }
 }
 
-export async function createVirtualenv(dirPath: string): Promise<void> {
+export async function openInVirtualenv(dirPath: string): Promise<void> {
     Logger.info(`Creating virtualenv in ${dirPath}`)
     const filePath = path.parse(dirPath)
+    const vsCodePath = path.join(dirPath, '.vscode')
 
-    let createVirtualenv = true
+    let shouldCreateVirtualenv = true
     if (await fs.pathExists(path.join(dirPath, 'venv'))) {
         //show input dialog if create virtualenv
         Logger.info('Virtualenv exists.')
         await vscode.window.showInformationMessage(`Found virtualenv in ${filePath.name}. Open existing virtualenv?`, "Yes", "No")
             .then(async (answer) => {
                 if (answer === "Yes") {
-                    createVirtualenv = false
+                    shouldCreateVirtualenv = false
                 }
                 else {
                     //remove venv dir
                     await fs.remove(path.join(dirPath, 'venv'))
-                    createVirtualenv = true
+                    shouldCreateVirtualenv = true
                 }
             }
             )
     }
-    const launchJsonPath = path.resolve(__dirname, '../Templates/launch.json')
-    const launchJsonOutput = path.join(dirPath, '.vscode', 'launch.json')
+    const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
+    const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
+    let launchJson
+    if (ymlObject.type === 'powershell') {
+        const launchJsonPath = path.resolve(__dirname, '../Templates/launch-powershell.json')
+        launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, 'utf-8'))
+        launchJson.configurations[0].script = "${workspaceFolder}/" + `${filePath.name}.ps1`
+
+    }
+    else {
+        const launchJsonPath = path.resolve(__dirname, '../Templates/launch-python.json')
+        launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, 'utf-8'))
+        launchJson.configurations[0].program = "${workspaceFolder}/" + `${filePath.name}.py`
+    }
+    const launchJsonOutput = path.join(vsCodePath, 'launch.json')
+    if (!await fs.pathExists(vsCodePath)) {
+        fs.mkdirSync(vsCodePath)
+    }
     Logger.info('Copy launch.json')
-    fs.copySync(launchJsonPath, launchJsonOutput)
-    if (createVirtualenv) {
+    fs.writeJsonSync(launchJsonOutput, launchJson, { spaces: 2 })
+
+    if (shouldCreateVirtualenv) {
         Logger.info('Run lint')
         await dsdk.lint(dirPath, false, false, true)
-        const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
-        const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
+
         const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
         Logger.info(`docker image is ${dockerImage}, getting data`)
         vscode.window.showInformationMessage(`Creating virtualenv, please wait`)
-        await virtualenv(filePath.name, dirPath, dockerImage)
-    }
-
-    // get settings path
-    const vsCodePath = path.join(dirPath, '.vscode')
-    if (!await fs.pathExists(vsCodePath)) {
-        Logger.info('Creating .vscode folder')
-        fs.mkdirSync(vsCodePath)
+        await createVirtualenv(filePath.name, dirPath, dockerImage)
     }
 
     const settingsPath = path.join(vsCodePath, 'settings.json')
@@ -141,7 +171,7 @@ export async function createVirtualenv(dirPath: string): Promise<void> {
 
 }
 
-async function virtualenv(name: string, dirPath: string, dockerImage: string): Promise<void> {
+async function createVirtualenv(name: string, dirPath: string, dockerImage: string): Promise<void> {
     // this implemented in a script, should be a command in SDK.
     // When SDK added this command, change to use it as wrapper.
     Logger.info('Running virtualenv task')

@@ -10,7 +10,7 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
-import { createIntegrationDevContainer, createVirtualenv } from './container';
+import { openIntegrationDevContainer, openInVirtualenv } from './devEnvs';
 import JSON5 from 'json5'
 
 // this function returns the directory path of the file
@@ -31,14 +31,14 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.integrationContainer', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)
-			createIntegrationDevContainer(fileToRun)
+			openIntegrationDevContainer(fileToRun)
 		})
 	)
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.integrationVirtualenv', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)
-			createVirtualenv(fileToRun)
+			openInVirtualenv(fileToRun)
 		})
 	)
 	context.subscriptions.push(

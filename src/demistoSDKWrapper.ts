@@ -60,7 +60,7 @@ export async function lint(file: string, tests = true, lints = true, progress = 
 		command.push('--no-test', '--no-pwsh-test')
 	}
 	if (!lints) {
-		command.push('--no-flake8', '--no-mypy', '--no-bandit', '--no-xsoar-linter', '--no-vulture', '--no-pylint')
+		command.push('--no-flake8', '--no-mypy', '--no-bandit', '--no-xsoar-linter', '--no-vulture', '--no-pylint', '--no-pwsh-analyze')
 	}
 	if (progress) {
 		await TerminalManager.sendDemistoSdkCommandWithProgress(command)

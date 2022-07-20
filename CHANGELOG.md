@@ -1,5 +1,10 @@
 # Change Log
 
+# [0.3.8] (2022-07-20)
+- Fixed opening `Powershell` Dev Container.
+- Added VSCode `launch` configuration for `Powershell`.
+- Added to `launch` configuration the integration/script file to run.
+
 # [0.3.7] (2022-07-14)
 - Hotfix for integration Dev Containers.
 
