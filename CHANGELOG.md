@@ -1,5 +1,9 @@
 # Change Log
 
+# [0.4.1] (2022-07-25)
+
+- Fixed an issue of missing commands in context view.
+
 # [0.4.0] (2022-07-25)
 
 - Added the command **Install XSOAR local development environment**.
