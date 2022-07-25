@@ -1,37 +1,54 @@
 # Change Log
 
+# [0.4.0] (2022-07-25)
+
+- Added the command **Install XSOAR local development environment**.
+- Added the command **Configure Demisto-SDK for XSOAR**
+- Added `isInstalledDemistoSDK` to check if **demisto-sdk** is installed. If it's not installed, ask the user to install it.
+- Added an option to install **demisto-sdk** globally with `pipx`.
+
 # [0.3.8] (2022-07-20)
+
 - Fixed opening `Powershell` Dev Container.
 - Added VSCode `launch` configuration for `Powershell`.
 - Added to `launch` configuration the integration/script file to run.
 
 # [0.3.7] (2022-07-14)
+
 - Hotfix for integration Dev Containers.
 
 # [0.3.6] (2022-07-13)
+
 - Fixed format to use the current file as input, not the current folder
 - Fixed activating python environment when using system interpreter.
 
 # [0.3.5] (2022-07-11)
+
 - Fixed installation of `mypy` in python3 Dev Containers.
 - Added `flake8` and `mypy` settings in virtual environment.
 - Fixed handling `pip` conflicts when installing virtual environment.
 - Added installation of `autopep8` to the virtual environment and containers.
 
 # [0.3.4] (2022-07-11)
+
 - Fixed finding the docker test image when same test images are available locally.
 - Using the VSCode selected python interpreter when creating a Dev Container or a Virtual Environment. 
 
 ## [0.3.3] (2022-07-05)
+
 - Disabled auto-save configuration in dev containers.
 - Enable pytest in the command `Configure XSOAR unit tests` and in `Open integration/script in virtual environment`
+  
 ## [0.3.2] (2022-07-03)
+
 - Hotfix to add test settings when creating a virtual environment.
 
 ## [0.3.1] (2022-07-03)
+
 - Hotfix for integration Dev Containers.
 
 ## [0.3.0] (2022-07-03)
+
 - Added an option to create a virtualenv for integrations or scripts.
 - Integration Dev Container now use the test image,
 - Fixed an issue on which the updated docker image in YML wasn't updated in the devcontainer. 

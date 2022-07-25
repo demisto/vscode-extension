@@ -1,0 +1,19 @@
+{
+    "python.testing.cwd": "Packs/HelloWorld/Integrations/HelloWorld",
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.linting.mypyEnabled": true,
+    "python.linting.mypyArgs": [
+        "--follow-imports=silent",
+        "--ignore-missing-imports",
+        "--show-column-numbers",
+        "--no-pretty",
+        "--allow-redefinition",
+        "--no-site-packages",
+        "--namespace-packages"
+    ],
+    "python.linting.flake8Enabled": true
+}

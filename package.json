@@ -2,7 +2,7 @@
   "name": "xsoar",
   "displayName": "Cortex XSOAR",
   "description": "Build, Format, and Validate Cortex XSOAR with ease.",
-  "version": "0.3.8",
+  "version": "0.4.0",
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -119,6 +119,16 @@
         "command": "xsoar.configureTests",
         "title": "Configure XSOAR unit tests",
         "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.installDevEnv",
+        "title": "Install XSOAR local development environment",
+        "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.configureXSOAR",
+        "title": "Configure Demisto-SDK for XSOAR",
+        "category": "XSOAR"
       }
     ],
     "menus": {
@@ -157,6 +167,14 @@
         },
         {
           "command": "xsoar.configureTests",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.configureDevEnv",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.configureDemistoServer",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ],
@@ -293,6 +311,7 @@
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {
+    "envfile": "^6.17.0",
     "fs-extra": "^10.0.1",
     "glob": "^7.1.6",
     "json5": "^2.2.1",

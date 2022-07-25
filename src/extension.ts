@@ -10,7 +10,7 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
-import { openIntegrationDevContainer, openInVirtualenv } from './devEnvs';
+import { openIntegrationDevContainer, openInVirtualenv, installDevEnv as installDevEnv, configureDemistoVars } from './devEnvs';
 import JSON5 from 'json5'
 
 // this function returns the directory path of the file
@@ -28,6 +28,13 @@ export function activate(context: vscode.ExtensionContext): void {
 	Logger.createLogger()
 	const diagnosticCollection = vscode.languages.createDiagnosticCollection('XSOAR problems');
 	context.subscriptions.push(diagnosticCollection);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.installDevEnv', installDevEnv)
+	)
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.configureXSOAR', configureDemistoVars)
+	)
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.integrationContainer', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)

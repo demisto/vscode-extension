@@ -6,6 +6,175 @@ import * as dsdk from "./demistoSDKWrapper";
 import * as yaml from "yaml";
 import * as fs from "fs-extra";
 import { execSync } from "child_process";
+import { parse, stringify } from "envfile"
+import { installDemistoSDKGlobally } from "./tools";
+
+
+export async function installDevEnv(): Promise<void> {
+    const workspaces = vscode.workspace.workspaceFolders;
+    if (!workspaces) {
+        vscode.window.showErrorMessage('Could not find a valid workspace');
+        return;
+    }
+    const workspace = workspaces[0];
+    const dirPath = workspace.uri.fsPath;
+
+    // should we install global dependencies?
+    await vscode.window.showInformationMessage('Install global dependencies with Homebrew?', 'Yes', 'No').then(async (answer) => {
+        if (answer === 'Yes') {
+            await vscode.window.showQuickPick(['python', 'poetry', 'node', 'docker', 'pyenv', 'pipx'],
+                { title: 'Select dependencies to install', canPickMany: true }).then(async (dependencies) => {
+                    if (dependencies) {
+                        await installGlobalDependencies(dependencies)
+                    }
+                })
+        }
+    })
+    await vscode.window.showInformationMessage('Install Demisto-SDK globally?', 'Yes', 'No').then(async (answer) => {
+        if (answer === 'Yes') {
+            installDemistoSDKGlobally()
+        }
+    })
+
+    // install code to path
+    vscode.commands.executeCommand('workbench.action.installCommandLine')
+
+    // install recommended extensions
+    // To install recommended extensions, we need to show them first
+    await vscode.commands.executeCommand('workbench.extensions.action.showRecommendedExtensions')
+    // sleep for 3 seconds to let the windows load
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    vscode.commands.executeCommand('workbench.extensions.action.installWorkspaceRecommendedExtensions', true)
+
+    // bootstrap content (run bootstrap script)
+    await bootstrapContent(dirPath)
+
+    // copy settings file
+    const settingsFile = path.resolve(__dirname, '../Templates/settings.json')
+    const settingsFileOutput = path.resolve(dirPath, '.vscode/settings.json')
+    fs.copyFileSync(settingsFile, settingsFileOutput)
+
+    // set up environment variables
+    let PYTHONPATH = `${dirPath}/Packs/Base/Scripts/CommonServerPython/:${dirPath}/Tests/demistomock/:`
+    const apiModules = execSync(`printf '%s: ' ${dirPath}/Packs/ApiModules/Scripts/*`).toString().trim()
+    PYTHONPATH += apiModules
+    const envFilePath = path.join(dirPath, '.env')
+    if (!await fs.pathExists(envFilePath)) {
+        fs.createFileSync(envFilePath)
+    }
+    const envFile = fs.readFileSync(envFilePath, 'utf8')
+    Logger.info(`envFile: ${envFile}`)
+    const env = parse(envFile)
+    env["PYTHONPATH"] = PYTHONPATH
+    env["MYPYPATH"] = PYTHONPATH
+    Logger.info(JSON5.stringify(env))
+    Logger.info(stringify(env))
+    fs.writeFileSync(envFilePath, stringify(env))
+    fs.createFileSync(path.join(dirPath, 'Packs/Base/Scripts/CommonServerPython/CommonServerUserPython.py'))
+    configureDemistoVars()
+
+}
+
+function installGlobalDependencies(dependencies: string[]) {
+    Logger.info('Install global dependencies')
+    const task = new vscode.Task(
+        { type: 'dependencies', name: 'Install global dependencies' },
+        vscode.TaskScope.Workspace,
+        'dependencies',
+        'dependencies',
+        new vscode.ShellExecution(`sh -x ${path.resolve(__dirname, '../Scripts/setup_dependencies.sh')} "${dependencies.join(' ')}"`),
+    )
+    return new Promise<void>(resolve => {
+        vscode.window.withProgress({
+            title: `Bootstrap content`,
+            location: vscode.ProgressLocation.Notification
+        }, async (progress) => {
+            progress.report({ message: `Installing global dependencies` })
+            const execution = await vscode.tasks.executeTask(task);
+            const disposable = vscode.tasks.onDidEndTaskProcess(e => {
+                if (e.execution === execution) {
+                    if (e.exitCode === 0) {
+                        disposable.dispose()
+                        resolve()
+                    }
+                    else {
+                        vscode.window.showWarningMessage('Could not installing global dependencies')
+                    }
+                }
+            })
+            progress.report({ message: "Processing..." });
+        })
+
+    })
+}
+
+export async function configureDemistoVars(): Promise<void> {
+    const workspaces = vscode.workspace.workspaceFolders;
+    if (!workspaces) {
+        vscode.window.showErrorMessage('Could not find a valid workspace');
+        return;
+    }
+    const workspace = workspaces[0];
+    const dirPath = workspace.uri.fsPath;
+    const envFilePath = path.join(dirPath, '.env')
+    if (!await fs.pathExists(envFilePath)) {
+        fs.createFileSync(envFilePath)
+    }
+    vscode.window.showInformationMessage(`Setting up environment in .env file in ${envFilePath}`)
+    let env = parse(fs.readFileSync(envFilePath, 'utf8'))
+    if (!env) {
+        env = {}
+    }
+    await vscode.window.showInputBox({
+        title: 'XSOAR URL',
+        value: 'http://localhost:8080'
+    }).then(url => {
+        if (url) {
+            env["DEMISTO_BASE_URL"] = url
+        }
+    })
+    vscode.window.showInformationMessage('Enter either XSOAR username and password, or an API key')
+    await vscode.window.showInputBox({
+        title: 'XSOAR username (optional)',
+        value: 'admin'
+    }).then(username => {
+        if (username) {
+            env["DEMISTO_USERNAME"] = username
+        }
+    })
+    await vscode.window.showInputBox({
+        title: 'XSOAR password (optional)',
+        value: 'admin',
+        password: true
+    }).then(password => {
+        if (password) {
+            env["DEMISTO_PASSWORD"] = password
+        }
+    })
+
+    await vscode.window.showInputBox({
+        title: 'XSOAR API key (optional)',
+        placeHolder: 'Leaving blank will use username and password',
+        password: true
+    }).then((apiKey) => {
+        if (apiKey) {
+            env["DEMISTO_API_KEY"] = apiKey
+        }
+    })
+    await vscode.window.showQuickPick(
+        ['true', 'false'],
+        {
+            title: "XSOAR SSL verification",
+            placeHolder: 'Should XSOAR SSL verification be enabled?',
+        }
+    ).then(verifySSL => {
+        if (verifySSL) {
+            env["DEMISTO_VERIFY_SSL"] = verifySSL
+        }
+    })
+    fs.writeFileSync(envFilePath, stringify(env))
+
+}
 
 export async function openIntegrationDevContainer(dirPath: string): Promise<void> {
     const filePath = path.parse(dirPath)
@@ -171,6 +340,41 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
 
 }
 
+async function bootstrapContent(dirPath: string) {
+    Logger.info('Bootstrap content')
+    const task = new vscode.Task(
+        { type: 'bootstrap', name: 'Bootstrap content' },
+        vscode.TaskScope.Workspace,
+        'bootstrap',
+        'bootstrap',
+        new vscode.ShellExecution(`NO_HOOKS=1 ${dirPath}/.hooks/bootstrap`),
+    )
+    return new Promise<void>(resolve => {
+        vscode.window.withProgress({
+            title: `Bootstrap content`,
+            location: vscode.ProgressLocation.Notification
+        }, async (progress) => {
+            progress.report({ message: `In bootstrap please wait` })
+            const execution = await vscode.tasks.executeTask(task);
+            const disposable = vscode.tasks.onDidEndTaskProcess(e => {
+                if (e.execution === execution) {
+                    if (e.exitCode === 0) {
+                        disposable.dispose()
+                        resolve()
+                    }
+                    else {
+                        vscode.window.showErrorMessage('Could not bootstrap content')
+                        throw new Error('Could not bootstrap content')
+                    }
+                }
+            })
+            progress.report({ message: "Processing..." });
+        })
+
+    })
+
+}
+
 async function createVirtualenv(name: string, dirPath: string, dockerImage: string): Promise<void> {
     // this implemented in a script, should be a command in SDK.
     // When SDK added this command, change to use it as wrapper.
@@ -208,3 +412,5 @@ async function createVirtualenv(name: string, dirPath: string, dockerImage: stri
         })
     })
 }
+
+

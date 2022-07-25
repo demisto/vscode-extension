@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { DiagnosticCollection } from "vscode";
 import * as yaml from "yaml";
 import { AutomationI, IntegrationI } from './contentObject';
+import { Logger } from './logger';
 import { TerminalManager } from './terminalManager';
 
 export function sendCommandExtraArgsWithUserInput(command: string[]): void {
@@ -36,7 +37,34 @@ export function getSDKPath(): string {
 }
 
 export async function installDemistoSDK(): Promise<void> {
-    TerminalManager.sendText([getPythonpath(), '-m', 'pip', 'install', 'demisto-sdk', '--upgrade']);
+    vscode.window.showInformationMessage('Install Demisto SDK globally or locally?', 'Global', 'Local').then(answer => {
+        if (answer === 'Global'){
+            installDemistoSDKGlobally()
+        }
+        else if (answer == 'Local'){
+            installDemistoSDKLocally()
+        }
+    })
+}
+
+export async function installDemistoSDKLocally(): Promise<void> {
+    TerminalManager.sendText(['pip', 'install', 'demisto-sdk', '--upgrade']);
+}
+
+export async function installDemistoSDKGlobally(): Promise<void> {
+    // if pipx is installed no need to install pipx with pip
+    TerminalManager.sendText('pipx --version || pip install pipx && pipx ensurepath && pipx install demisto-sdk --force');
+}
+
+export async function isDemistoSDKinstalled(): Promise<boolean> {
+    const isSDKInstalled = await TerminalManager.sendDemistoSdkCommandWithProgress(['--version']);
+    if (isSDKInstalled) {
+        return true
+    }
+    Logger.error('demisto-sdk is not installed')
+    await installDemistoSDK()
+    await new Promise(resolve => setTimeout(resolve, 15000))
+    return TerminalManager.sendDemistoSdkCommandWithProgress(['--version'])
 }
 
 export function publishDiagnostics(

@@ -19,12 +19,13 @@ Commands:
 
 ## Configurations  
 
-To use this extension, `demisto-sdk` needs to be correctly configured.
-Either configure it locally with:
-```bash
-pip install demisto-sdk
-```
+### Local Environment (LINUX or MacOS)
 
+Execute the command *XSOAR: Install XSOAR local development environment*.
+This will install local development environment with **demisto-sdk** and will configure the **demisto-sdk** with XSOAR.
+If **Homebrew** is available, you can choose to install any of **python**, **poetry**, **node**, **docker** or **pyenv**.
+
+### Remote Environment (All OS)
 Or you can follow [this guide](https://xsoar.pan.dev/docs/tutorials/tut-setup-env) to configure a fully configured remote development environnement, with `demisto-sdk` and more features preinstalled.
 
 ### Demisto-SDK Path
@@ -51,6 +52,15 @@ If you wish to see the process running (or check why it's failing or not working
 By default, the extension will automatically save changes made to the integration/automation file made in the webview (opened with *XSOAR: Load Integration/Script*).
 to disable it, change `xsoar.autoSave` to `false`.
 
+
+## Configure Demisto-SDK for XSOAR
+
+This will configure `.env` file with the following environment variables:
+* DEMISTO_BASE_URL (XSOAR URL)
+* DEMISTO_USERNAME (XSOAR username)
+* DEMISTO_PASSWORD (XSOAR password)
+* DEMISTO_API_KEY (XSOAR API key)
+* DEMISTO_VERIFY_SSL (Verify SSL in XSOAR, `true` or `false`) 
 ## Configure XSOAR unit tests
 
 The extension supports configuring the integration/script unit tests.
