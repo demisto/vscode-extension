@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as tools from './tools';
 import * as fs from 'fs';
+import * as yaml from "yaml";
 import minimatch = require('minimatch');
 
 import { TerminalManager } from './terminalManager';
@@ -70,19 +71,87 @@ export async function lint(file: string, tests = true, lints = true, progress = 
 	}
 }
 
-export function run(): void {
-	vscode.window.showInputBox(
-		{
-			value: "Command to run"
+interface Argumnet {
+	name: string
+	description: string
+	required: string
+	predefined: string[]
+}
+interface Command {
+	name: string
+	description: string
+	arguments: Argumnet[]
+}
+
+export function run(dirPath: string): void {
+
+	const filePath = path.parse(dirPath)
+	const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
+	const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
+	const commandNames: vscode.QuickPickItem[] = ymlObject.script.commands.map((command: Command) => {
+		return { label: command.name, description: command.description }
+	})
+	const commands: Map<string, Command> = new Map<string, Command>()
+	ymlObject.script.commands.forEach((command: Command) => { commands.set(command.name, command) })
+	if (ymlFilePath) {
+		const query : Map<string, string> = new Map<string, string>()
+		vscode.window.showQuickPick(
+			commandNames, {
+			title: "Choose your command",
+			placeHolder: "The command to run with XSOAR"
 		}
-	).then(
-		(value) => {
-			if (value) {
-				value = JSON.stringify(value)
-				const command = ['run', '-q', value];
-				TerminalManager.sendDemistoSDKCommand(command);
+		).then(
+			(commandName) => {
+				if (commandName) {
+					const command = commands.get(commandName.label)
+					if (command) {
+						query.set('cmd', command.name)
+						const argumentNames: vscode.QuickPickItem[] = command.arguments.map((arg: Argumnet) => {
+							return {label: arg.name, description: arg.description}
+						})
+						let i = 1 as number
+						while (i === 1){
+							vscode.window.showQuickPick(
+								argumentNames,{
+									title: "Choose the argument",
+									placeHolder: ""
+								}
+							).then(
+								(arg) => {
+									if (arg){
+									vscode.window.showInputBox(
+										{
+											placeHolder: arg.description
+										}
+									).then(
+										(value) => {
+											if (value) {
+												query.set(arg.label, value)
+											}
+											i = 2
+										}
+									)
+								}}
+							)
+						}
+					}
+				}
 			}
-		});
+		)
+		TerminalManager.sendText("echo Israel", true)
+	}
+	// vscode.window.showInputBox(
+	// 	{
+	// 		value: "Command to run"
+	// 	}
+	// ).then(
+	// 	(value) => {
+	// 		if (value) {
+	// 			value = JSON.stringify(value)
+	// 			const command = ['run', '-q', value];
+	// 			TerminalManager.sendDemistoSDKCommand(command);
+	// 		}
+	// 	});
 
 
 }
