@@ -20,7 +20,10 @@ export async function installDevEnv(): Promise<void> {
     const dirPath = workspace.uri.fsPath;
 
     // should we install global dependencies?
-    await vscode.window.showInformationMessage('Install global dependencies with Homebrew?', 'Yes', 'No').then(async (answer) => {
+    await vscode.window.showQuickPick(['Yes', 'No'], {
+        title: "Install global dependencies with Homebrew?",
+        placeHolder: "Homebrew should be installed to run this step. Skip if you want to install dependencies manually."
+    }).then(async (answer) => {
         if (answer === 'Yes') {
             await vscode.window.showQuickPick(['python', 'poetry', 'node', 'docker', 'pyenv', 'pipx'],
                 { title: 'Select dependencies to install', canPickMany: true }).then(async (dependencies) => {
@@ -30,7 +33,10 @@ export async function installDevEnv(): Promise<void> {
                 })
         }
     })
-    await vscode.window.showInformationMessage('Install Demisto-SDK globally?', 'Yes', 'No').then(async (answer) => {
+    await vscode.window.showQuickPick(['Yes', 'No'], {
+        title: 'Install Demisto-SDK globally?',
+        placeHolder: "This will install demisto-sdk globally in your system with pipx"
+    }).then(async (answer) => {
         if (answer === 'Yes') {
             installDemistoSDKGlobally()
         }
@@ -48,7 +54,6 @@ export async function installDevEnv(): Promise<void> {
 
     // bootstrap content (run bootstrap script)
     await bootstrapContent(dirPath)
-
     // copy settings file
     const settingsFile = path.resolve(__dirname, '../Templates/settings.json')
     const settingsFileOutput = path.resolve(dirPath, '.vscode/settings.json')
@@ -266,15 +271,18 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     if (await fs.pathExists(path.join(dirPath, 'venv'))) {
         //show input dialog if create virtualenv
         Logger.info('Virtualenv exists.')
-        await vscode.window.showInformationMessage(`Found virtualenv in ${filePath.name}. Open existing virtualenv?`, "Yes", "No")
+        await vscode.window.showQuickPick(["Open existing virtual environment", "Create new virtual environment"], {
+            title: `Found virtual environemnt in ${filePath.name}`,
+            placeHolder: "Creating virtual environment can take few minutes"
+        })
             .then(async (answer) => {
-                if (answer === "Yes") {
-                    shouldCreateVirtualenv = false
-                }
-                else {
+                if (answer === "Create new virtual environment") {
                     //remove venv dir
                     await fs.remove(path.join(dirPath, 'venv'))
                     shouldCreateVirtualenv = true
+                }
+                else {
+                    shouldCreateVirtualenv = false
                 }
             }
             )
@@ -301,6 +309,7 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     fs.writeJsonSync(launchJsonOutput, launchJson, { spaces: 2 })
 
     if (shouldCreateVirtualenv) {
+        vscode.window.showInformationMessage('Creating virtual environment. Might take a few minutes.')
         Logger.info('Run lint')
         await dsdk.lint(dirPath, false, false, true)
 

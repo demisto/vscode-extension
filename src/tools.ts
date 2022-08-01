@@ -37,11 +37,14 @@ export function getSDKPath(): string {
 }
 
 export async function installDemistoSDK(): Promise<void> {
-    vscode.window.showInformationMessage('Install Demisto SDK globally or locally?', 'Global', 'Local').then(answer => {
-        if (answer === 'Global'){
+    vscode.window.showQuickPick(['Global', 'Local'], {
+        title: 'Install Demisto SDK globally or locally?',
+        placeHolder: 'Global will install demisto-sdk with pipx. Local will install demisto-sdk with pip.'
+    }).then(answer => {
+        if (answer === 'Global') {
             installDemistoSDKGlobally()
         }
-        else if (answer == 'Local'){
+        else if (answer == 'Local') {
             installDemistoSDKLocally()
         }
     })
@@ -53,7 +56,7 @@ export async function installDemistoSDKLocally(): Promise<void> {
 
 export async function installDemistoSDKGlobally(): Promise<void> {
     // if pipx is installed no need to install pipx with pip
-    TerminalManager.sendText('pipx --version || pip install pipx && pipx ensurepath && pipx install demisto-sdk --force');
+    TerminalManager.sendText('pipx --version || pip install pipx && pipx ensurepath --force && pipx install demisto-sdk --force');
 }
 
 export async function isDemistoSDKinstalled(): Promise<boolean> {

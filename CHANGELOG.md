@@ -1,5 +1,11 @@
 # Change Log
 
+# [0.4.2] (2022-08-01)
+
+- Added default python interpreter path setting in content environment.
+- Fix message when `brew` is not installed when installing dependencies.
+- Change user to `QuickPick` instead of `InformationMessage`.
+
 # [0.4.1] (2022-07-25)
 
 - Fixed an issue of missing commands in context view.

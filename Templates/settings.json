@@ -1,4 +1,4 @@
-{
+{    
     "python.testing.cwd": "Packs/HelloWorld/Integrations/HelloWorld",
     "python.testing.pytestEnabled": true,
     "python.testing.pytestArgs": [
@@ -15,5 +15,6 @@
         "--no-site-packages",
         "--namespace-packages"
     ],
-    "python.linting.flake8Enabled": true
+    "python.linting.flake8Enabled": true,
+    "python.defaultInterpreterPath": ".venv/bin/python"
 }
