@@ -25,7 +25,7 @@ export async function installDevEnv(): Promise<void> {
         placeHolder: "Homebrew should be installed to run this step. Skip if you want to install dependencies manually."
     }).then(async (answer) => {
         if (answer === 'Yes') {
-            await vscode.window.showQuickPick(['python', 'poetry', 'node', 'docker', 'pyenv', 'pipx'],
+            await vscode.window.showQuickPick(['gcc', 'python', 'poetry', 'node', 'docker', 'pyenv', 'pipx'],
                 { title: 'Select dependencies to install', canPickMany: true }).then(async (dependencies) => {
                     if (dependencies) {
                         await installGlobalDependencies(dependencies)
@@ -206,6 +206,7 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
         launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, 'utf-8'))
         launchJson.configurations[0].program = "${workspaceFolder}/" + `${filePath.name}.py`
     }
+    fs.removeSync(path.join(vsCodePath, 'settings.json'))
     const launchJsonOutput = path.join(vsCodePath, 'launch.json')
     if (!await fs.pathExists(vsCodePath)) {
         fs.mkdirSync(vsCodePath)
@@ -222,6 +223,7 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     fs.copySync(path.resolve(__dirname, '../Scripts/create_certs.sh'), path.join(devcontainerFolder, 'create_certs.sh'))
     Logger.info('devcontainer folder created')
     vscode.window.showInformationMessage("Starting demisto-sdk lint, please wait")
+    devcontainer.name = `XSOAR Integration: ${filePath.name}`
     await dsdk.lint(dirPath, false, false, true)
     try {
         const testDockerImage = execSync(`docker images --format "{{.Repository}}:{{.Tag}}" | grep devtest${dockerImage} | head -1`,
@@ -390,7 +392,7 @@ async function createVirtualenv(name: string, dirPath: string, dockerImage: stri
     Logger.info('Running virtualenv task')
     const extraReqsPY3 = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/extra-requirements-py3.txt')
     const setupVenvScript = path.resolve(__dirname, '../Scripts/setup_venv.sh')
-    const cmd = `${setupVenvScript} ${dockerImage} ${name} ${dirPath} ${extraReqsPY3} ` + "$(dirname '${command:python.interpreterPath}')"
+    const cmd = `${setupVenvScript} ${dockerImage} ${name} ${dirPath} ${extraReqsPY3} ` + "${command:python.interpreterPath}"
     const task = new vscode.Task(
         { type: 'virtualenv', name: 'Setup virtualenv' },
         vscode.TaskScope.Workspace,

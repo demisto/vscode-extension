@@ -66,22 +66,21 @@ export function activate(context: vscode.ExtensionContext): void {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.upload', (file: vscode.Uri | undefined) => {
-			const fileToRun = getDirPath(file)
+			const fileToRun = getPathFromContext(file) // here we want to use the actual file, not directory!
 			dsdk.uploadToXSOAR(fileToRun)
 		})
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.lint', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)
-			dsdk.lint(fileToRun)
-		})
-	);
-	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.lintNoTests', (file: vscode.Uri | undefined) => {
-			const fileToRun = getDirPath(file)
-			dsdk.lint(fileToRun, false)
-		})
-	);
+			vscode.window.showQuickPick(['With tests', 'Without tests'], { placeHolder: 'Lint with tests?' }).then(option => {
+				if (option === 'With tests') {
+					dsdk.lint(fileToRun, true)
+				} else {
+					dsdk.lint(fileToRun, false)
+				}
+			})
+		}))
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.lintUsingGit', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)

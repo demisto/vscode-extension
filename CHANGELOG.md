@@ -1,5 +1,15 @@
 # Change Log
 
+# [0.4.3] (2022-08-05)
+
+- Fixed issues with M1 Macs.
+- Added gcc as dependency to install.
+- Added validation if no dependencies were selected in the selection box.
+- Added git to integration dev containers.
+- Removing `vscode/settings.json` from integration folder when creating dev container because of conflicts with virtual environment feature.
+- Removed Demisto-SDK lint with no tests.
+- Fixed Demisto-SDK upload to take the file instead of the folder
+
 # [0.4.2] (2022-08-01)
 
 - Added default python interpreter path setting in content environment.

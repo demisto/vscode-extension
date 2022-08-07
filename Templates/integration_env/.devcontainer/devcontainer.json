@@ -3,7 +3,8 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": {
-			"IMAGENAME": ""
+			// if this value is not set, make sure `demisto-sdk lint` works
+			"IMAGENAME": "This should be the name of the test image"
 		}
 	},
 	"containerUser": "demisto",
@@ -25,9 +26,9 @@
 	},
 	"extensions": [
 		"ms-python.python",
-		"ms-python.vscode-pylance",
 		"ms-vscode.PowerShell",
-		"cortexxsoarext.xsoar"
+		"cortexxsoarext.xsoar",
+		"eamodio.gitlens",
+		"GitHub.vscode-pull-request-github"
 	]
-
 }

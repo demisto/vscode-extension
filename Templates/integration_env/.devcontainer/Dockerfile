@@ -7,6 +7,9 @@ ADD extra-requirements-py3.txt /
 RUN chmod +x /create_certs.sh \ 
     && /create_certs.sh /usr/local/share/ca-certificates/certs.crt \
     && update-ca-certificates \
+    && apk add bash || echo "No alpine, no need to install bash" \
+    && apk add git || apt-get install git || echo "Could not install git" \
+    && apk add build-base || apt-get install build-essential || echo "Could not install build-essential" \
     # check if pip command exists
     && if [ -x "$(command -v pip)" ]; then \
     pip install autopep8; \
