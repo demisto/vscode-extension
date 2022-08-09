@@ -29,6 +29,9 @@ export function activate(context: vscode.ExtensionContext): void {
 	const diagnosticCollection = vscode.languages.createDiagnosticCollection('XSOAR problems');
 	context.subscriptions.push(diagnosticCollection);
 	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.init', dsdk.init)
+	)
+	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.installDevEnv', installDevEnv)
 	)
 	context.subscriptions.push(

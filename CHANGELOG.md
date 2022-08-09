@@ -1,5 +1,9 @@
 # Change Log
 
+# [Unreleased]
+
+- Add `Demisto-SDK init` command.
+
 # [0.4.3] (2022-08-05)
 
 - Fixed issues with M1 Macs.
