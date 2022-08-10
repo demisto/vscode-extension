@@ -3,8 +3,7 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": {
-			// if this value is not set, make sure `demisto-sdk lint` works
-			"IMAGENAME": "This should be the name of the test image"
+			"IMAGENAME": ""
 		}
 	},
 	"containerUser": "demisto",

@@ -1,5 +1,11 @@
 # Change Log
 
+# [0.4.4] (2022-08-10)
+
+- Fixed an issue with opening a Dev Container in a development image.
+- Fixed an issue with Git installation in Dev Container.
+- If **demisto-sdk lint** fails when opening a Dev Container or Virtual Environment, show error message and not proceed.
+
 # [0.4.3] (2022-08-05)
 
 - Fixed issues with M1 Macs.

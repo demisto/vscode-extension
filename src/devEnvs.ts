@@ -214,7 +214,8 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     Logger.info('Copy launch.json')
     fs.writeJsonSync(launchJsonOutput, launchJson, { spaces: 2 })
 
-    const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+    let dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+    dockerImage = dockerImage.replace('demisto', 'devtestdemisto')
     Logger.info(`docker image is ${dockerImage}`)
     const devcontainerJsonPath = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/devcontainer.json')
     const devcontainer = JSON5.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
@@ -226,8 +227,13 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     devcontainer.name = `XSOAR Integration: ${filePath.name}`
     await dsdk.lint(dirPath, false, false, true)
     try {
-        const testDockerImage = execSync(`docker images --format "{{.Repository}}:{{.Tag}}" | grep devtest${dockerImage} | head -1`,
+        const testDockerImage = execSync(`docker images --format "{{.Repository}}:{{.Tag}}" | grep ${dockerImage} | head -1`,
             { cwd: dirPath, }).toString().trim()
+        if (!testDockerImage) {
+            Logger.error('Docker image not found, exiting')
+            vscode.window.showErrorMessage('Docker image not found, exiting')
+            return
+        }
         devcontainer.build.args.IMAGENAME = testDockerImage
         fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer, { spaces: 2 })
     }
