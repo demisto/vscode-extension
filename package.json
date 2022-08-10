@@ -148,6 +148,10 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
+          "command": "xsoar.run",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
           "command": "xsoar.integrationContainer",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
@@ -183,6 +187,10 @@
         },
         {
           "command": "xsoar.upload",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.run",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
