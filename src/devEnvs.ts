@@ -321,7 +321,8 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
         Logger.info('Run lint')
         await dsdk.lint(dirPath, false, false, true)
 
-        const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+        let dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+        dockerImage = dockerImage.replace('demisto', 'devtestdemisto')
         Logger.info(`docker image is ${dockerImage}, getting data`)
         vscode.window.showInformationMessage(`Creating virtualenv, please wait`)
         await createVirtualenv(filePath.name, dirPath, dockerImage)

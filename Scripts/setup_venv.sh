@@ -12,7 +12,7 @@ pythonPath=$5
 export PATH=/opt/homebrew/bin:$PATH
 
 cd "$dirPath"
-testImage=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep devtest"$dockerImage" | head -1)
+testImage=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "$dockerImage" | head -1)
 echo "Using test image env: $testImage"
 docker rm -f "${name}" &> /dev/null || true
 pythonVersion=$(docker run --name ${name} ${testImage} "python -c 'import sys; print(sys.version_info[0])'")

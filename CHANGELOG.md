@@ -1,4 +1,7 @@
 # Change Log
+# [0.4.5] (2022-08-11)
+
+- Fixed an issue with opening a Virtual Environnement in a development image.
 
 # [0.4.4] (2022-08-10)
 
