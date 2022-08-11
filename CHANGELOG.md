@@ -1,4 +1,11 @@
 # Change Log
+
+# [0.4.6] (2022-08-11)
+
+- Fixed an issue with flake8.
+- Fixed Git issues in Dev Containers.
+- Added more extensions to Dev Containers.
+
 # [0.4.5] (2022-08-11)
 
 - Fixed an issue with opening a Virtual Environnement in a development image.

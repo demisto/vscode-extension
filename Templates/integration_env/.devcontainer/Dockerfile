@@ -14,6 +14,7 @@ RUN chmod +x /create_certs.sh \
     # check if pip command exists
     && if [ -x "$(command -v pip)" ]; then \
     pip install autopep8; \
+    pip install flake8; \
     if [ $(python -c 'import sys; print(sys.version_info[0])') == "3" ]; then \
         pip install -r /extra-requirements-py3.txt; \
     fi \
