@@ -99,7 +99,6 @@ function quickPickItemForCommands(_list: Command[]): vscode.QuickPickItem[] {
 		})
 	}
 	else {
-
 		return []
 	}
 }
@@ -121,12 +120,13 @@ function QuickPickItemForArgs(_list: Argumnet[]): [vscode.QuickPickItem[], strin
 	return [argumentSorted(argsList), argsRequired]
 }
 
-function QuickPickItemForPredefined(_list: string[]): vscode.QuickPickItem[] | undefined {
+function QuickPickItemForPredefined(_list: string[]): vscode.QuickPickItem[] {
 	if (_list.length > 0) {
 		return _list.map((item: string) => {
 			return { label: item }
 		})
 	}
+	return []
 }
 
 function argumentSorted(_list: vscode.QuickPickItem[]): vscode.QuickPickItem[] {
