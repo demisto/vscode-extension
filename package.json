@@ -2,7 +2,7 @@
   "name": "xsoar",
   "displayName": "Cortex XSOAR",
   "description": "Build, Format, and Validate Cortex XSOAR with ease.",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "engines": {
     "vscode": "^1.54.0"
   },

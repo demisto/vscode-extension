@@ -19,9 +19,8 @@ if ! [ -x "$(command -v brew)" ]; then
     exit 1
 fi
 brew update
-brew install $dependencies
 # check if "docker" in dependencies
 if [[ $dependencies == *"docker"* ]]; then
     brew install --cask docker
-    docker ps
 fi
+brew install $dependencies

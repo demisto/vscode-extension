@@ -1,5 +1,9 @@
 # Change Log
 
+# [0.4.7] (2022-08-15)
+
+- Fixed installation of docker in **Install XSOAR local development environment**. 
+
 # [0.4.6] (2022-08-11)
 
 - Fixed an issue with flake8.
