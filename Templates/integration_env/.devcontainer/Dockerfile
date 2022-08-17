@@ -13,10 +13,11 @@ RUN chmod +x /create_certs.sh \
     && apk add build-base || apt-get install build-essential -y || echo "Could not install build-essential" \
     # check if pip command exists
     && if [ -x "$(command -v pip)" ]; then \
-    pip install autopep8; \
-    pip install flake8; \
+    pip install autopep8 || echo "Could not install autopep8"; \
+    pip install flake8 || echo "Could not install flake8"; \
     if [ $(python -c 'import sys; print(sys.version_info[0])') == "3" ]; then \
-        pip install -r /extra-requirements-py3.txt; \
+        # mypy supports only py3
+        pip install -r /extra-requirements-py3.txt || echo "Could not install mypy"; \
     fi \
     fi
 

@@ -25,8 +25,8 @@ docker rm -f "${name}" || true
 $pythonPath -m virtualenv -p python"${pythonVersion}" venv
 # install all dependency one by one. If one or more fails, we continue.
 while read line; do venv/bin/pip install --disable-pip-version-check "$line" || echo "Could not install dependency $line, proceeding"; done < requirements.txt
-venv/bin/pip install autopep8 --disable-pip-version-check
-venv/bin/pip install flake8 --disable-pip-version-check
+venv/bin/pip install autopep8 --disable-pip-version-check || echo "Could not install autopep8"
+venv/bin/pip install flake8 --disable-pip-version-check || echo "Could not install flake8"
 if [ "${pythonVersion}" = "3" ]; then
-    venv/bin/pip install -r "$extraReqs" --disable-pip-version-check
+    venv/bin/pip install -r "$extraReqs" --disable-pip-version-check || echo "Could not install mypy"
 fi

@@ -18,6 +18,11 @@ export async function installDevEnv(): Promise<void> {
     }
     const workspace = workspaces[0];
     const dirPath = workspace.uri.fsPath;
+    // check if content is in dirPath
+    if (!dirPath.includes('content')) {
+        vscode.window.showErrorMessage('Please run this command from a content repository');
+        return;
+    }
 
     // should we install global dependencies?
     await vscode.window.showQuickPick(['Yes', 'No'], {
@@ -61,7 +66,7 @@ export async function installDevEnv(): Promise<void> {
 
     // set up environment variables
     let PYTHONPATH = `${dirPath}/Packs/Base/Scripts/CommonServerPython/:${dirPath}/Tests/demistomock/:`
-    const apiModules = execSync(`printf '%s: ' ${dirPath}/Packs/ApiModules/Scripts/*`).toString().trim()
+    const apiModules = execSync(`printf '%s:' ${dirPath}/Packs/ApiModules/Scripts/*`).toString().trim()
     PYTHONPATH += apiModules
     const envFilePath = path.join(dirPath, '.env')
     if (!await fs.pathExists(envFilePath)) {

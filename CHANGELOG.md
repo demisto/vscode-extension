@@ -1,5 +1,12 @@
 # Change Log
 
+# [0.4.8] (2022-08-17)
+
+- Fixed the APIModules in PYTHONPATH when running **Install XSOAR local development environment**.
+- Do not fail when installation of`flake8`, `autopep8`, or `mypy` fails when opening in virtual environment or Dev Container.
+- Validate that **Install XSOAR local development environment** runs in a `content` workspace
+
+
 # [0.4.7] (2022-08-15)
 
 - Fixed installation of docker in **Install XSOAR local development environment**. 
