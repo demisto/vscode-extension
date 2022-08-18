@@ -4,7 +4,9 @@
 
 - Fixed the APIModules in PYTHONPATH when running **Install XSOAR local development environment**.
 - Do not fail when installation of`flake8`, `autopep8`, or `mypy` fails when opening in virtual environment or Dev Container.
-- Validate that **Install XSOAR local development environment** runs in a `content` workspace
+- Validate that **Install XSOAR local development environment** runs in a `content` workspace.
+- Add support for enabling pre-commit hooks in **Install XSOAR local development environment**.
+- Ask the user if execute the **Configure Demisto-SDK for XSOAR** command in **Install XSOAR local development environment**.
 
 
 # [0.4.7] (2022-08-15)

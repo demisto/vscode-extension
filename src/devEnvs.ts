@@ -56,9 +56,19 @@ export async function installDevEnv(): Promise<void> {
     // sleep for 3 seconds to let the windows load
     await new Promise(resolve => setTimeout(resolve, 3000))
     vscode.commands.executeCommand('workbench.extensions.action.installWorkspaceRecommendedExtensions', true)
+    
+    let shouldPreCommit = false
+    await vscode.window.showQuickPick(['Yes', 'No'], {
+        title: 'Do you want to install pre-commit hooks?',
+        placeHolder: "Installing pre-commit hooks will run `validate` and `lint` before every commit"
+    }).then(async (answer) => {
+        if (answer === 'Yes') {
+            shouldPreCommit = true            
+        }
+    })
 
     // bootstrap content (run bootstrap script)
-    await bootstrapContent(dirPath)
+    await bootstrapContent(dirPath, shouldPreCommit)
     // copy settings file
     const settingsFile = path.resolve(__dirname, '../Templates/settings.json')
     const settingsFileOutput = path.resolve(dirPath, '.vscode/settings.json')
@@ -81,7 +91,16 @@ export async function installDevEnv(): Promise<void> {
     Logger.info(stringify(env))
     fs.writeFileSync(envFilePath, stringify(env))
     fs.createFileSync(path.join(dirPath, 'Packs/Base/Scripts/CommonServerPython/CommonServerUserPython.py'))
-    configureDemistoVars()
+    
+    await vscode.window.showQuickPick(['Yes', 'No'], {
+        title: 'Do you want to configure Demisto-SDK for XSOAR?',
+        placeHolder: "This will ask you to configure the XSOAR to communicate between Demisto-SDK and XSOAR"
+    }).then(async (answer) => {
+        if (answer === 'Yes') {
+            configureDemistoVars()
+        }
+    })
+
 
 }
 
@@ -363,14 +382,18 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
 
 }
 
-async function bootstrapContent(dirPath: string) {
+async function bootstrapContent(dirPath: string, shouldPreCommit: boolean) {
     Logger.info('Bootstrap content')
+    let command = `${dirPath}/.hooks/bootstrap`
+    if (!shouldPreCommit){
+        command = `NO_HOOKS=1 ${command}`
+    }
     const task = new vscode.Task(
         { type: 'bootstrap', name: 'Bootstrap content' },
         vscode.TaskScope.Workspace,
         'bootstrap',
         'bootstrap',
-        new vscode.ShellExecution(`NO_HOOKS=1 ${dirPath}/.hooks/bootstrap`),
+        new vscode.ShellExecution(command),
     )
     return new Promise<void>(resolve => {
         vscode.window.withProgress({
