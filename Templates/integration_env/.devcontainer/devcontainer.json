@@ -23,7 +23,7 @@
         "python.testing.pytestEnabled": true
 
 	},
-	"postCreateCommand": "git config --global --add safe.directory /workspaces/content",
+	"postCreateCommand": "git config --global --add safe.directory /workspaces/content && rm -rf __pycache__ && rm -rf *.pyc && rm -rf .pytest_cache && rm -rf .mypy_cache",
 	"extensions": [
 		"ms-python.python",
 		"ms-vscode.PowerShell",

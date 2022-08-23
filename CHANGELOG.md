@@ -1,5 +1,12 @@
 # Change Log
 
+# [0.4.9] (2022-08-23)
+
+- Added installation and configuration of `pyenv` in **Install XSOAR local development environment**.
+- Fixed an issue where `python2` from `pyenv` was not recognized in **Open integration/script in virtual environment**.
+- Improve performance of **Open integration/script in virtual environment** by installing packages with `--no-cache-dir` flag.
+- Removing cache and python compiled files when using **Open integration/script in Dev Container**.
+
 # [0.4.8] (2022-08-17)
 
 - Fixed the APIModules in PYTHONPATH when running **Install XSOAR local development environment**.

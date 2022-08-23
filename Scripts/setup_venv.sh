@@ -2,6 +2,11 @@
 
 set -e
 
+# This is to take python2 from pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin":$PATH
+eval "$(pyenv init -)" || echo "No pyenv, procceding without"
+
 dockerImage=$1
 name=$2
 dirPath=$3
@@ -23,10 +28,12 @@ docker cp "${name}":/requirements.txt .
 docker rm -f "${name}" || true
 
 $pythonPath -m virtualenv -p python"${pythonVersion}" venv
-# install all dependency one by one. If one or more fails, we continue.
-while read line; do venv/bin/pip install --disable-pip-version-check "$line" || echo "Could not install dependency $line, proceeding"; done < requirements.txt
-venv/bin/pip install autopep8 --disable-pip-version-check || echo "Could not install autopep8"
-venv/bin/pip install flake8 --disable-pip-version-check || echo "Could not install flake8"
+venv/bin/pip --version || (echo "No pip, check your python"${pythonVersion}" installation" && exit 1)
+while read line; do
+    venv/bin/pip install --disable-pip-version-check --no-cache-dir $line || echo "Could not install dependency $line, proceeding"
+done < requirements.txt
+venv/bin/pip install autopep8 --disable-pip-version-check --no-cache-dir || echo "Could not install autopep8"
+venv/bin/pip install flake8 --disable-pip-version-check --no-cache-dir || echo "Could not install flake8"
 if [ "${pythonVersion}" = "3" ]; then
-    venv/bin/pip install -r "$extraReqs" --disable-pip-version-check || echo "Could not install mypy"
+    venv/bin/pip install -r "$extraReqs" --disable-pip-version-check --no-cache-dir || echo "Could not install mypy"
 fi

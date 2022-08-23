@@ -30,7 +30,7 @@ export async function installDevEnv(): Promise<void> {
         placeHolder: "Homebrew should be installed to run this step. Skip if you want to install dependencies manually."
     }).then(async (answer) => {
         if (answer === 'Yes') {
-            await vscode.window.showQuickPick(['gcc', 'python', 'poetry', 'node', 'docker', 'pyenv', 'pipx'],
+            await vscode.window.showQuickPick(['gcc', 'python', 'poetry', 'node', 'docker', 'pyenv', 'pipx', 'shellcheck'],
                 { title: 'Select dependencies to install', canPickMany: true }).then(async (dependencies) => {
                     if (dependencies) {
                         await installGlobalDependencies(dependencies)
