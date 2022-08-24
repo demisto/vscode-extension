@@ -24,11 +24,11 @@ if [[ $dependencies == *"docker"* ]]; then
     brew install --cask docker || echo "Install Docker manually"
 fi
 
-brew install $dependencies
+brew install $dependencies || true
 
 if [[ $dependencies == *"pyenv"* ]]; then
     # If pyenv not already exists in zshrc, add it
-    if [ -f ~/.zshrc ] && [ -x "$(command -v pyenv)" ]; then
+    if [ -f ~/.zshrc ] && ! [ -x "$(command -v pyenv)" ]; then
         echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
         echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
         echo 'eval "$(pyenv init -)"' >> ~/.zshrc
@@ -36,7 +36,7 @@ if [[ $dependencies == *"pyenv"* ]]; then
 
     export PYENV_ROOT="$HOME/.pyenv";
     export PATH="$PYENV_ROOT/bin":$PATH;
-    eval "$(pyenv init -)" || echo "No pyenv, procceding without";
+    eval "$(pyenv init -)"
     # get latest python version from the pyenv list
     LATEST_PYTHON=$(pyenv install --list | grep --extended-regexp "^\s*[0-9][0-9.]*[0-9]\s*$" | tail -1);
     pyenv install "$LATEST_PYTHON" 2.7.18;

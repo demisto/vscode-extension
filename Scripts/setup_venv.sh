@@ -27,6 +27,12 @@ docker run --name "${name}" "$testImage" 'pip list --format=freeze > /requiremen
 docker cp "${name}":/requirements.txt .
 docker rm -f "${name}" || true
 
+# check if virtualenv module is installed
+isVirtualEnvInstalled=true
+$pythonPath -m virtualenv --version > /dev/null 2>&1 || isVirtualEnvInstalled=false
+if [ "$isVirtualEnvInstalled" = "false" ]; then
+    $pythonPath -m pip install virtualenv
+fi
 $pythonPath -m virtualenv -p python"${pythonVersion}" venv
 venv/bin/pip --version || (echo "No pip, check your python"${pythonVersion}" installation" && exit 1)
 while read line; do

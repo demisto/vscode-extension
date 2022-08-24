@@ -79,6 +79,8 @@ When working on an integration or a script, you can right click on it, and click
 
 This is the recommended way to develop and debug your integration.
 
+> **_NOTE:_**  The python version that used is the one that configured in the VSCode settings. To change the python version, [select a different python interpreter in VSCode](https://code.visualstudio.com/docs/python/environments#:~:text=By%20default%2C%20the%20Python%20extension,interpreter%2C%20it%20issues%20a%20warning.). 
+
 ## Dev Containers (Advanced)
 
 The extension supports opening an integration or a script in a dev container.

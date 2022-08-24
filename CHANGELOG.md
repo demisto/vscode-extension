@@ -1,5 +1,11 @@
 # Change Log
 
+# [0.4.10] (2022-08-24)
+
+- Fixed an issue in **Install XSOAR local development environment** where dependency installation fails even though installation succeeded.
+- Install `virtualenv` module in **Open integration/script in virtual environment** if the module is not installed. 
+- Installing **Demisto-SDK** globally will update it.
+
 # [0.4.9] (2022-08-23)
 
 - Added installation and configuration of `pyenv` in **Install XSOAR local development environment**.
