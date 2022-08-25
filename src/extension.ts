@@ -10,7 +10,7 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
-import { openIntegrationDevContainer, openInVirtualenv, installDevEnv as installDevEnv, configureDemistoVars } from './devEnvs';
+import { openIntegrationDevContainer, openInVirtualenv, installDevEnv as installDevEnv, configureDemistoVars, developDemistoSDK } from './devEnvs';
 import JSON5 from 'json5'
 
 // this function returns the directory path of the file
@@ -41,13 +41,13 @@ export function activate(context: vscode.ExtensionContext): void {
 			openIntegrationDevContainer(fileToRun)
 		})
 	)
-
-	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.integrationVirtualenv', (file: vscode.Uri | undefined) => {
-			const fileToRun = getDirPath(file)
-			openInVirtualenv(fileToRun)
-		})
-	)
+	context.subscriptions.push(vscode.commands.registerCommand('xsoar.developDemistoSDK', developDemistoSDK)),
+		context.subscriptions.push(
+			vscode.commands.registerCommand('xsoar.integrationVirtualenv', (file: vscode.Uri | undefined) => {
+				const fileToRun = getDirPath(file)
+				openInVirtualenv(fileToRun)
+			})
+		)
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.configureTests', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)

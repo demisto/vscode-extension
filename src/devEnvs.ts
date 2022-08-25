@@ -7,7 +7,8 @@ import * as yaml from "yaml";
 import * as fs from "fs-extra";
 import { execSync } from "child_process";
 import { parse, stringify } from "envfile"
-import { installDemistoSDKGlobally } from "./tools";
+import { installDemistoSDKGlobally, getContentPath } from "./tools";
+import { TerminalManager } from "./terminalManager";
 
 
 export async function installDevEnv(): Promise<void> {
@@ -56,14 +57,14 @@ export async function installDevEnv(): Promise<void> {
     // sleep for 3 seconds to let the windows load
     await new Promise(resolve => setTimeout(resolve, 3000))
     vscode.commands.executeCommand('workbench.extensions.action.installWorkspaceRecommendedExtensions', true)
-    
+
     let shouldPreCommit = false
     await vscode.window.showQuickPick(['Yes', 'No'], {
         title: 'Do you want to install pre-commit hooks?',
         placeHolder: "Installing pre-commit hooks will run `validate` and `lint` before every commit"
     }).then(async (answer) => {
         if (answer === 'Yes') {
-            shouldPreCommit = true            
+            shouldPreCommit = true
         }
     })
 
@@ -91,7 +92,7 @@ export async function installDevEnv(): Promise<void> {
     Logger.info(stringify(env))
     fs.writeFileSync(envFilePath, stringify(env))
     fs.createFileSync(path.join(dirPath, 'Packs/Base/Scripts/CommonServerPython/CommonServerUserPython.py'))
-    
+
     await vscode.window.showQuickPick(['Yes', 'No'], {
         title: 'Do you want to configure Demisto-SDK for XSOAR?',
         placeHolder: "This will ask you to configure the XSOAR to communicate between Demisto-SDK and XSOAR"
@@ -135,6 +136,69 @@ function installGlobalDependencies(dependencies: string[]) {
         })
 
     })
+}
+
+export async function developDemistoSDK(): Promise<void> {
+    const contentPath = getContentPath()
+    if (!contentPath) {
+        vscode.window.showErrorMessage('Please run this command from a content repository')
+        return
+    }
+    const vsCodePath = path.join(contentPath, '.vscode')
+    const demistoSDKParantPath = path.resolve(path.join(contentPath, '..'))
+    let demistoSDKPathString = path.resolve(demistoSDKParantPath, 'demisto-sdk')
+    if (!await fs.pathExists(demistoSDKPathString)) {
+        Logger.info(`demisto-sdk not found in ${demistoSDKPathString}`)
+        const answer = await vscode.window.showQuickPick(['Select Demisto-SDK path', 'Clone repository'],
+            {
+                placeHolder: 'Do you want to use an existing repository or clone a new one?',
+                title: 'Select Demisto-SDK repository path'
+            })
+        if (answer === 'Clone repository') {
+            // If the user doesn't close the VSCode window, it will not proceed to the next step
+            vscode.window.showInformationMessage(
+                'After cloning, close VSCode message to proceed.',
+                { modal: true })
+            const clone = await vscode.commands.executeCommand('git.clone', 'git@github.com:demisto/demisto-sdk.git', demistoSDKParantPath)
+            Logger.info(`clone: ${clone}`)
+        }
+        if (answer === 'Select Demisto-SDK path') {
+            const demistoSDKPath = await vscode.window.showOpenDialog({
+                canSelectFiles: false,
+                canSelectFolders: true,
+                openLabel: 'Select demisto-sdk repository',
+                title: 'Select demisto-sdk repository'
+            })
+            if (!demistoSDKPath) {
+                return
+            }
+            demistoSDKPathString = demistoSDKPath[0].fsPath
+        }
+
+    }
+    vscode.window.showInformationMessage(`Using Demisto-SDK path: ${demistoSDKPathString}`)
+    Logger.info(`demisto sdk path is ${demistoSDKPathString}`)
+    const launchDemistoSDK = JSON5.parse(fs.readFileSync(path.resolve(__dirname, '../Templates/launch-demisto-sdk.json'), 'utf-8'))
+    launchDemistoSDK.configurations[0].cwd = contentPath
+    fs.writeJSONSync(path.join(demistoSDKPathString, '.vscode', 'launch.json'), launchDemistoSDK, { spaces: 4 })
+    const workspace = { 'folders': [{ 'uri': contentPath }, { 'uri': demistoSDKPathString }], 'settings': {} }
+    const workspaceOutput = path.join(vsCodePath, `demisto-sdk_content.code-workspace`)
+    fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 })
+    const response = await vscode.window.showQuickPick(['Existing Window', 'New Window'],
+        {
+            placeHolder: 'Select if you want to open in existing window or new window',
+            title: 'Where would you like to open the environment?'
+        })
+    const openInNewWindow = response === 'New Window'
+    const installDemistoSDK = await vscode.window.showQuickPick(['Yes', 'No'], {
+        title: 'Do you want to install Demisto-SDK dependencies?',
+        placeHolder: " Will run poetry install in the demisto-sdk repository"
+    })
+    if (installDemistoSDK === 'Yes') {
+        TerminalManager.sendText(`cd ${demistoSDKPathString} && poetry install`)
+    }
+    vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(workspaceOutput), openInNewWindow)
+
 }
 
 export async function configureDemistoVars(): Promise<void> {
@@ -295,6 +359,11 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
 }
 
 export async function openInVirtualenv(dirPath: string): Promise<void> {
+    const contentPath = getContentPath()
+    if (!contentPath) {
+        vscode.window.showErrorMessage('Please run this from Content repository')
+        return
+    }
     Logger.info(`Creating virtualenv in ${dirPath}`)
     const filePath = path.parse(dirPath)
     const vsCodePath = path.join(dirPath, '.vscode')
@@ -375,17 +444,23 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     ]
     settings["python.linting.flake8Enabled"] = true
     fs.writeJSONSync(settingsPath, settings, { spaces: 2 })
-    // open folder in new window
-    Logger.info('Opening folder')
-    // second argument is open in new window
-    vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(dirPath), true)
-
+    Logger.info('Creating workspace')
+    const workspace = { 'folders': [{ 'uri': contentPath }, { 'uri': dirPath }], 'settings': {} }
+    const workspaceOutput = path.join(vsCodePath, `content-${filePath.name}.code-workspace`)
+    fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 })
+    const response = await vscode.window.showQuickPick(['Existing Window', 'New Window'],
+        {
+            placeHolder: 'Select if you want to open in existing window or new window',
+            title: 'Where would you like to open the environment?'
+        })
+    const openInNewWindow = response === 'New Window'
+    vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(workspaceOutput), openInNewWindow)
 }
 
 async function bootstrapContent(dirPath: string, shouldPreCommit: boolean) {
     Logger.info('Bootstrap content')
     let command = `${dirPath}/.hooks/bootstrap`
-    if (!shouldPreCommit){
+    if (!shouldPreCommit) {
         command = `NO_HOOKS=1 ${command}`
     }
     const task = new vscode.Task(

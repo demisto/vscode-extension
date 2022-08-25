@@ -17,6 +17,13 @@ pythonPath=$5
 export PATH=/opt/homebrew/bin:$PATH
 
 cd "$dirPath"
+# removing compiled and cached files
+rm -rf *.pyc
+rm -rf __pycache__
+rm -rf .mypy_cache
+rm -rf .pytest_cache
+
+# Getting the test image
 testImage=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "$dockerImage" | head -1)
 echo "Using test image env: $testImage"
 docker rm -f "${name}" &> /dev/null || true
