@@ -268,13 +268,13 @@ function loadScript(filePath: string): AutomationI {
 }
 
 function configureTests(dirPath: string) {
-	const workspaceFolders = vscode.workspace.workspaceFolders
-	if (!workspaceFolders) {
+	const contentPath = tools.getContentPath()
+	if (!contentPath) {
+		vscode.window.showErrorMessage('Please run this command from Content repository.')
 		return
 	}
-	const workspaceFolder = workspaceFolders[0]
 	// read settings file
-	const settingsPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'settings.json')
+	const settingsPath = path.join(contentPath, '.vscode', 'settings.json')
 	let settings
 	if (!fs.existsSync(settingsPath)) {
 		fs.writeJSONSync(settingsPath, {})

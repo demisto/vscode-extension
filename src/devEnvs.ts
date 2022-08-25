@@ -181,7 +181,7 @@ export async function developDemistoSDK(): Promise<void> {
     const launchDemistoSDK = JSON5.parse(fs.readFileSync(path.resolve(__dirname, '../Templates/launch-demisto-sdk.json'), 'utf-8'))
     launchDemistoSDK.configurations[0].cwd = contentPath
     fs.writeJSONSync(path.join(demistoSDKPathString, '.vscode', 'launch.json'), launchDemistoSDK, { spaces: 4 })
-    const workspace = { 'folders': [{ 'uri': contentPath }, { 'uri': demistoSDKPathString }], 'settings': {} }
+    const workspace = { 'folders': [{ 'uri': demistoSDKPathString }, { 'uri': contentPath }], 'settings': {} }
     const workspaceOutput = path.join(vsCodePath, `demisto-sdk_content.code-workspace`)
     fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 })
     const response = await vscode.window.showQuickPick(['Existing Window', 'New Window'],
