@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Debug demisto-sdk",
+            "type": "python",
+            "request": "launch",
+            "module": "demisto_sdk",
+            "cwd": "${env:CONTENT}",
+            "args": [
+                "validate", // edit this to run the command you want to debug
+                "-i",
+                "Packs/AbuseDB/Integrations/AbuseDB"
+            ]
+        }
+    ]
+}

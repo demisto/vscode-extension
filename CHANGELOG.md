@@ -1,5 +1,10 @@
 # Change Log
 
+# [Unreleased]
+- Removing cache and python compiled files when using **Open integration/script in Virtual Environment**.
+- Added command **Develop Demisto-SDK** to open a multi-root workspace with Content and Demisto-SDK repo that is ready for developing.
+- **Open integration/script in Virtual Environment** will open a multi-root workspace with Content and the integration/script.
+
 # [0.4.10] (2022-08-24)
 
 - Fixed an issue in **Install XSOAR local development environment** where dependency installation fails even though installation succeeded.
