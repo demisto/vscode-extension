@@ -154,6 +154,7 @@ export async function init(): Promise<void> {
 			})
 
 	}
+	vscode.window.showInformationMessage('Proceed with VSCode integrated terminal')
 	TerminalManager.sendDemistoSDKCommand(command);
 
 }
