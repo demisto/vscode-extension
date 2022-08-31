@@ -56,7 +56,7 @@ export async function installDemistoSDKLocally(): Promise<void> {
 
 export async function installDemistoSDKGlobally(): Promise<void> {
     // if pipx is installed no need to install pipx with pip
-    TerminalManager.sendText('pipx --version || pip install pipx && pipx ensurepath --force && pipx install demisto-sdk --force');
+    TerminalManager.sendText('(pipx --version || pip install pipx) && pipx ensurepath --force && pipx install demisto-sdk --force && pipx upgrade demisto-sdk');
 }
 
 export async function isDemistoSDKinstalled(): Promise<boolean> {

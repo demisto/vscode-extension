@@ -4,6 +4,48 @@
 
 - Add `Demisto-SDK init` command.
 
+# [0.4.10] (2022-08-24)
+
+- Fixed an issue in **Install XSOAR local development environment** where dependency installation fails even though installation succeeded.
+- Install `virtualenv` module in **Open integration/script in virtual environment** if the module is not installed. 
+- Installing **Demisto-SDK** globally will update it.
+
+# [0.4.9] (2022-08-23)
+
+- Added installation and configuration of `pyenv` in **Install XSOAR local development environment**.
+- Fixed an issue where `python2` from `pyenv` was not recognized in **Open integration/script in virtual environment**.
+- Improve performance of **Open integration/script in virtual environment** by installing packages with `--no-cache-dir` flag.
+- Removing cache and python compiled files when using **Open integration/script in Dev Container**.
+
+# [0.4.8] (2022-08-17)
+
+- Fixed the APIModules in PYTHONPATH when running **Install XSOAR local development environment**.
+- Do not fail when installation of`flake8`, `autopep8`, or `mypy` fails when opening in virtual environment or Dev Container.
+- Validate that **Install XSOAR local development environment** runs in a `content` workspace.
+- Add support for enabling pre-commit hooks in **Install XSOAR local development environment**.
+- Ask the user if execute the **Configure Demisto-SDK for XSOAR** command in **Install XSOAR local development environment**.
+
+
+# [0.4.7] (2022-08-15)
+
+- Fixed installation of docker in **Install XSOAR local development environment**. 
+
+# [0.4.6] (2022-08-11)
+
+- Fixed an issue with flake8.
+- Fixed Git issues in Dev Containers.
+- Added more extensions to Dev Containers.
+
+# [0.4.5] (2022-08-11)
+
+- Fixed an issue with opening a Virtual Environnement in a development image.
+
+# [0.4.4] (2022-08-10)
+
+- Fixed an issue with opening a Dev Container in a development image.
+- Fixed an issue with Git installation in Dev Container.
+- If **demisto-sdk lint** fails when opening a Dev Container or Virtual Environment, show error message and not proceed.
+
 # [0.4.3] (2022-08-05)
 
 - Fixed issues with M1 Macs.

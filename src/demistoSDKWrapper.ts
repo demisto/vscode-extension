@@ -63,7 +63,11 @@ export async function lint(file: string, tests = true, lints = true, progress = 
 		command.push('--no-flake8', '--no-mypy', '--no-bandit', '--no-xsoar-linter', '--no-vulture', '--no-pylint', '--no-pwsh-analyze')
 	}
 	if (progress) {
-		await TerminalManager.sendDemistoSdkCommandWithProgress(command)
+		const isSuccess = await TerminalManager.sendDemistoSdkCommandWithProgress(command)
+		if (!isSuccess){
+			await tools.isDemistoSDKinstalled()
+			throw new Error('Demisto-SDK lint failed')
+		}
 	}
 	else {
 		TerminalManager.sendDemistoSDKCommand(command);

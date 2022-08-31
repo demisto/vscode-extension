@@ -18,6 +18,11 @@ export async function installDevEnv(): Promise<void> {
     }
     const workspace = workspaces[0];
     const dirPath = workspace.uri.fsPath;
+    // check if content is in dirPath
+    if (!dirPath.includes('content')) {
+        vscode.window.showErrorMessage('Please run this command from a content repository');
+        return;
+    }
 
     // should we install global dependencies?
     await vscode.window.showQuickPick(['Yes', 'No'], {
@@ -25,7 +30,7 @@ export async function installDevEnv(): Promise<void> {
         placeHolder: "Homebrew should be installed to run this step. Skip if you want to install dependencies manually."
     }).then(async (answer) => {
         if (answer === 'Yes') {
-            await vscode.window.showQuickPick(['gcc', 'python', 'poetry', 'node', 'docker', 'pyenv', 'pipx'],
+            await vscode.window.showQuickPick(['gcc', 'python', 'poetry', 'node', 'docker', 'pyenv', 'pipx', 'shellcheck'],
                 { title: 'Select dependencies to install', canPickMany: true }).then(async (dependencies) => {
                     if (dependencies) {
                         await installGlobalDependencies(dependencies)
@@ -51,9 +56,19 @@ export async function installDevEnv(): Promise<void> {
     // sleep for 3 seconds to let the windows load
     await new Promise(resolve => setTimeout(resolve, 3000))
     vscode.commands.executeCommand('workbench.extensions.action.installWorkspaceRecommendedExtensions', true)
+    
+    let shouldPreCommit = false
+    await vscode.window.showQuickPick(['Yes', 'No'], {
+        title: 'Do you want to install pre-commit hooks?',
+        placeHolder: "Installing pre-commit hooks will run `validate` and `lint` before every commit"
+    }).then(async (answer) => {
+        if (answer === 'Yes') {
+            shouldPreCommit = true            
+        }
+    })
 
     // bootstrap content (run bootstrap script)
-    await bootstrapContent(dirPath)
+    await bootstrapContent(dirPath, shouldPreCommit)
     // copy settings file
     const settingsFile = path.resolve(__dirname, '../Templates/settings.json')
     const settingsFileOutput = path.resolve(dirPath, '.vscode/settings.json')
@@ -61,7 +76,7 @@ export async function installDevEnv(): Promise<void> {
 
     // set up environment variables
     let PYTHONPATH = `${dirPath}/Packs/Base/Scripts/CommonServerPython/:${dirPath}/Tests/demistomock/:`
-    const apiModules = execSync(`printf '%s: ' ${dirPath}/Packs/ApiModules/Scripts/*`).toString().trim()
+    const apiModules = execSync(`printf '%s:' ${dirPath}/Packs/ApiModules/Scripts/*`).toString().trim()
     PYTHONPATH += apiModules
     const envFilePath = path.join(dirPath, '.env')
     if (!await fs.pathExists(envFilePath)) {
@@ -76,7 +91,16 @@ export async function installDevEnv(): Promise<void> {
     Logger.info(stringify(env))
     fs.writeFileSync(envFilePath, stringify(env))
     fs.createFileSync(path.join(dirPath, 'Packs/Base/Scripts/CommonServerPython/CommonServerUserPython.py'))
-    configureDemistoVars()
+    
+    await vscode.window.showQuickPick(['Yes', 'No'], {
+        title: 'Do you want to configure Demisto-SDK for XSOAR?',
+        placeHolder: "This will ask you to configure the XSOAR to communicate between Demisto-SDK and XSOAR"
+    }).then(async (answer) => {
+        if (answer === 'Yes') {
+            configureDemistoVars()
+        }
+    })
+
 
 }
 
@@ -214,7 +238,8 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     Logger.info('Copy launch.json')
     fs.writeJsonSync(launchJsonOutput, launchJson, { spaces: 2 })
 
-    const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+    let dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+    dockerImage = dockerImage.replace('demisto', 'devtestdemisto')
     Logger.info(`docker image is ${dockerImage}`)
     const devcontainerJsonPath = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/devcontainer.json')
     const devcontainer = JSON5.parse(fs.readFileSync(devcontainerJsonPath, 'utf-8'))
@@ -226,8 +251,13 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     devcontainer.name = `XSOAR Integration: ${filePath.name}`
     await dsdk.lint(dirPath, false, false, true)
     try {
-        const testDockerImage = execSync(`docker images --format "{{.Repository}}:{{.Tag}}" | grep devtest${dockerImage} | head -1`,
+        const testDockerImage = execSync(`docker images --format "{{.Repository}}:{{.Tag}}" | grep ${dockerImage} | head -1`,
             { cwd: dirPath, }).toString().trim()
+        if (!testDockerImage) {
+            Logger.error('Docker image not found, exiting')
+            vscode.window.showErrorMessage('Docker image not found, exiting')
+            return
+        }
         devcontainer.build.args.IMAGENAME = testDockerImage
         fs.writeJSONSync(path.join(devcontainerFolder, 'devcontainer.json'), devcontainer, { spaces: 2 })
     }
@@ -315,7 +345,8 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
         Logger.info('Run lint')
         await dsdk.lint(dirPath, false, false, true)
 
-        const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+        let dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
+        dockerImage = dockerImage.replace('demisto', 'devtestdemisto')
         Logger.info(`docker image is ${dockerImage}, getting data`)
         vscode.window.showInformationMessage(`Creating virtualenv, please wait`)
         await createVirtualenv(filePath.name, dirPath, dockerImage)
@@ -351,14 +382,18 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
 
 }
 
-async function bootstrapContent(dirPath: string) {
+async function bootstrapContent(dirPath: string, shouldPreCommit: boolean) {
     Logger.info('Bootstrap content')
+    let command = `${dirPath}/.hooks/bootstrap`
+    if (!shouldPreCommit){
+        command = `NO_HOOKS=1 ${command}`
+    }
     const task = new vscode.Task(
         { type: 'bootstrap', name: 'Bootstrap content' },
         vscode.TaskScope.Workspace,
         'bootstrap',
         'bootstrap',
-        new vscode.ShellExecution(`NO_HOOKS=1 ${dirPath}/.hooks/bootstrap`),
+        new vscode.ShellExecution(command),
     )
     return new Promise<void>(resolve => {
         vscode.window.withProgress({
