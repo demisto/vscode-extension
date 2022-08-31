@@ -138,15 +138,9 @@ function installGlobalDependencies(dependencies: string[]) {
     })
 }
 
-export async function developDemistoSDK(): Promise<void> {
-    const contentPath = getContentPath()
-    if (!contentPath) {
-        vscode.window.showErrorMessage('Please run this command from a content repository')
-        return
-    }
-    const vsCodePath = path.join(contentPath, '.vscode')
-    const demistoSDKParantPath = path.resolve(path.join(contentPath, '..'))
-    let demistoSDKPathString = path.resolve(demistoSDKParantPath, 'demisto-sdk')
+async function getDemistoSDKPath(contentPath: string): Promise<string | undefined> {
+    const demistoSDKParentPath = path.resolve(path.join(contentPath, '..'))
+    let demistoSDKPathString = path.resolve(demistoSDKParentPath, 'demisto-sdk')
     if (!await fs.pathExists(demistoSDKPathString)) {
         Logger.info(`demisto-sdk not found in ${demistoSDKPathString}`)
         const answer = await vscode.window.showQuickPick(['Select Demisto-SDK path', 'Clone repository'],
@@ -159,7 +153,7 @@ export async function developDemistoSDK(): Promise<void> {
             vscode.window.showInformationMessage(
                 'After cloning, close VSCode message to proceed.',
                 { modal: true })
-            const clone = await vscode.commands.executeCommand('git.clone', 'git@github.com:demisto/demisto-sdk.git', demistoSDKParantPath)
+            const clone = await vscode.commands.executeCommand('git.clone', 'git@github.com:demisto/demisto-sdk.git', demistoSDKParentPath)
             Logger.info(`clone: ${clone}`)
         }
         if (answer === 'Select Demisto-SDK path') {
@@ -176,6 +170,22 @@ export async function developDemistoSDK(): Promise<void> {
         }
 
     }
+    return demistoSDKPathString
+}
+
+export async function developDemistoSDK(): Promise<void> {
+    const contentPath = getContentPath()
+    if (!contentPath) {
+        vscode.window.showErrorMessage('Please run this command from a content repository')
+        return
+    }
+    const demistoSDKPathString = await getDemistoSDKPath(contentPath)
+    if (!demistoSDKPathString) {
+        vscode.window.showErrorMessage('Please select a valid demisto-sdk repository')
+        return
+    }
+    const vsCodePath = path.join(contentPath, '.vscode')
+  
     vscode.window.showInformationMessage(`Using Demisto-SDK path: ${demistoSDKPathString}`)
     Logger.info(`demisto sdk path is ${demistoSDKPathString}`)
     const launchDemistoSDK = JSON5.parse(fs.readFileSync(path.resolve(__dirname, '../Templates/launch-demisto-sdk.json'), 'utf-8'))
