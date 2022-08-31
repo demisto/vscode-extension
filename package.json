@@ -129,6 +129,11 @@
         "command": "xsoar.init",
         "title": "Demisto-SDK Init (create new content item)",
         "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.developDemistoSDK",
+        "title": "Develop and Debug Demisto-SDK",
+        "category": "XSOAR"
       }
     ],
     "menus": {

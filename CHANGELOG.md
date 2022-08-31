@@ -1,8 +1,11 @@
 # Change Log
 
 # [Unreleased]
-
+- Removing cache and python compiled files when using **Open integration/script in Virtual Environment**.
+- Added command **Develop Demisto-SDK** to open a multi-root workspace with Content and Demisto-SDK repo that is ready for developing.
+- **Open integration/script in Virtual Environment** will open a multi-root workspace with Content and the integration/script.
 - Add `Demisto-SDK init` command.
+
 
 # [0.4.10] (2022-08-24)
 

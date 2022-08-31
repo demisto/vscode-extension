@@ -20,6 +20,20 @@ export function sendCommandExtraArgsWithUserInput(command: string[]): void {
     });
 }
 
+export function getContentPath(): string | undefined {
+    const workspaces = vscode.workspace.workspaceFolders
+    if (!workspaces){
+        return
+    }
+    for (const workspace of workspaces) {
+        const path = workspace.uri.fsPath
+        if (path.includes('content')) {
+            return path;
+        }
+    }
+    return
+}
+
 export function getPythonpath(): string {
     let sdkPath = <string>vscode.workspace.getConfiguration('xsoar').get('demisto-sdk.pythonPath')
     if (!sdkPath) {

@@ -10,7 +10,7 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
-import { openIntegrationDevContainer, openInVirtualenv, installDevEnv as installDevEnv, configureDemistoVars } from './devEnvs';
+import { openIntegrationDevContainer, openInVirtualenv, installDevEnv as installDevEnv, configureDemistoVars, developDemistoSDK } from './devEnvs';
 import JSON5 from 'json5'
 
 // this function returns the directory path of the file
@@ -44,13 +44,13 @@ export function activate(context: vscode.ExtensionContext): void {
 			openIntegrationDevContainer(fileToRun)
 		})
 	)
-
-	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.integrationVirtualenv', (file: vscode.Uri | undefined) => {
-			const fileToRun = getDirPath(file)
-			openInVirtualenv(fileToRun)
-		})
-	)
+	context.subscriptions.push(vscode.commands.registerCommand('xsoar.developDemistoSDK', developDemistoSDK)),
+		context.subscriptions.push(
+			vscode.commands.registerCommand('xsoar.integrationVirtualenv', (file: vscode.Uri | undefined) => {
+				const fileToRun = getDirPath(file)
+				openInVirtualenv(fileToRun)
+			})
+		)
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.configureTests', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)
@@ -271,13 +271,13 @@ function loadScript(filePath: string): AutomationI {
 }
 
 function configureTests(dirPath: string) {
-	const workspaceFolders = vscode.workspace.workspaceFolders
-	if (!workspaceFolders) {
+	const contentPath = tools.getContentPath()
+	if (!contentPath) {
+		vscode.window.showErrorMessage('Please run this command from Content repository.')
 		return
 	}
-	const workspaceFolder = workspaceFolders[0]
 	// read settings file
-	const settingsPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'settings.json')
+	const settingsPath = path.join(contentPath, '.vscode', 'settings.json')
 	let settings
 	if (!fs.existsSync(settingsPath)) {
 		fs.writeJSONSync(settingsPath, {})
