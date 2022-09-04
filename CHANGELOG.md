@@ -1,6 +1,12 @@
 # Change Log
 
+# [0.5.1] (2022-09-04)
+  
+- Fixed installation of `pyenv` in **Install XSOAR local development environment**.
+- Added Demisto-SDK settings in **Develop and Debug Demisto-SDK**.
+
 # [0.5.0] (2022-08-31)
+
 - Removing cache and python compiled files when using **Open integration/script in Virtual Environment**.
 - Added command **Develop and Debug Demisto-SDK** to open a multi-root workspace with Content and Demisto-SDK repo that is ready for developing.
 - **Open integration/script in Virtual Environment** will open a multi-root workspace with Content and the integration/script.
