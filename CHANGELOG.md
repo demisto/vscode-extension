@@ -1,5 +1,11 @@
 # Change Log
 
+# [0.5.2] (2022-09-06)
+
+- Add `bandit` to **Open integration/script in Virtual Environment**.
+- Fixed `pyenv` detection in **Open integration/script in Virtual Environment**.
+- Fixed an issue with opening workspaces in `WSL`.
+
 # [0.5.1] (2022-09-04)
   
 - Fixed installation of `pyenv` in **Install XSOAR local development environment**.

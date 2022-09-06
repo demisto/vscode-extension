@@ -2,7 +2,7 @@
 set -e
 
 # workaround to support M1
-export PATH=/opt/homebrew/bin:$PATH
+export PATH=/opt/homebrew/bin:"$PATH"
 
 dependencies=$1
 

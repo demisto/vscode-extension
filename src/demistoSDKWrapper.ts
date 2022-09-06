@@ -54,8 +54,11 @@ export function lintUsingGit(file: string): void {
 	TerminalManager.sendDemistoSDKCommand(command);
 
 }
-export async function lint(file: string, tests = true, lints = true, progress = false): Promise<void> {
-	const command = ['lint', '-i', file, '-j', tools.getReportPath(file)];
+export async function lint(file: string, tests = true, lints = true, report = true, progress = false): Promise<void> {
+	const command = ['lint', '-i', file];
+	if (report){
+		command.push('-j', tools.getReportPath(file));
+	}
 	if (!tests) {
 		command.push('--no-test', '--no-pwsh-test')
 	}

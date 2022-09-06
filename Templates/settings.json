@@ -12,6 +12,7 @@
         "--show-column-numbers",
         "--no-pretty",
         "--allow-redefinition",
+        "--check-untyped-def",
         "--no-site-packages",
         "--namespace-packages"
     ],

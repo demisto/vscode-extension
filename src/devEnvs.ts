@@ -192,7 +192,7 @@ export async function developDemistoSDK(): Promise<void> {
     launchDemistoSDK.configurations[0].cwd = contentPath
     fs.writeJSONSync(path.join(demistoSDKPathString, '.vscode', 'launch.json'), launchDemistoSDK, { spaces: 4 })
     fs.copyFileSync(path.resolve(__dirname, '../Templates/demisto_sdk_settings.json'), path.join(demistoSDKPathString, '.vscode', 'settings.json'))
-    const workspace = { 'folders': [{ 'uri': demistoSDKPathString }, { 'uri': contentPath }], 'settings': {} }
+    const workspace = { 'folders': [{ 'path': demistoSDKPathString }, { 'path': contentPath }], 'settings': {} }
     const workspaceOutput = path.join(vsCodePath, `demisto-sdk_content.code-workspace`)
     fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 })
     const response = await vscode.window.showQuickPick(['Existing Window', 'New Window'],
@@ -324,7 +324,7 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     Logger.info('devcontainer folder created')
     vscode.window.showInformationMessage("Starting demisto-sdk lint, please wait")
     devcontainer.name = `XSOAR Integration: ${filePath.name}`
-    await dsdk.lint(dirPath, false, false, true)
+    await dsdk.lint(dirPath, false, false, false, true)
     try {
         const testDockerImage = execSync(`docker images --format "{{.Repository}}:{{.Tag}}" | grep ${dockerImage} | head -1`,
             { cwd: dirPath, }).toString().trim()
@@ -423,7 +423,7 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     if (shouldCreateVirtualenv) {
         vscode.window.showInformationMessage('Creating virtual environment. Might take a few minutes.')
         Logger.info('Run lint')
-        await dsdk.lint(dirPath, false, false, true)
+        await dsdk.lint(dirPath, false, false, false, true)
 
         let dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
         dockerImage = dockerImage.replace('demisto', 'devtestdemisto')
@@ -451,12 +451,13 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
         "--ignore-missing-imports",
         "--show-column-numbers",
         "--no-pretty",
-        "--allow-redefinition"
+        "--allow-redefinition",
+        "--check-untyped-defs"
     ]
     settings["python.linting.flake8Enabled"] = true
     fs.writeJSONSync(settingsPath, settings, { spaces: 2 })
     Logger.info('Creating workspace')
-    const workspace = { 'folders': [{ 'uri': contentPath }, { 'uri': dirPath }], 'settings': {} }
+    const workspace = { 'folders': [{ 'path': contentPath }, { 'path': dirPath }], 'settings': {} }
     const workspaceOutput = path.join(vsCodePath, `content-${filePath.name}.code-workspace`)
     fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 })
     const response = await vscode.window.showQuickPick(['Existing Window', 'New Window'],
