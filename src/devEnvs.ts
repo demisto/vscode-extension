@@ -471,10 +471,11 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
 
 async function bootstrapContent(dirPath: string, shouldPreCommit: boolean) {
     Logger.info('Bootstrap content')
-    let command = `export PATH=/opt/homebrew/bin:"$PATH" && ${dirPath}/.hooks/bootstrap`
+    let command = `${dirPath}/.hooks/bootstrap`
     if (!shouldPreCommit) {
         command = `NO_HOOKS=1 ${command}`
     }
+    command = `export PATH=/opt/homebrew/bin:"$PATH" && ${command}`
     const task = new vscode.Task(
         { type: 'bootstrap', name: 'Bootstrap content' },
         vscode.TaskScope.Workspace,

@@ -1,5 +1,9 @@
 # Change Log
 
+# [0.5.4] (2022-09-07)
+
+- Hotfix for **Install XSOAR local development environment**.
+
 # [0.5.3] (2022-09-07)
 
 - Fixed installation of `poetry install` in M1 MacOS.
