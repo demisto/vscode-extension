@@ -471,7 +471,7 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
 
 async function bootstrapContent(dirPath: string, shouldPreCommit: boolean) {
     Logger.info('Bootstrap content')
-    let command = `${dirPath}/.hooks/bootstrap`
+    let command = `export PATH=/opt/homebrew/bin:"$PATH" && ${dirPath}/.hooks/bootstrap`
     if (!shouldPreCommit) {
         command = `NO_HOOKS=1 ${command}`
     }

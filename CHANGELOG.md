@@ -1,5 +1,9 @@
 # Change Log
 
+# [0.5.3] (2022-09-07)
+
+- Fixed installation of `poetry install` in M1 MacOS.
+
 # [0.5.2] (2022-09-06)
 
 - Add `bandit` to **Open integration/script in Virtual Environment**.
