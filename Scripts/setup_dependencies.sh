@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-# workaround to support M1
-export PATH=/opt/homebrew/bin:"$PATH"
+# workaround to support M1 and Linux
+export PATH=/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:"$PATH"
 
 dependencies=$1
 
@@ -28,12 +28,6 @@ brew install $dependencies || true
 
 if [[ $dependencies == *"pyenv"* ]]; then
     # If pyenv not already exists in zshrc, add it
-    if [ -f ~/.zshrc ] && ! [ -x "$(command -v pyenv)" ]; then
-        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
-        echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
-        echo 'eval "$(pyenv init -)"' >> ~/.zshrc
-    fi
-
     export PYENV_ROOT="$HOME/.pyenv";
     export PATH="$PYENV_ROOT/bin":$PATH;
     eval "$(pyenv init -)"
@@ -42,4 +36,9 @@ if [[ $dependencies == *"pyenv"* ]]; then
     pyenv install $LATEST_PYTHON --force
     pyenv install 2.7.18 --force
     pyenv global $LATEST_PYTHON 2.7.18;
+fi
+# check if python is availible
+if ! [ -x "$(command -v python)" ]; then
+    echo "Python is not availible. setting poetry to python3"
+    poetry env use python3 || poetry env use /home/linuxbrew/.linuxbrew/bin/python3 || true
 fi

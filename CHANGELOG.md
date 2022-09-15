@@ -1,5 +1,12 @@
 # Change Log
 
+# [0.5.5] (2022-09-15)
+
+- When opening integrations or scripts with **Open integration/script in Virtual Environment** or **Open integration/script in Dev Container** the extension will open the `Pack` workspace.
+- Fixed an issue with importing `DemistoClassApiModule` when debugging integration or scripts.
+- Moved Dev Container settings to `.vscode/settings.json`.
+- Fixed `Homebrew` path in Linux in **Install XSOAR local development environment**.
+
 # [0.5.4] (2022-09-07)
 
 - Hotfix for **Install XSOAR local development environment**.

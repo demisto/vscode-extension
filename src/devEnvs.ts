@@ -9,6 +9,7 @@ import { execSync } from "child_process";
 import { parse, stringify } from "envfile"
 import { installDemistoSDKGlobally, getContentPath } from "./tools";
 import { TerminalManager } from "./terminalManager";
+import glob from "glob";
 
 
 export async function installDevEnv(): Promise<void> {
@@ -282,9 +283,11 @@ export async function configureDemistoVars(): Promise<void> {
 
 export async function openIntegrationDevContainer(dirPath: string): Promise<void> {
     const filePath = path.parse(dirPath)
-    const vsCodePath = path.join(dirPath, '.vscode')
+    const packDir = path.resolve(path.join(dirPath, '..', '..'))
 
-    const devcontainerFolder = path.join(dirPath, '.devcontainer')
+    const vsCodePath = path.join(packDir, '.vscode')
+
+    const devcontainerFolder = path.join(packDir, '.devcontainer')
     Logger.info(`devcontainerFolder is ${devcontainerFolder}`)
     Logger.info('Create json configuration for debugging')
     if (!await fs.pathExists(vsCodePath)) {
@@ -293,25 +296,7 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
     const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
 
-    let launchJson
-    if (ymlObject.type === 'powershell') {
-        const launchJsonPath = path.resolve(__dirname, '../Templates/launch-powershell.json')
-        launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, 'utf-8'))
-        launchJson.configurations[0].script = "${workspaceFolder}/" + `${filePath.name}.ps1`
-
-    }
-    else {
-        const launchJsonPath = path.resolve(__dirname, '../Templates/launch-python.json')
-        launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, 'utf-8'))
-        launchJson.configurations[0].program = "${workspaceFolder}/" + `${filePath.name}.py`
-    }
-    fs.removeSync(path.join(vsCodePath, 'settings.json'))
-    const launchJsonOutput = path.join(vsCodePath, 'launch.json')
-    if (!await fs.pathExists(vsCodePath)) {
-        fs.mkdirSync(vsCodePath)
-    }
-    Logger.info('Copy launch.json')
-    fs.writeJsonSync(launchJsonOutput, launchJson, { spaces: 2 })
+    await createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
 
     let dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
     dockerImage = dockerImage.replace('demisto', 'devtestdemisto')
@@ -324,7 +309,26 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     Logger.info('devcontainer folder created')
     vscode.window.showInformationMessage("Starting demisto-sdk lint, please wait")
     devcontainer.name = `XSOAR Integration: ${filePath.name}`
+
+    // lint currently does not remove commonserverpython file for some reason
+    const CommonServerPython = path.join(dirPath, 'CommonServerPython.py')
+    if (await fs.pathExists(CommonServerPython)) {
+        fs.removeSync(CommonServerPython)
+    }
+    fs.createFile(path.join(dirPath, 'DemistoClassApiModule.py'))
+    createSettings(vsCodePath, dirPath, '/usr/local/bin/python')
     await dsdk.lint(dirPath, false, false, false, true)
+    
+    // delete cache folders and *.pyc files
+    fs.rmdir(path.join(dirPath, '__pycache__'), { recursive: true })
+    fs.rmdir(path.join(dirPath, '.pytest_cache'), { recursive: true })
+    fs.rmdir(path.join(dirPath, '.mypy_cache'), { recursive: true })
+    fs.rmdir(path.join(dirPath, '__pycache__'), { recursive: true })
+    // glob for *.pyc files and remove
+    const pycFiles = glob.sync(path.join(dirPath, '*.pyc'))
+
+    pycFiles.forEach(file => { fs.remove(file) })
+
     try {
         const testDockerImage = execSync(`docker images --format "{{.Repository}}:{{.Tag}}" | grep ${dockerImage} | head -1`,
             { cwd: dirPath, }).toString().trim()
@@ -343,7 +347,7 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     Logger.info(`remote name is: ${vscode.env.remoteName}`)
     Logger.info(`fileName is: ${dirPath}`)
     Logger.info(`uri schema is ${vscode.env.uriScheme}`)
-    let fileNameUri = vscode.Uri.file(dirPath)
+    let fileNameUri = vscode.Uri.file(packDir)
     // if we are already inside a remote, the URI prefix should be `vscode://`
     if (vscode.env.remoteName === 'dev-container') {
         const local_workspace_path = process.env.LOCAL_WORKSPACE_PATH
@@ -369,6 +373,31 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     }
 }
 
+async function createLaunchJson(type: string, dirPath: string, filePath: path.ParsedPath, vsCodePath: string) {
+    let launchJson;
+    const cwd = '${workspaceFolder}/' + path.relative(path.join(vsCodePath, '..'), dirPath)
+    if (type === 'powershell') {
+        const launchJsonPath = path.resolve(__dirname, '../Templates/launch-powershell.json');
+        launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, 'utf-8'));
+        const script = path.join(cwd, filePath.name.concat('.ps1'));
+        launchJson.configurations[0].script = script;
+        launchJson.configurations[0].cwd = cwd;
+    }
+    else {
+        const launchJsonPath = path.resolve(__dirname, '../Templates/launch-python.json');
+        launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, 'utf-8'));
+        const program = path.join(cwd, filePath.name.concat('.py'));
+        launchJson.configurations[0].program = program;
+        launchJson.configurations[0].cwd = cwd;
+    }
+    const launchJsonOutput = path.join(vsCodePath, 'launch.json');
+    if (!await fs.pathExists(vsCodePath)) {
+        fs.mkdirSync(vsCodePath);
+    }
+    Logger.info('Copy launch.json');
+    fs.writeJsonSync(launchJsonOutput, launchJson, { spaces: 2 });
+}
+
 export async function openInVirtualenv(dirPath: string): Promise<void> {
     const contentPath = getContentPath()
     if (!contentPath) {
@@ -377,7 +406,11 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     }
     Logger.info(`Creating virtualenv in ${dirPath}`)
     const filePath = path.parse(dirPath)
-    const vsCodePath = path.join(dirPath, '.vscode')
+    const packDir = path.resolve(path.join(dirPath, '..', '..'))
+    const vsCodePath = path.join(packDir, '.vscode')
+    if (!await fs.pathExists(vsCodePath)) {
+        fs.mkdirSync(vsCodePath)
+    }
 
     let shouldCreateVirtualenv = true
     if (await fs.pathExists(path.join(dirPath, 'venv'))) {
@@ -401,29 +434,19 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     }
     const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
     const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
-    let launchJson
-    if (ymlObject.type === 'powershell') {
-        const launchJsonPath = path.resolve(__dirname, '../Templates/launch-powershell.json')
-        launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, 'utf-8'))
-        launchJson.configurations[0].script = "${workspaceFolder}/" + `${filePath.name}.ps1`
+    await createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
 
+    // lint currently does not remove commonserverpython file for some reason
+    const CommonServerPython = path.join(dirPath, 'CommonServerPython.py')
+    if (await fs.pathExists(CommonServerPython)) {
+        fs.removeSync(CommonServerPython)
     }
-    else {
-        const launchJsonPath = path.resolve(__dirname, '../Templates/launch-python.json')
-        launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, 'utf-8'))
-        launchJson.configurations[0].program = "${workspaceFolder}/" + `${filePath.name}.py`
-    }
-    const launchJsonOutput = path.join(vsCodePath, 'launch.json')
-    if (!await fs.pathExists(vsCodePath)) {
-        fs.mkdirSync(vsCodePath)
-    }
-    Logger.info('Copy launch.json')
-    fs.writeJsonSync(launchJsonOutput, launchJson, { spaces: 2 })
+    Logger.info('Run lint')
+    fs.createFile(path.join(dirPath, 'DemistoClassApiModule.py'))
+    await dsdk.lint(dirPath, false, false, false, true)
 
     if (shouldCreateVirtualenv) {
         vscode.window.showInformationMessage('Creating virtual environment. Might take a few minutes.')
-        Logger.info('Run lint')
-        await dsdk.lint(dirPath, false, false, false, true)
 
         let dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
         dockerImage = dockerImage.replace('demisto', 'devtestdemisto')
@@ -432,32 +455,9 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
         await createVirtualenv(filePath.name, dirPath, dockerImage)
     }
 
-    const settingsPath = path.join(vsCodePath, 'settings.json')
-    // create if not exists
-    if (!await fs.pathExists(settingsPath)) {
-        Logger.info('Creating settings.json')
-        fs.writeJSONSync(settingsPath, {})
-    }
-    Logger.info('Getting settings.json')
-    const settings = JSON5.parse(fs.readFileSync(settingsPath, 'utf-8'))
-    Logger.info('Setting settings.json to venv')
-    settings['python.defaultInterpreterPath'] = `${dirPath}/venv/bin/python`
-    settings['python.testing.cwd'] = dirPath
-    settings["python.testing.pytestEnabled"] = true
-    settings["python.testing.pytestArgs"] = ["."]
-    settings["python.linting.mypyEnabled"] = true
-    settings["python.linting.mypyArgs"] = [
-        "--follow-imports=silent",
-        "--ignore-missing-imports",
-        "--show-column-numbers",
-        "--no-pretty",
-        "--allow-redefinition",
-        "--check-untyped-defs"
-    ]
-    settings["python.linting.flake8Enabled"] = true
-    fs.writeJSONSync(settingsPath, settings, { spaces: 2 })
+    createSettings(vsCodePath, dirPath, path.join(dirPath, 'venv', 'bin', 'python'));
     Logger.info('Creating workspace')
-    const workspace = { 'folders': [{ 'path': contentPath }, { 'path': dirPath }], 'settings': {} }
+    const workspace = { 'folders': [{ 'path': contentPath }, { 'path': packDir }], 'settings': {} }
     const workspaceOutput = path.join(vsCodePath, `content-${filePath.name}.code-workspace`)
     fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 })
     const response = await vscode.window.showQuickPick(['Existing Window', 'New Window'],
@@ -467,6 +467,34 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
         })
     const openInNewWindow = response === 'New Window'
     vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(workspaceOutput), openInNewWindow)
+}
+
+async function createSettings(vsCodePath: string, dirPath: string, interpreterPath: string) {
+    Logger.info('Getting settings.json');
+    const settingsPath = path.join(vsCodePath, 'settings.json')
+    // create if not exists
+    if (!await fs.pathExists(settingsPath)) {
+        Logger.info('Creating settings.json')
+        fs.writeJSONSync(settingsPath, {})
+    }
+
+    const settings = JSON5.parse(fs.readFileSync(settingsPath, 'utf-8'));
+    Logger.info('Setting settings.json to venv');
+    settings['python.defaultInterpreterPath'] = interpreterPath;
+    settings['python.testing.cwd'] = '${workspaceFolder}/' + `${path.relative(path.join(vsCodePath, '..'), dirPath)}`;
+    settings["python.testing.pytestEnabled"] = true;
+    settings["python.testing.pytestArgs"] = ["."];
+    settings["python.linting.mypyEnabled"] = true;
+    settings["python.linting.mypyArgs"] = [
+        "--follow-imports=silent",
+        "--ignore-missing-imports",
+        "--show-column-numbers",
+        "--no-pretty",
+        "--allow-redefinition",
+        "--check-untyped-defs"
+    ];
+    settings["python.linting.flake8Enabled"] = true;
+    fs.writeJSONSync(settingsPath, settings, { spaces: 2 });
 }
 
 async function bootstrapContent(dirPath: string, shouldPreCommit: boolean) {
