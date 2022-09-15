@@ -296,7 +296,6 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
     const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
 
-    await createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
 
     let dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage
     dockerImage = dockerImage.replace('demisto', 'devtestdemisto')
@@ -315,8 +314,10 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     if (await fs.pathExists(CommonServerPython)) {
         fs.removeSync(CommonServerPython)
     }
-    fs.createFile(path.join(dirPath, 'DemistoClassApiModule.py'))
+    createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
     createSettings(vsCodePath, dirPath, '/usr/local/bin/python')
+
+    fs.createFile(path.join(dirPath, 'DemistoClassApiModule.py'))
     await dsdk.lint(dirPath, false, false, false, true)
     
     // delete cache folders and *.pyc files
@@ -326,7 +327,6 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     fs.rmdir(path.join(dirPath, '__pycache__'), { recursive: true })
     // glob for *.pyc files and remove
     const pycFiles = glob.sync(path.join(dirPath, '*.pyc'))
-
     pycFiles.forEach(file => { fs.remove(file) })
 
     try {
@@ -434,15 +434,16 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     }
     const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
     const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON();
-    await createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
 
     // lint currently does not remove commonserverpython file for some reason
     const CommonServerPython = path.join(dirPath, 'CommonServerPython.py')
     if (await fs.pathExists(CommonServerPython)) {
         fs.removeSync(CommonServerPython)
     }
-    Logger.info('Run lint')
     fs.createFile(path.join(dirPath, 'DemistoClassApiModule.py'))
+    createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
+    createSettings(vsCodePath, dirPath, path.join(dirPath, 'venv', 'bin', 'python'));
+    Logger.info('Run lint')
     await dsdk.lint(dirPath, false, false, false, true)
 
     if (shouldCreateVirtualenv) {
@@ -454,9 +455,6 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
         vscode.window.showInformationMessage(`Creating virtualenv, please wait`)
         await createVirtualenv(filePath.name, dirPath, dockerImage)
     }
-
-    createSettings(vsCodePath, dirPath, path.join(dirPath, 'venv', 'bin', 'python'));
-    Logger.info('Creating workspace')
     const workspace = { 'folders': [{ 'path': contentPath }, { 'path': packDir }], 'settings': {} }
     const workspaceOutput = path.join(vsCodePath, `content-${filePath.name}.code-workspace`)
     fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 })
