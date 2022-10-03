@@ -299,7 +299,10 @@ async function runScript(ymlObject: any): Promise<Map<string, string>> {
 export async function run(dirPath: string): Promise<void> {
 
 	return await vscode.window.showInformationMessage('Do you want uploading before running?', { modal: true }, 'YES', 'NO').then(async (upload) => {
-		if (upload) {
+		if (upload === undefined){
+			return
+		}
+		else if (upload) {
 			if (upload === 'YES') {
 				await uploadToXSOAR(dirPath, true)
 			}
