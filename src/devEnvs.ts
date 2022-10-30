@@ -5,10 +5,9 @@ import JSON5 from 'json5'
 import * as dsdk from "./demistoSDKWrapper";
 import * as yaml from "yaml";
 import * as fs from "fs-extra";
-import { execSync } from "child_process";
+import { execSync, spawn } from "child_process";
 import { parse, stringify } from "envfile"
 import { installDemistoSDKGlobally, getContentPath } from "./tools";
-import { TerminalManager } from "./terminalManager";
 import glob from "glob";
 
 
@@ -48,9 +47,6 @@ export async function installDevEnv(): Promise<void> {
             installDemistoSDKGlobally()
         }
     })
-
-    // install code to path
-    vscode.commands.executeCommand('workbench.action.installCommandLine')
 
     // install recommended extensions
     // To install recommended extensions, we need to show them first
@@ -154,8 +150,7 @@ async function getDemistoSDKPath(contentPath: string): Promise<string | undefine
             vscode.window.showInformationMessage(
                 'After cloning, close VSCode message to proceed.',
                 { modal: true })
-            const clone = await vscode.commands.executeCommand('git.clone', 'git@github.com:demisto/demisto-sdk.git', demistoSDKParentPath)
-            Logger.info(`clone: ${clone}`)
+            await vscode.commands.executeCommand('git.clone', 'git@github.com:demisto/demisto-sdk.git', demistoSDKParentPath)
         }
         if (answer === 'Select Demisto-SDK path') {
             const demistoSDKPath = await vscode.window.showOpenDialog({
@@ -186,14 +181,18 @@ export async function developDemistoSDK(): Promise<void> {
         return
     }
     const vsCodePath = path.join(contentPath, '.vscode')
-  
+
     vscode.window.showInformationMessage(`Using Demisto-SDK path: ${demistoSDKPathString}`)
     Logger.info(`demisto sdk path is ${demistoSDKPathString}`)
     const launchDemistoSDK = JSON5.parse(fs.readFileSync(path.resolve(__dirname, '../Templates/launch-demisto-sdk.json'), 'utf-8'))
     launchDemistoSDK.configurations[0].cwd = contentPath
     fs.writeJSONSync(path.join(demistoSDKPathString, '.vscode', 'launch.json'), launchDemistoSDK, { spaces: 4 })
     fs.copyFileSync(path.resolve(__dirname, '../Templates/demisto_sdk_settings.json'), path.join(demistoSDKPathString, '.vscode', 'settings.json'))
-    const workspace = { 'folders': [{ 'path': demistoSDKPathString }, { 'path': contentPath }], 'settings': {} }
+    const workspace = {
+        'folders':
+            [{ 'path': contentPath }, { 'path': demistoSDKPathString }],
+        'settings': {}
+    }
     const workspaceOutput = path.join(vsCodePath, `demisto-sdk_content.code-workspace`)
     fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 })
     const response = await vscode.window.showQuickPick(['Existing Window', 'New Window'],
@@ -207,7 +206,7 @@ export async function developDemistoSDK(): Promise<void> {
         placeHolder: " Will run poetry install in the demisto-sdk repository"
     })
     if (installDemistoSDK === 'Yes') {
-        TerminalManager.sendText(`cd ${demistoSDKPathString} && poetry install`)
+        spawn(`cd ${demistoSDKPathString} && poetry install`)
     }
     vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(workspaceOutput), openInNewWindow)
 
@@ -319,7 +318,7 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
 
     fs.createFile(path.join(dirPath, 'DemistoClassApiModule.py'))
     await dsdk.lint(dirPath, false, false, false, true)
-    
+
     // delete cache folders and *.pyc files
     fs.rmdir(path.join(dirPath, '__pycache__'), { recursive: true })
     fs.rmdir(path.join(dirPath, '.pytest_cache'), { recursive: true })
@@ -361,7 +360,7 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
         fileNameUri = vscode.Uri.parse(`vscode://${localFileName}`)
     }
     else if (vscode.env.remoteName === "wsl") {
-        fileNameUri = vscode.Uri.parse(`vscode://${dirPath}`)
+        fileNameUri = vscode.Uri.parse(`vscode://${packDir}`)
     }
 
     if (!(await vscode.commands.getCommands()).includes('remote-containers.openFolder')) {

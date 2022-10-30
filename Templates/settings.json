@@ -12,10 +12,8 @@
         "--show-column-numbers",
         "--no-pretty",
         "--allow-redefinition",
-        "--check-untyped-def",
-        "--no-site-packages",
         "--namespace-packages"
     ],
     "python.linting.flake8Enabled": true,
-    "python.defaultInterpreterPath": ".venv/bin/python"
+    "python.defaultInterpreterPath": ".venv/bin/python",
 }

@@ -1,15 +1,3 @@
 mypy
 types-dateparser
-types-PyYAML
 types-requests
-types-pytz
-types-python-dateutil
-types-pyvmomi
-types-tabulate
-types-paramiko
-types-emoji
-types-ipaddress
-types-chardet
-types-six
-types-PyMySQL
-types-protobuf

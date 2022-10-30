@@ -7,7 +7,7 @@
 		}
 	},
 	"containerUser": "demisto",
-	"postCreateCommand": "git config --global --add safe.directory /workspaces/content",
+	"postCreateCommand": "git config --system --add safe.directory /workspaces/content",
 	"extensions": [
 		"ms-python.python",
 		"ms-vscode.PowerShell",

@@ -1,5 +1,10 @@
 # Change Log
 
+# [0.5.6] (2022-10-30)
+
+- Fixed broken installation of local development environment with python and poetry.
+- Fixed installation of virtual environment of broken `types` packages. 
+
 # [0.5.5] (2022-09-15)
 
 - When opening integrations or scripts with **Open integration/script in Virtual Environment** or **Open integration/script in Dev Container** the extension will open the `Pack` workspace.

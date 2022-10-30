@@ -24,6 +24,11 @@ if [[ $dependencies == *"docker"* ]]; then
     brew install --cask docker || echo "Install Docker manually"
 fi
 
+if [[ $dependencies == *"python"* ]]; then
+    brew install python@3.10 || echo "Install python manually"
+fi
+
+
 brew install $dependencies || true
 
 if [[ $dependencies == *"pyenv"* ]]; then
@@ -32,7 +37,7 @@ if [[ $dependencies == *"pyenv"* ]]; then
     export PATH="$PYENV_ROOT/bin":$PATH;
     eval "$(pyenv init -)"
     # get latest python version from the pyenv list
-    LATEST_PYTHON=$(pyenv install --list | grep --extended-regexp "^\s*[0-9][0-9.]*[0-9]\s*$" | tail -1 | xargs);
+    LATEST_PYTHON=$(pyenv install --list | grep --extended-regexp "^\s*3[0-9.]*[0-9]\s*$" | tail -1 | xargs);
     pyenv install $LATEST_PYTHON --force
     pyenv install 2.7.18 --force
     pyenv global $LATEST_PYTHON 2.7.18;
