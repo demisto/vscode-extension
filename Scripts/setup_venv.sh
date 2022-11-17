@@ -10,8 +10,7 @@ eval "$(pyenv init -)" || echo "No pyenv, procceding without"
 dockerImage=$1
 name=$2
 dirPath=$3
-extraReqs=$4
-pythonPath=$5
+pythonPath=$4
 
 # workaround to support M1
 export PATH=/opt/homebrew/bin:$PATH
@@ -34,20 +33,19 @@ docker run --name "${name}" "$testImage" 'pip list --format=freeze > /requiremen
 docker cp "${name}":/requirements.txt .
 docker rm -f "${name}" || true
 
+
+
 # check if virtualenv module is installed
 isVirtualEnvInstalled=true
 $pythonPath -m virtualenv --version > /dev/null 2>&1 || isVirtualEnvInstalled=false
 if [ "$isVirtualEnvInstalled" = "false" ]; then
     $pythonPath -m pip install virtualenv
 fi
+
 $pythonPath -m virtualenv -p python"${pythonVersion}" venv
+
 venv/bin/pip --version || (echo "No pip, check your python"${pythonVersion}" installation" && exit 1)
+
 while read line; do
     venv/bin/pip install --disable-pip-version-check --no-cache-dir $line || echo "Could not install dependency $line, proceeding"
 done < requirements.txt
-venv/bin/pip install bandit --disable-pip-version-check --no-cache-dir || echo "Could not install bandit"
-venv/bin/pip install autopep8 --disable-pip-version-check --no-cache-dir || echo "Could not install autopep8"
-venv/bin/pip install flake8 --disable-pip-version-check --no-cache-dir || echo "Could not install flake8"
-if [ "${pythonVersion}" = "3" ]; then
-    venv/bin/pip install -r "$extraReqs" --disable-pip-version-check --no-cache-dir || echo "Could not install mypy"
-fi

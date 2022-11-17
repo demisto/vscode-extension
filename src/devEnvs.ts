@@ -10,6 +10,27 @@ import { parse, stringify } from "envfile"
 import { installDemistoSDKGlobally, getContentPath } from "./tools";
 import glob from "glob";
 
+async function addPythonPath(): Promise<void>{
+    const contentPath = getContentPath()
+    if (!contentPath) {
+        return
+    }
+    let PYTHONPATH = `${contentPath}/Packs/Base/Scripts/CommonServerPython/:${contentPath}/Tests/demistomock/:`
+    const apiModules = execSync(`printf '%s:' ${contentPath}/Packs/ApiModules/Scripts/*`).toString().trim()
+    PYTHONPATH += apiModules
+    const envFilePath = path.join(contentPath, '.env')
+    if (!await fs.pathExists(envFilePath)) {
+        fs.createFileSync(envFilePath)
+    }
+    const envFile = fs.readFileSync(envFilePath, 'utf8')
+    Logger.info(`envFile: ${envFile}`)
+    const env = parse(envFile)
+    env["PYTHONPATH"] = PYTHONPATH
+    env["MYPYPATH"] = PYTHONPATH
+    Logger.info(stringify(env))
+    fs.writeFileSync(envFilePath, stringify(env))
+
+}
 
 export async function installDevEnv(): Promise<void> {
     const workspaces = vscode.workspace.workspaceFolders;
@@ -73,21 +94,7 @@ export async function installDevEnv(): Promise<void> {
     fs.copyFileSync(settingsFile, settingsFileOutput)
 
     // set up environment variables
-    let PYTHONPATH = `${dirPath}/Packs/Base/Scripts/CommonServerPython/:${dirPath}/Tests/demistomock/:`
-    const apiModules = execSync(`printf '%s:' ${dirPath}/Packs/ApiModules/Scripts/*`).toString().trim()
-    PYTHONPATH += apiModules
-    const envFilePath = path.join(dirPath, '.env')
-    if (!await fs.pathExists(envFilePath)) {
-        fs.createFileSync(envFilePath)
-    }
-    const envFile = fs.readFileSync(envFilePath, 'utf8')
-    Logger.info(`envFile: ${envFile}`)
-    const env = parse(envFile)
-    env["PYTHONPATH"] = PYTHONPATH
-    env["MYPYPATH"] = PYTHONPATH
-    Logger.info(JSON5.stringify(env))
-    Logger.info(stringify(env))
-    fs.writeFileSync(envFilePath, stringify(env))
+    await addPythonPath()
     fs.createFileSync(path.join(dirPath, 'Packs/Base/Scripts/CommonServerPython/CommonServerUserPython.py'))
 
     await vscode.window.showQuickPick(['Yes', 'No'], {
@@ -314,9 +321,8 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
         fs.removeSync(CommonServerPython)
     }
     createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
-    createSettings(vsCodePath, dirPath, '/usr/local/bin/python')
+    createSettings(vsCodePath, dirPath, '/usr/local/bin/python', false)
 
-    fs.createFile(path.join(dirPath, 'DemistoClassApiModule.py'))
     await dsdk.lint(dirPath, false, false, false, true)
 
     // delete cache folders and *.pyc files
@@ -439,9 +445,11 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     if (await fs.pathExists(CommonServerPython)) {
         fs.removeSync(CommonServerPython)
     }
-    fs.createFile(path.join(dirPath, 'DemistoClassApiModule.py'))
     createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
-    createSettings(vsCodePath, dirPath, path.join(dirPath, 'venv', 'bin', 'python'));
+    createSettings(vsCodePath, dirPath, path.join(dirPath, 'venv', 'bin', 'python'), true);
+    await addPythonPath()
+    fs.copySync(path.join(contentPath, '.env'), path.join(dirPath, '.env'))
+    
     Logger.info('Run lint')
     await dsdk.lint(dirPath, false, false, false, true)
 
@@ -466,8 +474,12 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(workspaceOutput), openInNewWindow)
 }
 
-async function createSettings(vsCodePath: string, dirPath: string, interpreterPath: string) {
+async function createSettings(vsCodePath: string, dirPath: string, interpreterPath: string, changeLinterPath: boolean) {
     Logger.info('Getting settings.json');
+    const contentPath = getContentPath()
+    if (!contentPath) {
+        throw new Error("No content path configured")
+    }
     const settingsPath = path.join(vsCodePath, 'settings.json')
     // create if not exists
     if (!await fs.pathExists(settingsPath)) {
@@ -477,8 +489,9 @@ async function createSettings(vsCodePath: string, dirPath: string, interpreterPa
 
     const settings = JSON5.parse(fs.readFileSync(settingsPath, 'utf-8'));
     Logger.info('Setting settings.json to venv');
+    const relativePath = '${workspaceFolder}/' + path.relative(path.join(vsCodePath, '..'), dirPath)
     settings['python.defaultInterpreterPath'] = interpreterPath;
-    settings['python.testing.cwd'] = '${workspaceFolder}/' + `${path.relative(path.join(vsCodePath, '..'), dirPath)}`;
+    settings['python.testing.cwd'] = relativePath;
     settings["python.testing.pytestEnabled"] = true;
     settings["python.testing.pytestArgs"] = ["."];
     settings["python.linting.mypyEnabled"] = true;
@@ -488,9 +501,21 @@ async function createSettings(vsCodePath: string, dirPath: string, interpreterPa
         "--show-column-numbers",
         "--no-pretty",
         "--allow-redefinition",
-        "--check-untyped-defs"
+        "--check-untyped-defs",
     ];
     settings["python.linting.flake8Enabled"] = true;
+
+    if (changeLinterPath && fs.pathExistsSync(path.join(contentPath, ".venv"))) {
+        settings["python.linting.mypyPath"] = `${contentPath}/.venv/bin/mypy`
+        settings["python.linting.flake8Path"] = `${contentPath}/.venv/bin/flake8`
+        settings["python.formatting.autopep8Path"] = `${contentPath}/.venv/bin/autopep8`
+    }
+    else {
+        settings["python.linting.mypyPath"] = 'mypy'
+        settings["python.linting.flake8Path"] = 'flake8'
+        settings["python.formatting.autopep8Path"] = 'autopep8'
+
+    }
     fs.writeJSONSync(settingsPath, settings, { spaces: 2 });
 }
 
@@ -538,9 +563,8 @@ async function createVirtualenv(name: string, dirPath: string, dockerImage: stri
     // this implemented in a script, should be a command in SDK.
     // When SDK added this command, change to use it as wrapper.
     Logger.info('Running virtualenv task')
-    const extraReqsPY3 = path.resolve(__dirname, '../Templates/integration_env/.devcontainer/extra-requirements-py3.txt')
     const setupVenvScript = path.resolve(__dirname, '../Scripts/setup_venv.sh')
-    const cmd = `${setupVenvScript} ${dockerImage} ${name} ${dirPath} ${extraReqsPY3} ` + "${command:python.interpreterPath}"
+    const cmd = `${setupVenvScript} ${dockerImage} ${name} ${dirPath} ` + "${command:python.interpreterPath}"
     const task = new vscode.Task(
         { type: 'virtualenv', name: 'Setup virtualenv' },
         vscode.TaskScope.Workspace,

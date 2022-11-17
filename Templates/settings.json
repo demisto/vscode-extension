@@ -2,7 +2,7 @@
     "python.testing.cwd": "Packs/HelloWorld/Integrations/HelloWorld",
     "python.testing.pytestEnabled": true,
     "python.testing.pytestArgs": [
-        "."
+        "-v"
     ],
     "python.testing.unittestEnabled": false,
     "python.linting.mypyEnabled": true,
@@ -11,9 +11,18 @@
         "--ignore-missing-imports",
         "--show-column-numbers",
         "--no-pretty",
-        "--allow-redefinition",
-        "--namespace-packages"
+        "--allow-redefinition"
     ],
     "python.linting.flake8Enabled": true,
     "python.defaultInterpreterPath": ".venv/bin/python",
+    "cSpell.words": [
+        "demisto",
+        "xsoar",
+        "xsiam",
+        "fromversion",
+        "toversion",
+        "marketplacev2",
+        "ciac",
+        "whois"
+    ]
 }

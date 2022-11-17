@@ -6,8 +6,12 @@
 			"IMAGENAME": ""
 		}
 	},
+	"remoteEnv": {
+		"MYPYPATH": "/workspaces/content/Packs/Base/Scripts/CommonServerPython:${containerEnv:MYPYPATH}",
+		"PYTHONPATH": "/workspaces/content/Packs/Base/Scripts/CommonServerPython:${containerEnv:PYTHONPATH}"
+
+	},
 	"containerUser": "demisto",
-	"postCreateCommand": "git config --system --add safe.directory /workspaces/content",
 	"extensions": [
 		"ms-python.python",
 		"ms-vscode.PowerShell",
@@ -15,6 +19,7 @@
 		"eamodio.gitlens",
 		"GitHub.vscode-pull-request-github",
 		"njpwerner.autodocstring",
-		"streetsidesoftware.code-spell-checker"
+		"streetsidesoftware.code-spell-checker",
+		"littlefoxteam.vscode-python-test-adapter"
 	]
 }

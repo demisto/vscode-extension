@@ -3,7 +3,7 @@ ARG IMAGENAME
 FROM ${IMAGENAME}
 
 ADD create_certs.sh /
-ADD extra-requirements-py3.txt /
+
 RUN chmod +x /create_certs.sh \ 
     && /create_certs.sh /usr/local/share/ca-certificates/certs.crt \
     && update-ca-certificates \
@@ -13,12 +13,12 @@ RUN chmod +x /create_certs.sh \
     && apk add build-base || apt-get install build-essential -y || echo "Could not install build-essential" \
     # check if pip command exists
     && if [ -x "$(command -v pip)" ]; then \
-    pip install autopep8 || echo "Could not install autopep8"; \
-    pip install flake8 || echo "Could not install flake8"; \
-    if [ $(python -c 'import sys; print(sys.version_info[0])') == "3" ]; then \
-        # mypy supports only py3
-        pip install -r /extra-requirements-py3.txt || echo "Could not install mypy"; \
+        pip install autopep8 flake8 || echo "Could not install autopep8 or flake8"; \
+        if [ $(python -c 'import sys; print(sys.version_info[0])') == "3" ]; then \
+            # mypy supports only py3
+            pip install mypy types-dateparser types-requests || echo "Could not install mypy"; \
+        fi \
     fi \
-    fi
+    && git config --system --add safe.directory /workspaces/content
 
 ENV NODE_EXTRA_CA_CERTS /usr/local/share/ca-certificates/certs.crt

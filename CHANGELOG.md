@@ -1,5 +1,12 @@
 # Change Log
 
+# [0.5.7] (2022-11-17)
+
+- Fixed an issue where `mypy` fails to show issues.
+- Added `Python Test Explorer` extension to Dev Container.
+- Changed pytest settings to `verbose` mode.
+- Maintenance and bug fixes.
+   
 # [0.5.6] (2022-10-30)
 
 - Fixed broken installation of local development environment with python and poetry.
