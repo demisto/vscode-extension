@@ -15,9 +15,12 @@ async function addPythonPath(): Promise<void>{
     if (!contentPath) {
         return
     }
+    
+    const pylintPlugins = path.resolve(path.join(contentPath, "..", "demisto_sdk", "demisto_sdk", "commands", "lint", "resources", "pylint_plugins"))
     let PYTHONPATH = `${contentPath}/Packs/Base/Scripts/CommonServerPython/:${contentPath}/Tests/demistomock/:`
     const apiModules = execSync(`printf '%s:' ${contentPath}/Packs/ApiModules/Scripts/*`).toString().trim()
     PYTHONPATH += apiModules
+    PYTHONPATH += pylintPlugins
     const envFilePath = path.join(contentPath, '.env')
     if (!await fs.pathExists(envFilePath)) {
         fs.createFileSync(envFilePath)
@@ -448,7 +451,7 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
     createSettings(vsCodePath, dirPath, path.join(dirPath, 'venv', 'bin', 'python'), true);
     await addPythonPath()
-    fs.copySync(path.join(contentPath, '.env'), path.join(dirPath, '.env'))
+    fs.copySync(path.join(contentPath, '.env'), path.join(packDir, '.env'))
     
     Logger.info('Run lint')
     await dsdk.lint(dirPath, false, false, false, true)

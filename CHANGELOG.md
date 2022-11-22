@@ -1,5 +1,10 @@
 # Change Log
 
+# [0.5.8] (2022-11-22)
+
+- Fixed an issue where Python Language Server crashes on virtual environment.
+- Added XSOAR_LINTER to linters.
+
 # [0.5.7] (2022-11-17)
 
 - Fixed an issue where `mypy` fails to show issues.
