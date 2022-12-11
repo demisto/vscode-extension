@@ -1,5 +1,9 @@
 # Change Log
 
+# Unreleased
+
+- Fixed an issue where Dev Container fails to open in arm64 architecture.
+
 # [0.5.8] (2022-11-22)
 
 - Fixed an issue where Python Language Server crashes on virtual environment.

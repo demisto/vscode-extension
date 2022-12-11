@@ -1,6 +1,6 @@
 ARG IMAGENAME
 
-FROM ${IMAGENAME}
+FROM --platform=linux/amd64 ${IMAGENAME}
 
 ADD create_certs.sh /
 
