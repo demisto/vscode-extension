@@ -101,8 +101,8 @@ export async function installDevEnv(): Promise<void> {
     fs.createFileSync(path.join(dirPath, 'Packs/Base/Scripts/CommonServerPython/CommonServerUserPython.py'))
 
     await vscode.window.showQuickPick(['Yes', 'No'], {
-        title: 'Do you want to configure Demisto-SDK for XSOAR?',
-        placeHolder: "This will ask you to configure the XSOAR to communicate between Demisto-SDK and XSOAR"
+        title: 'Would you like to configure the connection to XSOAR?',
+        placeHolder: "This will ask you to configure the connection XSOAR, allowing Demisto-SDK commands such as upload and download"
     }).then(async (answer) => {
         if (answer === 'Yes') {
             configureDemistoVars()
