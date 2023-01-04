@@ -101,8 +101,8 @@ export async function installDevEnv(): Promise<void> {
     fs.createFileSync(path.join(dirPath, 'Packs/Base/Scripts/CommonServerPython/CommonServerUserPython.py'))
 
     await vscode.window.showQuickPick(['Yes', 'No'], {
-        title: 'Do you want to configure Demisto-SDK for XSOAR?',
-        placeHolder: "This will ask you to configure the XSOAR to communicate between Demisto-SDK and XSOAR"
+        title: 'Would you like to configure the connection to XSOAR?',
+        placeHolder: "This will ask you to configure the connection XSOAR, allowing Demisto-SDK commands such as upload and download",
     }).then(async (answer) => {
         if (answer === 'Yes') {
             configureDemistoVars()
@@ -241,7 +241,8 @@ export async function configureDemistoVars(): Promise<void> {
     }
     await vscode.window.showInputBox({
         title: 'XSOAR URL',
-        value: 'http://localhost:8080'
+        value: 'http://localhost:8080',
+        ignoreFocusOut: true,
     }).then(url => {
         if (url) {
             env["DEMISTO_BASE_URL"] = url
@@ -250,7 +251,8 @@ export async function configureDemistoVars(): Promise<void> {
     vscode.window.showInformationMessage('Enter either XSOAR username and password, or an API key')
     await vscode.window.showInputBox({
         title: 'XSOAR username (optional)',
-        value: 'admin'
+        value: 'admin',
+        ignoreFocusOut: true,
     }).then(username => {
         if (username) {
             env["DEMISTO_USERNAME"] = username
@@ -259,7 +261,8 @@ export async function configureDemistoVars(): Promise<void> {
     await vscode.window.showInputBox({
         title: 'XSOAR password (optional)',
         value: 'admin',
-        password: true
+        password: true,
+        ignoreFocusOut: true,
     }).then(password => {
         if (password) {
             env["DEMISTO_PASSWORD"] = password
@@ -269,7 +272,8 @@ export async function configureDemistoVars(): Promise<void> {
     await vscode.window.showInputBox({
         title: 'XSOAR API key (optional)',
         placeHolder: 'Leaving blank will use username and password',
-        password: true
+        password: true,
+        ignoreFocusOut: true,
     }).then((apiKey) => {
         if (apiKey) {
             env["DEMISTO_API_KEY"] = apiKey

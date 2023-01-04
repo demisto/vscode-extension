@@ -53,7 +53,7 @@ By default, the extension will automatically save changes made to the integratio
 to disable it, change `xsoar.autoSave` to `false`.
 
 
-## Configure Demisto-SDK for XSOAR
+## Configure XSOAR connection
 
 This will configure `.env` file with the following environment variables:
 * DEMISTO_BASE_URL (XSOAR URL)
