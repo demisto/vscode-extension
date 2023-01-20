@@ -30,6 +30,7 @@ async function addPythonPath(): Promise<void>{
     const env = parse(envFile)
     env["PYTHONPATH"] = PYTHONPATH
     env["MYPYPATH"] = PYTHONPATH
+    env["RAFTT_WORLOAD"] = "integration"
     Logger.info(stringify(env))
     fs.writeFileSync(envFilePath, stringify(env))
 
@@ -467,7 +468,7 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
         dockerImage = dockerImage.replace('demisto', 'devtestdemisto')
         Logger.info(`docker image is ${dockerImage}, getting data`)
         vscode.window.showInformationMessage(`Creating virtualenv, please wait`)
-        await createVirtualenv(filePath.name, dirPath, dockerImage)
+        await createVirtualenv(filePath.name, contentPath, dirPath, dockerImage)
     }
     const workspace = { 'folders': [{ 'path': contentPath }, { 'path': packDir }], 'settings': {} }
     const workspaceOutput = path.join(vsCodePath, `content-${filePath.name}.code-workspace`)
@@ -566,12 +567,13 @@ async function bootstrapContent(dirPath: string, shouldPreCommit: boolean) {
 
 }
 
-async function createVirtualenv(name: string, dirPath: string, dockerImage: string): Promise<void> {
+async function createVirtualenv(name: string, contentPath: string, dirPath: string, dockerImage: string): Promise<void> {
     // this implemented in a script, should be a command in SDK.
     // When SDK added this command, change to use it as wrapper.
     Logger.info('Running virtualenv task')
     const setupVenvScript = path.resolve(__dirname, '../Scripts/setup_venv.sh')
-    const cmd = `${setupVenvScript} ${dockerImage} ${name} ${dirPath} ` + "${command:python.interpreterPath}"
+    const relativeDirPath = path.relative(dirPath, contentPath)
+    const cmd = `${setupVenvScript} ${dockerImage} ${name} ${dirPath} ${relativeDirPath} ` + "${command:python.interpreterPath}"
     const task = new vscode.Task(
         { type: 'virtualenv', name: 'Setup virtualenv' },
         vscode.TaskScope.Workspace,

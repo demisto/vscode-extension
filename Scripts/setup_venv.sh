@@ -10,6 +10,7 @@ eval "$(pyenv init -)" || echo "No pyenv, procceding without"
 dockerImage=$1
 name=$2
 dirPath=$3
+relativeDirPath=$4
 pythonPath=$4
 
 # workaround to support M1
@@ -33,7 +34,8 @@ docker run --name "${name}" "$testImage" 'pip list --format=freeze > /requiremen
 docker cp "${name}":/requirements.txt .
 docker rm -f "${name}" || true
 
-
+# create RAFTT
+raftt up --config-args "$dirPath" || echo "No raftt availible"
 
 # check if virtualenv module is installed
 isVirtualEnvInstalled=true
