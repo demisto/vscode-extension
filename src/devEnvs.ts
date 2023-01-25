@@ -10,28 +10,28 @@ import { parse, stringify } from "envfile"
 import { installDemistoSDKGlobally, getContentPath } from "./tools";
 import glob from "glob";
 
-async function addPythonPath(): Promise<void> 
-    const contentPath = getContentPath()
-    if (!contentPath) {
-        return
-    }
+async function addPythonPath(): Promise<void>
+const contentPath = getContentPath()
+if (!contentPath) {
+    return
+}
 
-    const pylintPlugins = path.resolve(path.join(contentPath, "..", "demisto_sdk", "demisto_sdk", "commands", "lint", "resources", "pylint_plugins"))
-    let PYTHONPATH = `${contentPath}/Packs/Base/Scripts/CommonServerPython/:${contentPath}/Tests/demistomock/:`
-    const apiModules = execSync(`printf '%s:' ${contentPath}/Packs/ApiModules/Scripts/*`).toString().trim()
-    PYTHONPATH += apiModules
-    PYTHONPATH += pylintPlugins
-    const envFilePath = path.join(contentPath, '.env')
-    if (!await fs.pathExists(envFilePath)) {
-        fs.createFileSync(envFilePath)
-    }
-    const envFile = fs.readFileSync(envFilePath, 'utf8')
-    Logger.info(`envFile: ${envFile}`)
-    const env = parse(envFile)
-    env["PYTHONPATH"] = PYTHONPATH
-    env["MYPYPATH"] = PYTHONPATH
-    Logger.info(stringify(env))
-    fs.writeFileSync(envFilePath, stringify(env))
+const pylintPlugins = path.resolve(path.join(contentPath, "..", "demisto_sdk", "demisto_sdk", "commands", "lint", "resources", "pylint_plugins"))
+let PYTHONPATH = `${contentPath}/Packs/Base/Scripts/CommonServerPython/:${contentPath}/Tests/demistomock/:`
+const apiModules = execSync(`printf '%s:' ${contentPath}/Packs/ApiModules/Scripts/*`).toString().trim()
+PYTHONPATH += apiModules
+PYTHONPATH += pylintPlugins
+const envFilePath = path.join(contentPath, '.env')
+if (!await fs.pathExists(envFilePath)) {
+    fs.createFileSync(envFilePath)
+}
+const envFile = fs.readFileSync(envFilePath, 'utf8')
+Logger.info(`envFile: ${envFile}`)
+const env = parse(envFile)
+env["PYTHONPATH"] = PYTHONPATH
+env["MYPYPATH"] = PYTHONPATH
+Logger.info(stringify(env))
+fs.writeFileSync(envFilePath, stringify(env))
 
 }
 
@@ -325,7 +325,7 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
     // lint currently does not remove commonserverpython file for some reason
     const CommonServerPython = path.join(dirPath, 'CommonServerPython.py')
     if (filePath.name !== "CommonServerPython" && await fs.pathExists(CommonServerPython)) {
-         fs.removeSync(CommonServerPython)
+        fs.removeSync(CommonServerPython)
     }
     createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
     createSettings(vsCodePath, dirPath, '/usr/local/bin/python', false)
