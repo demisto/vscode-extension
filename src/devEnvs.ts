@@ -10,7 +10,7 @@ import { parse, stringify } from "envfile"
 import { installDemistoSDKGlobally, getContentPath } from "./tools";
 import glob from "glob";
 
-async function addPythonPath(): Promise<void> {
+async function addPythonPath(): Promise<void> 
     const contentPath = getContentPath()
     if (!contentPath) {
         return
@@ -324,9 +324,8 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
 
     // lint currently does not remove commonserverpython file for some reason
     const CommonServerPython = path.join(dirPath, 'CommonServerPython.py')
-    if (await fs.pathExists(CommonServerPython)) {
-        if (!dirPath.includes('Base/Scripts/CommonServerPython')) // do not remove the actual CommonServerPython.py
-         { fs.removeSync(CommonServerPython) }
+    if (filePath.name === "CommonServerPython" && await fs.pathExists(CommonServerPython)) {
+         fs.removeSync(CommonServerPython)
     }
     createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
     createSettings(vsCodePath, dirPath, '/usr/local/bin/python', false)
