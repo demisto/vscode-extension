@@ -10,12 +10,12 @@ import { parse, stringify } from "envfile"
 import { installDemistoSDKGlobally, getContentPath } from "./tools";
 import glob from "glob";
 
-async function addPythonPath(): Promise<void>{
+async function addPythonPath(): Promise<void> {
     const contentPath = getContentPath()
     if (!contentPath) {
         return
     }
-    
+
     const pylintPlugins = path.resolve(path.join(contentPath, "..", "demisto_sdk", "demisto_sdk", "commands", "lint", "resources", "pylint_plugins"))
     let PYTHONPATH = `${contentPath}/Packs/Base/Scripts/CommonServerPython/:${contentPath}/Tests/demistomock/:`
     const apiModules = execSync(`printf '%s:' ${contentPath}/Packs/ApiModules/Scripts/*`).toString().trim()
@@ -324,7 +324,7 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
 
     // lint currently does not remove commonserverpython file for some reason
     const CommonServerPython = path.join(dirPath, 'CommonServerPython.py')
-    if (await fs.pathExists(CommonServerPython)) {
+    if (filePath.name !== "CommonServerPython" && await fs.pathExists(CommonServerPython)) {
         fs.removeSync(CommonServerPython)
     }
     createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
@@ -449,14 +449,14 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
 
     // lint currently does not remove commonserverpython file for some reason
     const CommonServerPython = path.join(dirPath, 'CommonServerPython.py')
-    if (await fs.pathExists(CommonServerPython)) {
+    if (filePath.name !== "CommonServerPython" && await fs.pathExists(CommonServerPython)) {
         fs.removeSync(CommonServerPython)
     }
     createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
     createSettings(vsCodePath, dirPath, path.join(dirPath, 'venv', 'bin', 'python'), true);
     await addPythonPath()
     fs.copySync(path.join(contentPath, '.env'), path.join(packDir, '.env'))
-    
+
     Logger.info('Run lint')
     await dsdk.lint(dirPath, false, false, false, true)
 
