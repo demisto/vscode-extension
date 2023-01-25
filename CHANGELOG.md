@@ -2,8 +2,12 @@
 
 # Unreleased
 
+  
+# [0.5.9] (2023-01-25)
+
 - Fixed an issue where Dev Container fails to open in arm64 architecture.
 - Renamed `Configure Demisto-SDK for XSOAR` to `Configure XSOAR connection`.
+- Fixed an issue in **Open integration/script in virtual environment** and in **Open integration/script in Dev Container** for `CommonServerPython` integration.
 
 # [0.5.8] (2022-11-22)
 
