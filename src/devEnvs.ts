@@ -324,7 +324,7 @@ export async function openIntegrationDevContainer(dirPath: string): Promise<void
 
     // lint currently does not remove commonserverpython file for some reason
     const CommonServerPython = path.join(dirPath, 'CommonServerPython.py')
-    if (!ymlFilePath.includes("CommonServerPython") && await fs.pathExists(CommonServerPython)) {
+    if (filePath.name !== "CommonServerPython" && await fs.pathExists(CommonServerPython)) {
         fs.removeSync(CommonServerPython)
     }
     createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
@@ -449,7 +449,7 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
 
     // lint currently does not remove commonserverpython file for some reason
     const CommonServerPython = path.join(dirPath, 'CommonServerPython.py')
-    if (await fs.pathExists(CommonServerPython)) {
+    if (filePath.name !== "CommonServerPython" && await fs.pathExists(CommonServerPython)) {
         fs.removeSync(CommonServerPython)
     }
     createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
