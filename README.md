@@ -26,7 +26,7 @@ This will install local development environment with **demisto-sdk** and will co
 If **Homebrew** is available, you can choose to install any of **python**, **poetry**, **node**, **docker** or **pyenv**.
 
 ### Remote Environment (All OS)
-Or you can follow [this guide](https://xsoar.pan.dev/docs/tutorials/tut-setup-env) to configure a fully configured remote development environnement, with `demisto-sdk` and more features preinstalled.
+Or you can follow [this guide](https://xsoar.pan.dev/docs/tutorials/tut-setup-dev-remote) to configure a fully configured remote development environnement, with `demisto-sdk` and more features preinstalled.
 
 ### Demisto-SDK Path
 
