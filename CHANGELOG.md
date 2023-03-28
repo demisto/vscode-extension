@@ -2,7 +2,16 @@
 
 # Unreleased
 
-  
+
+# [0.5.10] (2023-03-25)
+
+- Drop support for installation of `'docker', 'pipx', 'shellcheck'` in **Install XSOAR local development environment**.
+- Selecting `python` in **Install XSOAR local development environment** will install the latest version of `python3` and the latest version of `python2` using `pyenv`.
+- Selecting `poetry` in **Install XSOAR local development environment** will install the latest version of `poetry` using the official installation script.
+- Demisto-SDK commands will now run from the `poetry` environment, if available.
+- Demisto-SDK commands will now run from the `content` path, if available.
+- Added options to **Install/Update Demisto-SDK**, to install using poetry or pip.
+
 # [0.5.9] (2023-01-25)
 
 - Fixed an issue where Dev Container fails to open in arm64 architecture.

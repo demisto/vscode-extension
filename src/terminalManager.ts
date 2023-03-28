@@ -23,12 +23,8 @@ export class TerminalManager {
 		options: ProcessEnvOptions
 	): Promise<void> {
 		const sdkPath = tools.getSDKPath()
-		let cmd = '';
-		if (sdkPath) {
-			cmd = `${tools.getSDKPath()} ${command.join(' ')}`
-		} else {
-			cmd = `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
-		}
+		const cmd = `${sdkPath} ${command.join(' ')}`;
+	
 		Logger.info(`Executing command in background: \`${cmd}\``)
 		exec(cmd, options, (error, stdout) => {
 			if (error) {
@@ -43,11 +39,10 @@ export class TerminalManager {
 
 	public static async sendDemistoSdkCommandWithProgress(command: string[]): Promise<boolean> {
 		const sdkPath = tools.getSDKPath()
-		let cmd = "source $(dirname '${command:python.interpreterPath}')/activate || true && "
-		if (sdkPath) {
-			cmd += `${tools.getSDKPath()} ${command.join(' ')}`
-		} else {
-			cmd += `${tools.getPythonpath()} -m demisto_sdk ${command.join(' ')}`
+		let cmd = `${sdkPath} ${command.join(' ')}`
+		const contentPath = tools.getContentPath()
+		if (contentPath){
+			cmd = `cd ${contentPath} && ${cmd}`
 		}
 		const task = new vscode.Task(
 			{ type: 'demisto-sdk', name: command[0] },
@@ -109,6 +104,7 @@ export class TerminalManager {
 		newTerminal = false,
 		timeout = 10000
 	): Promise<void> {
+		const contentPath = tools.getContentPath()
 		if (!await tools.isDemistoSDKinstalled()){
 			vscode.window.showErrorMessage('Demisto-SDK is not available in your environment')
 			return
@@ -123,6 +119,9 @@ export class TerminalManager {
 			terminal.hide()
 		}
 		terminal.sendText('')
+		if (contentPath) {
+			terminal.sendText(`cd ${contentPath}`)
+		}
 		terminal.sendText(`${tools.getSDKPath()} ${command.join(' ')}`)
 		await this.delay(timeout)
 	}

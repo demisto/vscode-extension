@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { DiagnosticCollection } from "vscode";
 import * as yaml from "yaml";
 import { AutomationI, IntegrationI } from './contentObject';
+import * as fs from "fs-extra";
 import { Logger } from './logger';
 import { TerminalManager } from './terminalManager';
 
@@ -22,7 +23,7 @@ export function sendCommandExtraArgsWithUserInput(command: string[]): void {
 
 export function getContentPath(): string | undefined {
     const workspaces = vscode.workspace.workspaceFolders
-    if (!workspaces){
+    if (!workspaces) {
         return
     }
     for (const workspace of workspaces) {
@@ -46,31 +47,40 @@ export function getPythonpath(): string {
 }
 
 export function getSDKPath(): string {
-    const sdkPath = <string>vscode.workspace.getConfiguration('xsoar').get('demisto-sdk.Path')
-    return sdkPath
+    const sdkPath = `${getContentPath()}/.venv/bin/demisto-sdk`
+    if (fs.existsSync(sdkPath)) {
+        return sdkPath
+    }
+    return 'demisto-sdk'
 }
 
 export async function installDemistoSDK(): Promise<void> {
-    vscode.window.showQuickPick(['Global', 'Local'], {
-        title: 'Install Demisto SDK globally or locally?',
-        placeHolder: 'Global will install demisto-sdk with pipx. Local will install demisto-sdk with pip.'
+    vscode.window.showQuickPick(['Poetry', 'Pip'], {
+        title: 'Install Demisto SDK with Poetry or with Pip?',
+        placeHolder: 'Poetry is recommended'
     }).then(answer => {
-        if (answer === 'Global') {
-            installDemistoSDKGlobally()
+        if (answer === 'Poetry') {
+            installDemistoSDKPoetry()
         }
         else if (answer == 'Local') {
-            installDemistoSDKLocally()
+            installDemistoSDKPip()
         }
     })
 }
 
-export async function installDemistoSDKLocally(): Promise<void> {
+export async function installDemistoSDKPip(): Promise<void> {
     TerminalManager.sendText(['pip', 'install', 'demisto-sdk', '--upgrade']);
 }
 
-export async function installDemistoSDKGlobally(): Promise<void> {
-    // if pipx is installed no need to install pipx with pip
-    TerminalManager.sendText('(pipx --version || pip install pipx) && pipx ensurepath --force && pipx install demisto-sdk --force && pipx upgrade demisto-sdk');
+export async function installDemistoSDKPoetry(): Promise<void> {
+    const contentPath = getContentPath()
+    if (!contentPath) {
+        TerminalManager.sendText(['pip', 'install', 'demisto-sdk', '--upgrade']);
+    }
+    else {
+        TerminalManager.sendText(['cd', contentPath])
+        TerminalManager.sendText(['poetry', 'install'])
+    }
 }
 
 export async function isDemistoSDKinstalled(): Promise<boolean> {
@@ -79,7 +89,7 @@ export async function isDemistoSDKinstalled(): Promise<boolean> {
         return true
     }
     Logger.error('demisto-sdk is not installed')
-    await installDemistoSDK()
+    await installDemistoSDKPoetry()
     await new Promise(resolve => setTimeout(resolve, 15000))
     return TerminalManager.sendDemistoSdkCommandWithProgress(['--version'])
 }
