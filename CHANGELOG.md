@@ -2,6 +2,10 @@
 
 # Unreleased
 
+# [0.5.11] (2023-04-24)
+
+- Added the content path to `PYTHONPATH` inside the `.env` file.
+- Will not copy the `.env` file to the integration/script folder when opening in Virtual Environment.
 
 # [0.5.10] (2023-03-25)
 

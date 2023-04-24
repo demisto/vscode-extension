@@ -28,7 +28,7 @@ async function addPythonPath(): Promise<void> {
       "pylint_plugins"
     )
   );
-  let PYTHONPATH = `${contentPath}/Packs/Base/Scripts/CommonServerPython/:${contentPath}/Tests/demistomock/:`;
+  let PYTHONPATH = `${contentPath}:${contentPath}/Packs/Base/Scripts/CommonServerPython/:${contentPath}/Tests/demistomock/`;
   const apiModules = execSync(
     `printf '%s:' ${contentPath}/Packs/ApiModules/Scripts/*`
   )
@@ -588,7 +588,6 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     true
   );
   await addPythonPath();
-  fs.copySync(path.join(contentPath, ".env"), path.join(packDir, ".env"));
 
   Logger.info("Run lint");
   await dsdk.lint(dirPath, false, false, false, true);
