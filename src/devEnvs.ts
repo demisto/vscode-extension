@@ -49,6 +49,12 @@ async function addPythonPath(): Promise<void> {
   fs.writeFileSync(envFilePath, stringify(env));
 }
 
+function addInitFile(dirPath: string): void {
+  if (fs.pathExistsSync(path.join(dirPath, "test_data"))){
+    fs.createFileSync(path.join(dirPath, "test_data", "__init__.py"));
+  }
+}
+
 export async function installDevEnv(): Promise<void> {
   const workspaces = vscode.workspace.workspaceFolders;
   if (!workspaces) {
@@ -117,7 +123,6 @@ export async function installDevEnv(): Promise<void> {
       "Packs/Base/Scripts/CommonServerPython/CommonServerUserPython.py"
     )
   );
-
   await vscode.window
     .showQuickPick(["Yes", "No"], {
       title: "Would you like to configure the connection to XSOAR?",
@@ -420,7 +425,7 @@ export async function openIntegrationDevContainer(
   }
   createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
   createSettings(vsCodePath, dirPath, "/usr/local/bin/python", false);
-
+  addInitFile(dirPath);
   await dsdk.lint(dirPath, false, false, false, true);
 
   // delete cache folders and *.pyc files
@@ -588,6 +593,7 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
     true
   );
   await addPythonPath();
+  addInitFile(dirPath);
 
   Logger.info("Run lint");
   await dsdk.lint(dirPath, false, false, false, true);

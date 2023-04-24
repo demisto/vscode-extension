@@ -2,6 +2,10 @@
 
 # Unreleased
 
+# [0.5.12] (2023-04-24)
+
+- Automatically add `__init__.py` to the `test_data` folder in the integration/script when opening in Virtual Environment or in Dev Container.
+
 # [0.5.11] (2023-04-24)
 
 - Added the content path to `PYTHONPATH` inside the `.env` file.
