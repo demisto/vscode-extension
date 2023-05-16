@@ -5,6 +5,7 @@
         "-v"
     ],
     "python.testing.unittestEnabled": false,
+    "python.linting.flake8Enabled": false,
     "python.linting.mypyEnabled": true,
     "python.linting.mypyArgs": [
         "--follow-imports=silent",
