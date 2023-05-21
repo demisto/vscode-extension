@@ -586,7 +586,7 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
       ["Current workspace, no virtual environment", "New workspace, with virtual environment"],
       {
         title: `Do you want to open a new workspace with a virtual environment?`,
-        placeHolder: "Virtual environment is used for better IDE autocompletion",
+        placeHolder: "Virtual environment creation is slow, but provide better IDE autocompletion",
       }
     )
   if (answer === "New workspace, with virtual environment") {
