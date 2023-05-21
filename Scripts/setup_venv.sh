@@ -7,7 +7,7 @@ export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin":"/opt/homebrew/bin":"$PATH"
 eval "$(pyenv init -)" || echo "No pyenv, procceding without"
 
-dockerImage=$1
+testDockerImage=$1
 name=$2
 dirPath=$3
 pythonPath=$4
@@ -23,13 +23,12 @@ rm -rf .mypy_cache
 rm -rf .pytest_cache
 
 # Getting the test image
-testImage=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "$dockerImage" | head -1)
-echo "Using test image env: $testImage"
+echo "Using test image env: $testDockerImage"
 docker rm -f "${name}" &> /dev/null || true
-pythonVersion=$(docker run --name ${name} ${testImage} "python -c 'import sys; print(sys.version_info[0])'")
+pythonVersion=$(docker run --name ${name} ${testDockerImage} "python -c 'import sys; print(sys.version_info[0])'")
 echo "Using python version: $pythonVersion"
 docker rm -f "${name}" || true
-docker run --name "${name}" "$testImage" 'pip list --format=freeze > /requirements.txt'
+docker run --name "${name}" "$testDockerImage" 'pip list --format=freeze > /requirements.txt'
 docker cp "${name}":/requirements.txt .
 docker rm -f "${name}" || true
 

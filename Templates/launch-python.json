@@ -7,7 +7,43 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+        },
+        {
+            "name": "Docker: Debug in docker",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "python": {
+              "pathMappings": [
+                {
+                  "localRoot": "${workspaceFolder}",
+                  "remoteRoot": "/app"
+                }
+              ],
+              "projectType": "general",
+              "justMyCode": false,
+            }
+          },
+          {
+            "name": "Docker: Debug tests in docker",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: test",
+            "python": {
+              
+              "pathMappings": [
+                {
+                  "localRoot": "${workspaceFolder}",
+                  "remoteRoot": "/app",
+                },
+              ],
+              "projectType": "general",
+              "justMyCode": false
+      
+            }
         }
+      
     ]
 }
