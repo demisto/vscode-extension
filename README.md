@@ -11,7 +11,7 @@ You can also use the *XSOAR: Install/Update Demisto-SDK* command.
 
 Commands:
 
-* *XSOAR: Load integration/Script*: Loads an integration or a script to the UI.
+* *XSOAR: Setup integration/script environment*: Setups the environment of integration or a script.
 * *XSOAR: Demisto-SDK Validate/Lint*: Run linters and validators on opened file directory.
 * *XSOAR: Demisto-SDK Update Release Notes*: Update release notes of the opened file's pack.
 * You can also run the commands directry from the explorer menu:  
@@ -27,31 +27,6 @@ If **Homebrew** is available, you can choose to install any of **python**, **poe
 
 ### Remote Environment (All OS)
 Or you can follow [this guide](https://xsoar.pan.dev/docs/tutorials/tut-setup-dev-remote) to configure a fully configured remote development environnement, with `demisto-sdk` and more features preinstalled.
-
-### Demisto-SDK Path
-
-The default behavior of the extension when running a demisto-sdk command is to run `demisto-sdk <command>`. You can set a different demisto-sdk path (if you want to run always on the same demisto-sdk or when you're using a tool like pipx). You can set the `xsoar.demisto-sdk.Path` to the demisto-sdk executable.
-
-### Auto Linters
-
-The Cortex XSOAR extension will automatically use the demisto-sdk to lint (code files) and validate (.yml files) your packs.
-
-To turn on auto-linters in your workspace, set the `xsoar.autoFindProblems.readProblems` setting to `true`.
-To control the auto-lints behaviour:  
-
-* `xsoar.linter.[linter-name].enable`: Whether to enable the auto-lint. Default to false.
-
-* `xsoar.linter.[linter-name].patterns`: Which file patterns (glob) to run with the linter.
-
-The linters will write its data to the path configured in `xsoar.autoFindProblems.reportPath`, which is also the file that VSCode takes the problems from.
-
-If you wish to see the process running (or check why it's failing or not working), change `xsoar.linter.showOnSaveTerminal` to `true`.
-
-### Auto Save  
-
-By default, the extension will automatically save changes made to the integration/automation file made in the webview (opened with *XSOAR: Load Integration/Script*).
-to disable it, change `xsoar.autoSave` to `false`.
-
 
 ## Configure XSOAR connection
 
@@ -69,43 +44,24 @@ When working on an integration or a script, you can right click on it, and click
 
 ![Test Explorer](documentation/changelog/0.3.0/Test%20Explorer.png)
 
-If you there is a **Pytest discovery error**, there is a probably missing dependencies. Either install the missing dependencies, or use [python virtual environnement](#python-virtual-environment) instead.
+If you there is a **Pytest discovery error**, there is a probably missing dependencies. Either install the missing dependencies, or use [Setup integration/script environment](#Setup-integration/script-environment) with new workspace instead.
 
-## Python Virtual Environment
+## Setup integration/script environment
 
-The extension supports opening an integration or a script in their python virtual environnement.
+The extension supports configuring integration/script environment.
 
-When working on an integration or a script, you can right click on it, and click on **Open integration/script in virtual environment**. This will open the integration or the script in a new folder, with configured `python` virtual environment. This environment consists exactly the same python environment of the `docker image` of the integration or a script, with testing and linting libraries added.
+When working on an integration or a script, you can right click on it, and click on **Setup integration/script environment**.
+
+This will configure debugging and testing the integration/script in a Docker container.
+
+To execute the integration/script in the container, you can use the `Run` button in the top right corner of the editor, and select `Debug in docker` option.
+To execute the integration/script tests in the container, you can use the `Run` button in the top right corner of the editor, and select `Debug tests in docker` option.
+
+![Run](documentation/changelog/0.5.0/run-and-debug.png)
+
+You will be prompted to choose between current workspace or a new workspace. Opening a new workspace will create a new virtual environment with the integration/script dependencies installed, and will open a new VSCode workspace with the integration/script folder. This will allow better IDE autocompletion, but the creation of virtual environment may take a few minutes.
 
 This is the recommended way to develop and debug your integration.
-
-> **_NOTE:_**  The python version that used is the one that configured in the VSCode settings. To change the python version, [select a different python interpreter in VSCode](https://code.visualstudio.com/docs/python/environments#:~:text=By%20default%2C%20the%20Python%20extension,interpreter%2C%20it%20issues%20a%20warning.). 
-
-## Dev Containers (Advanced)
-
-The extension supports opening an integration or a script in a dev container.
-This opens a new folder inside a container that is based upon the integration or script docker image (which is specified in their YAML file). This workspace is fully configured with `Python`, `Pylance`, `flake8`, `mypy` and `pytest`, allowing developing and debugging inside the integration environment. 
-### System requirements
-
-
-**Windows**: Docker Desktop 2.0+ on Windows 10 Pro/Enterprise. Windows 10 Home (2004+) requires Docker Desktop 2.3+ and the WSL 2 back-end.
-**macOS**: Docker Desktop 2.0+.
-**Linux**: Docker CE/EE 18.06+ and Docker Compose 1.21+
-
-Follow the [VSCode instructions](https://code.visualstudio.com/docs/remote/containers#_installation) for the installation process.
-
-### Usage
-
-When working on an integration or a script, you can right click on it, and click on **Open integration/script in virtual environment**. This will open the integration or the script in a new folder, exactly the same environment of the `docker image` of the integration or a script, with testing and linting libraries added.
-
-This is mainly used to debug your integration.
-   
-#### Dev Container Notes
-
-* Make sure you have [ms-vscode-remote.remote-containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension installed.
-* Make sure you have `docker daemon` running (you can check with executing `docker ps`).
-* The integration/script Dev Container does not have `demisto-sdk` or `git`.
-* The workspace folder is bind with the local folder. It is possible to work simultaneously on the same files locally and with Dev Container, because they are mirrored.
 
 ## Python 2.* Support
 
@@ -132,7 +88,7 @@ If the `license/cla` status check remains on *Pending*, even though all contribu
 
 * `npm install`
 * `npm run compile`
-* `pip demisto-sdk` or use [pipenv](https://pipenv.pypa.io/en/latest/) to install the demisto-sdk from the Pipfile.
+* `pip demisto-sdk`
 
 ### Main Locations
 

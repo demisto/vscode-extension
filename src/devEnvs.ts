@@ -10,6 +10,22 @@ import { parse, stringify } from "envfile";
 import glob from "glob";
 import { getContentPath } from "./tools";
 
+function getTestDockerImage(dirPath: string, dockerImage: string): string {
+  try {
+    return execSync(
+      `docker images --format "{{.Repository}}:{{.Tag}}" | grep ${dockerImage.replace("demisto", "devtestdemisto")} | head -1`,
+      { cwd: dirPath }
+    )
+      .toString()
+      .trim();
+  }
+  catch (err) {
+    Logger.error("Test Docker image not found, exiting");
+    vscode.window.showErrorMessage("Docker image not found, exiting");
+    throw err;
+  }
+}
+
 async function addPythonPath(): Promise<void> {
   const contentPath = getContentPath();
   if (!contentPath) {
@@ -50,9 +66,46 @@ async function addPythonPath(): Promise<void> {
 }
 
 function addInitFile(dirPath: string): void {
-  if (fs.pathExistsSync(path.join(dirPath, "test_data"))){
+  if (fs.pathExistsSync(path.join(dirPath, "test_data"))) {
     fs.createFileSync(path.join(dirPath, "test_data", "__init__.py"));
   }
+}
+
+function configureDockerDebugging(
+  vsCodePath: string,
+  dirPath: string,
+  dockerImage: string,
+  testDockerImage: string
+): void {
+  const tasks = JSON5.parse(
+    fs.readFileSync(
+      path.resolve(__dirname, "../Templates/tasks.json"),
+      "utf-8"
+    )
+  )
+  const relativePath = path.relative(path.join(vsCodePath, ".."), dirPath);
+  const relativePathParsed = path.parse(relativePath);
+  const codeFile = path.join(relativePath, relativePathParsed.name.concat(".py"));
+  const testCodeFile = path.join(relativePath, relativePathParsed.name.concat("_test.py"));
+  const tag = `devtestdemisto/${relativePathParsed.name.toLowerCase()}-pytest`
+  // docker build task
+  tasks.tasks[0].dockerBuild.buildArgs.IMAGENAME = testDockerImage;
+  tasks.tasks[0].dockerBuild.tag = tag;
+  // docker debug file task
+  tasks.tasks[1].python.file = `/app/${codeFile}`
+  tasks.tasks[1].dockerRun.image = dockerImage;
+
+  // docker debug test file task
+  tasks.tasks[2].python.args = ["-s", `/app/${testCodeFile}`]
+  tasks.tasks[2].dockerRun.image = tag;
+  tasks.tasks[2].dockerRun.customOptions = `-w /app/${relativePath}`
+
+  fs.writeJSONSync(
+    path.join(vsCodePath, "tasks.json"),
+    tasks,
+    { spaces: 4 }
+  )
+  fs.copyFileSync(path.resolve(__dirname, "../Templates/Dockerfile-pytest"), path.join(vsCodePath, "Dockerfile-pytest"))
 }
 
 export async function installDevEnv(): Promise<void> {
@@ -390,8 +443,7 @@ export async function openIntegrationDevContainer(
     .parseDocument(fs.readFileSync(ymlFilePath, "utf8"))
     .toJSON();
 
-  let dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage;
-  dockerImage = dockerImage.replace("demisto", "devtestdemisto");
+  const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage;
   Logger.info(`docker image is ${dockerImage}`);
   const devcontainerJsonPath = path.resolve(
     __dirname,
@@ -413,21 +465,11 @@ export async function openIntegrationDevContainer(
   vscode.window.showInformationMessage(
     "Starting demisto-sdk lint, please wait"
   );
-  devcontainer.name = `XSOAR Integration: ${filePath.name}`;
-
+  const type = ymlObject.type || ymlObject?.script.type;
   // lint currently does not remove commonserverpython file for some reason
-  const CommonServerPython = path.join(dirPath, "CommonServerPython.py");
-  if (
-    filePath.name !== "CommonServerPython" &&
-    (await fs.pathExists(CommonServerPython))
-  ) {
-    fs.removeSync(CommonServerPython);
-  }
-  createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
-  createSettings(vsCodePath, dirPath, "/usr/local/bin/python", false);
-  addInitFile(dirPath);
-  await dsdk.lint(dirPath, false, false, false, true);
-
+  const testDockerImage = await setupVSCodeEnv(dockerImage, type, dirPath, filePath, vsCodePath, "/usr/local/bin/python", true)
+  devcontainer.name = `XSOAR Integration: ${filePath.name}`;
+  devcontainer.build.args.IMAGENAME = testDockerImage
   // delete cache folders and *.pyc files
   fs.rmdir(path.join(dirPath, "__pycache__"), { recursive: true });
   fs.rmdir(path.join(dirPath, ".pytest_cache"), { recursive: true });
@@ -438,29 +480,11 @@ export async function openIntegrationDevContainer(
   pycFiles.forEach((file) => {
     fs.remove(file);
   });
-
-  try {
-    const testDockerImage = execSync(
-      `docker images --format "{{.Repository}}:{{.Tag}}" | grep ${dockerImage} | head -1`,
-      { cwd: dirPath }
-    )
-      .toString()
-      .trim();
-    if (!testDockerImage) {
-      Logger.error("Docker image not found, exiting");
-      vscode.window.showErrorMessage("Docker image not found, exiting");
-      return;
-    }
-    devcontainer.build.args.IMAGENAME = testDockerImage;
-    fs.writeJSONSync(
-      path.join(devcontainerFolder, "devcontainer.json"),
-      devcontainer,
-      { spaces: 2 }
-    );
-  } catch (err) {
-    Logger.error(`Could not find docker image ${dockerImage}: ${err}}`);
-    throw new Error(`Could not find docker image ${dockerImage}: ${err}}`);
-  }
+  fs.writeJSONSync(
+    path.join(devcontainerFolder, "devcontainer.json"),
+    devcontainer,
+    { spaces: 2 }
+  );
   Logger.info(`remote name is: ${vscode.env.remoteName}`);
   Logger.info(`fileName is: ${dirPath}`);
   Logger.info(`uri schema is ${vscode.env.uriScheme}`);
@@ -527,6 +551,9 @@ async function createLaunchJson(
     const program = path.join(cwd, filePath.name.concat(".py"));
     launchJson.configurations[0].program = program;
     launchJson.configurations[0].cwd = cwd;
+    launchJson.configurations[0].name = `Python: Debug (${filePath.name})`;
+    launchJson.configurations[1].name = `Docker: Debug (${filePath.name})`;
+    launchJson.configurations[2].name = `Docker: Debug tests (${filePath.name})`;
   }
   const launchJsonOutput = path.join(vsCodePath, "launch.json");
   if (!(await fs.pathExists(vsCodePath))) {
@@ -536,22 +563,46 @@ async function createLaunchJson(
   fs.writeJsonSync(launchJsonOutput, launchJson, { spaces: 2 });
 }
 
-export async function openInVirtualenv(dirPath: string): Promise<void> {
+export async function setupIntegrationEnv(dirPath: string): Promise<void> {
   const contentPath = getContentPath();
   if (!contentPath) {
     vscode.window.showErrorMessage("Please run this from Content repository");
     return;
   }
-  Logger.info(`Creating virtualenv in ${dirPath}`);
+  Logger.info(`Setting up integration env in ${dirPath}`);
   const filePath = path.parse(dirPath);
   const packDir = path.resolve(path.join(dirPath, "..", ".."));
-  const vsCodePath = path.join(packDir, ".vscode");
+  const ymlFilePath = path.join(dirPath, filePath.name.concat(".yml"));
+  const ymlObject = yaml
+    .parseDocument(fs.readFileSync(ymlFilePath, "utf8"))
+    .toJSON();
+  let vsCodePath = path.join(packDir, ".vscode");
+  let newWorkspace;
+  let shouldCreateVirtualenv
+  const virutalEnvPath = path.join(dirPath, "venv", "bin", "python")
+  let interpreterPath = virutalEnvPath
+  const answer = await vscode.window
+    .showQuickPick(
+      ["Current workspace, no virtual environment", "New workspace, with virtual environment"],
+      {
+        title: `Do you want to open a new workspace with a virtual environment?`,
+        placeHolder: "Virtual environment creation is slow, but provide better IDE autocompletion",
+      }
+    )
+  if (answer === "New workspace, with virtual environment") {
+    newWorkspace = true;
+    shouldCreateVirtualenv = true
+  }
+  else {
+    newWorkspace = false;
+    interpreterPath = path.join(contentPath, ".venv", "bin", "python")
+    vsCodePath = path.join(contentPath, ".vscode");
+  }
+
   if (!(await fs.pathExists(vsCodePath))) {
     fs.mkdirSync(vsCodePath);
   }
-
-  let shouldCreateVirtualenv = true;
-  if (await fs.pathExists(path.join(dirPath, "venv"))) {
+  if (newWorkspace && await fs.pathExists(virutalEnvPath)) {
     //show input dialog if create virtualenv
     Logger.info("Virtualenv exists.");
     await vscode.window
@@ -572,66 +623,71 @@ export async function openInVirtualenv(dirPath: string): Promise<void> {
         }
       });
   }
-  const ymlFilePath = path.join(dirPath, filePath.name.concat(".yml"));
-  const ymlObject = yaml
-    .parseDocument(fs.readFileSync(ymlFilePath, "utf8"))
-    .toJSON();
-
-  // lint currently does not remove commonserverpython file for some reason
-  const CommonServerPython = path.join(dirPath, "CommonServerPython.py");
-  if (
-    filePath.name !== "CommonServerPython" &&
-    (await fs.pathExists(CommonServerPython))
-  ) {
-    fs.removeSync(CommonServerPython);
-  }
-  createLaunchJson(ymlObject.type, dirPath, filePath, vsCodePath);
-  createSettings(
-    vsCodePath,
-    dirPath,
-    path.join(dirPath, "venv", "bin", "python"),
-    true
-  );
-  await addPythonPath();
-  addInitFile(dirPath);
-
-  Logger.info("Run lint");
-  await dsdk.lint(dirPath, false, false, false, true);
+  const dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage;
+  const type = ymlObject.type || ymlObject?.script.type;
+  const testdockerImage = await setupVSCodeEnv(dockerImage, type, dirPath, filePath, vsCodePath, interpreterPath, false);
 
   if (shouldCreateVirtualenv) {
     vscode.window.showInformationMessage(
       "Creating virtual environment. Might take a few minutes."
     );
 
-    let dockerImage = ymlObject.dockerimage || ymlObject?.script.dockerimage;
-    dockerImage = dockerImage.replace("demisto", "devtestdemisto");
-    Logger.info(`docker image is ${dockerImage}, getting data`);
+    Logger.info(`docker image is ${testdockerImage}, getting data`);
     vscode.window.showInformationMessage(`Creating virtualenv, please wait`);
-    await createVirtualenv(filePath.name, dirPath, dockerImage);
+    await createVirtualenv(filePath.name, dirPath, testdockerImage);
   }
-  const workspace = {
-    folders: [{ path: contentPath }, { path: packDir }],
-    settings: {},
-  };
-  const workspaceOutput = path.join(
+  if (newWorkspace) {
+    const workspace = {
+      folders: [{ path: contentPath }, { path: packDir }],
+      settings: {},
+    };
+    const workspaceOutput = path.join(
+      vsCodePath,
+      `content-${filePath.name}.code-workspace`
+    );
+    fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 });
+    const response = await vscode.window.showQuickPick(
+      ["Existing Window", "New Window"],
+      {
+        placeHolder:
+          "Select if you want to open in existing window or new window",
+        title: "Where would you like to open the environment?",
+      }
+    );
+    const openInNewWindow = response === "New Window";
+    vscode.commands.executeCommand(
+      "vscode.openFolder",
+      vscode.Uri.file(workspaceOutput),
+      openInNewWindow
+    );
+  }
+  vscode.window.showInformationMessage(`Done setting up environment for ${filePath.name}!`);
+}
+
+async function setupVSCodeEnv(dockerImage: string, type: string, dirPath: string, filePath: path.ParsedPath, vsCodePath: string, interpreterPath: string, isDevContainer: boolean) {
+  Logger.info(`docker image is ${dockerImage}`);
+  // lint currently does not remove commonserverpython file for some reason
+  const CommonServerPython = path.join(dirPath, "CommonServerPython.py");
+  if (filePath.name !== "CommonServerPython" &&
+    (await fs.pathExists(CommonServerPython))) {
+    fs.removeSync(CommonServerPython);
+  }
+  createLaunchJson(type, dirPath, filePath, vsCodePath);
+  createSettings(
     vsCodePath,
-    `content-${filePath.name}.code-workspace`
+    dirPath,
+    interpreterPath,
+    !isDevContainer
   );
-  fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 });
-  const response = await vscode.window.showQuickPick(
-    ["Existing Window", "New Window"],
-    {
-      placeHolder:
-        "Select if you want to open in existing window or new window",
-      title: "Where would you like to open the environment?",
-    }
-  );
-  const openInNewWindow = response === "New Window";
-  vscode.commands.executeCommand(
-    "vscode.openFolder",
-    vscode.Uri.file(workspaceOutput),
-    openInNewWindow
-  );
+  await addPythonPath();
+  addInitFile(dirPath);
+
+  Logger.info("Run lint");
+  await dsdk.lint(dirPath, false, false, false, true);
+  const testDockerImage = getTestDockerImage(dirPath, dockerImage);
+  Logger.info(`test docker image is ${testDockerImage}`);
+  configureDockerDebugging(vsCodePath, dirPath, dockerImage, testDockerImage);
+  return testDockerImage;
 }
 
 async function createSettings(
@@ -669,7 +725,6 @@ async function createSettings(
     "--allow-redefinition",
     "--check-untyped-defs",
   ];
-  settings["python.linting.flake8Enabled"] = true;
 
   if (changeLinterPath && fs.pathExistsSync(path.join(contentPath, ".venv"))) {
     settings["python.linting.mypyPath"] = `${contentPath}/.venv/bin/mypy`;
@@ -679,7 +734,6 @@ async function createSettings(
     ] = `${contentPath}/.venv/bin/autopep8`;
   } else {
     settings["python.linting.mypyPath"] = "mypy";
-    settings["python.linting.flake8Path"] = "flake8";
     settings["python.formatting.autopep8Path"] = "autopep8";
   }
   fs.writeJSONSync(settingsPath, settings, { spaces: 2 });

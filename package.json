@@ -101,13 +101,13 @@
         "category": "XSOAR"
       },
       {
-        "command": "xsoar.integrationContainer",
-        "title": "Open integration/script in Dev Container (advanced)",
+        "command": "xsoar.setupIntegrationEnv",
+        "title": "Setup integration/script environment (recommended)",
         "category": "XSOAR"
       },
       {
-        "command": "xsoar.integrationVirtualenv",
-        "title": "Open integration/script in virtual environment (recommended)",
+        "command": "xsoar.integrationContainer",
+        "title": "Open integration/script in Dev Container (advanced)",
         "category": "XSOAR"
       },
       {
@@ -163,7 +163,7 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.integrationVirtualenv",
+          "command": "xsoar.setupIntegrationEnv",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
@@ -205,7 +205,7 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.integrationVirtualenv",
+          "command": "xsoar.setupIntegrationEnv",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
