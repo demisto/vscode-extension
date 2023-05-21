@@ -728,7 +728,6 @@ async function createSettings(
 
   if (changeLinterPath && fs.pathExistsSync(path.join(contentPath, ".venv"))) {
     settings["python.linting.mypyPath"] = `${contentPath}/.venv/bin/mypy`;
-    settings["python.linting.flake8Path"] = `${contentPath}/.venv/bin/flake8`;
     settings[
       "python.formatting.autopep8Path"
     ] = `${contentPath}/.venv/bin/autopep8`;
