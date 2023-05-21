@@ -6,7 +6,7 @@
   "engines": {
     "vscode": "^1.54.0"
   },
-  "publisher": "CortexXSOARext",
+  "publisher": "CortexXSOARExtension",
   "categories": [
     "Linters",
     "Formatters",
