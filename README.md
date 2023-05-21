@@ -11,7 +11,7 @@ You can also use the *XSOAR: Install/Update Demisto-SDK* command.
 
 Commands:
 
-* *XSOAR: Load integration/Script*: Loads an integration or a script to the UI.
+* *XSOAR: Setup integration/script environment*: Setups the environment of integration or a script.
 * *XSOAR: Demisto-SDK Validate/Lint*: Run linters and validators on opened file directory.
 * *XSOAR: Demisto-SDK Update Release Notes*: Update release notes of the opened file's pack.
 * You can also run the commands directry from the explorer menu:  
@@ -27,31 +27,6 @@ If **Homebrew** is available, you can choose to install any of **python**, **poe
 
 ### Remote Environment (All OS)
 Or you can follow [this guide](https://xsoar.pan.dev/docs/tutorials/tut-setup-env) to configure a fully configured remote development environnement, with `demisto-sdk` and more features preinstalled.
-
-### Demisto-SDK Path
-
-The default behavior of the extension when running a demisto-sdk command is to run `demisto-sdk <command>`. You can set a different demisto-sdk path (if you want to run always on the same demisto-sdk or when you're using a tool like pipx). You can set the `xsoar.demisto-sdk.Path` to the demisto-sdk executable.
-
-### Auto Linters
-
-The Cortex XSOAR extension will automatically use the demisto-sdk to lint (code files) and validate (.yml files) your packs.
-
-To turn on auto-linters in your workspace, set the `xsoar.autoFindProblems.readProblems` setting to `true`.
-To control the auto-lints behaviour:  
-
-* `xsoar.linter.[linter-name].enable`: Whether to enable the auto-lint. Default to false.
-
-* `xsoar.linter.[linter-name].patterns`: Which file patterns (glob) to run with the linter.
-
-The linters will write its data to the path configured in `xsoar.autoFindProblems.reportPath`, which is also the file that VSCode takes the problems from.
-
-If you wish to see the process running (or check why it's failing or not working), change `xsoar.linter.showOnSaveTerminal` to `true`.
-
-### Auto Save  
-
-By default, the extension will automatically save changes made to the integration/automation file made in the webview (opened with *XSOAR: Load Integration/Script*).
-to disable it, change `xsoar.autoSave` to `false`.
-
 
 ## Configure XSOAR connection
 
@@ -69,7 +44,7 @@ When working on an integration or a script, you can right click on it, and click
 
 ![Test Explorer](documentation/changelog/0.3.0/Test%20Explorer.png)
 
-If you there is a **Pytest discovery error**, there is a probably missing dependencies. Either install the missing dependencies, or use [python virtual environnement](#python-virtual-environment) instead.
+If you there is a **Pytest discovery error**, there is a probably missing dependencies. Either install the missing dependencies, or use [Setup integration/script environment](#Setup-integration/script-environment) with new workspace instead.
 
 ## Setup integration/script environment
 
@@ -113,7 +88,7 @@ If the `license/cla` status check remains on *Pending*, even though all contribu
 
 * `npm install`
 * `npm run compile`
-* `pip demisto-sdk` or use [pipenv](https://pipenv.pypa.io/en/latest/) to install the demisto-sdk from the Pipfile.
+* `pip demisto-sdk`
 
 ### Main Locations
 
