@@ -591,6 +591,7 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
     )
   if (answer === "New workspace, with virtual environment") {
     newWorkspace = true;
+    shouldCreateVirtualenv = true
   }
   else {
     newWorkspace = false;
