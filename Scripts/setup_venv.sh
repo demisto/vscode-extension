@@ -46,5 +46,6 @@ $pythonPath -m virtualenv -p python"${pythonVersion}" venv
 venv/bin/pip --version || (echo "No pip, check your python"${pythonVersion}" installation" && exit 1)
 
 while read line; do
-    venv/bin/pip install --disable-pip-version-check --no-cache-dir $line || echo "Could not install dependency $line, proceeding"
+    venv/bin/pip install --disable-pip-version-check -q $line || echo "Could not install dependency $line, proceeding"
+    echo "$line installed"
 done < requirements.txt
