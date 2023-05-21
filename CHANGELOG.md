@@ -3,6 +3,8 @@
 # Unreleased
 
 - Removed `flake8` from `settings.json` for `content` and `demisto-sdk` settings..
+- Introduced **Setup integration/script environment** command to setup the environment for the integration/script.
+- Deprecated **Open integration/script in virtual environment** command.
 
 # [0.5.12] (2023-04-24)
 
