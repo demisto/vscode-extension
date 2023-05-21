@@ -552,8 +552,8 @@ async function createLaunchJson(
     launchJson.configurations[0].program = program;
     launchJson.configurations[0].cwd = cwd;
     launchJson.configurations[0].name = `Python: Debug (${filePath.name})`;
-    launchJson.configurations[1].name = `Docker: Debug in docker: (${filePath.name})`;
-    launchJson.configurations[2].name = `Docker: Debug tests in docker: (${filePath.name})`;
+    launchJson.configurations[1].name = `Docker: Debug (${filePath.name})`;
+    launchJson.configurations[2].name = `Docker: Debug tests (${filePath.name})`;
   }
   const launchJsonOutput = path.join(vsCodePath, "launch.json");
   if (!(await fs.pathExists(vsCodePath))) {
