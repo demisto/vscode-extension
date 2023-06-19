@@ -2,15 +2,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Debug Integration",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
-            "justMyCode": false,
-        },
-        {
             "name": "Docker: Debug in docker",
             "type": "docker",
             "request": "launch",
@@ -43,7 +34,27 @@
               "justMyCode": false
       
             }
-        }
+        },
+        {
+          "name": "Python: Debug Integration locally",
+          "type": "python",
+          "request": "launch",
+          "program": "${file}",
+          "console": "integratedTerminal",
+          "cwd": "${workspaceFolder}",
+          "justMyCode": false,
+      },
+      {
+        "name": "Python: Debug Tests",
+        "type": "python",
+        "request": "launch",
+        "program": "${file}",
+        "purpose": ["debug-test"],
+        "console": "integratedTerminal",
+        "justMyCode": false
+      }
+      
+
       
     ]
 }
