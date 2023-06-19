@@ -4,6 +4,7 @@
     "python.testing.pytestArgs": [
         "-v"
     ],
+    "python.analysis.typeCheckingMode": "basic",
     "python.testing.unittestEnabled": false,
     "python.linting.flake8Enabled": false,
     "python.linting.mypyEnabled": true,
