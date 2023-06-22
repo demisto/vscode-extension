@@ -3,7 +3,7 @@
 # Unreleased
 - Set `python.analysis.typeCheckingMode` to `basic` In Content and Demisto-SDK VSCode settings.
 - Set `justMyCode` setting to `false` when running tests, to debug third party code.
-
+- Fixed an issue in **Install XSOAR local development environment** where `pyenv` installation fails.
 # [0.6.0] (2023-05-21)
 - Removed `flake8` from `settings.json` for `content` and `demisto-sdk` settings..
 - Introduced **Setup integration/script environment** command to setup the environment for the integration/script.

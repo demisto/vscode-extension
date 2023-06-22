@@ -9,17 +9,26 @@ if [ -z "$dependencies" ]; then
     exit 0
 fi
 
-if [[ $dependencies == *"python"* ]]; then
-    # If pyenv not already exists in zshrc, add it
-    curl https://pyenv.run | bash || true
-    export PYENV_ROOT="$HOME/.pyenv";
-    export PATH="$PYENV_ROOT/bin":$PATH;
-    eval "$(pyenv init -)"
+if [[ $dependencies == *"python"* ]]; then     
+    PYENV_ROOT="$HOME/.pyenv";
+    PATH="$PYENV_ROOT/bin":$PATH;
+    pyenv_exists=true
+    eval "$(pyenv init -)" || pyenv_exists=false
+    pyenv update || pyenv_exists=false
+
+    if [ "$pyenv_exists" = true ];
+    then
+        echo "pyenv could not be found, installing pyenv"
+        rm -rf $PYENV_ROOT
+        curl https://pyenv.run | bash
+        eval "$(pyenv init -)"
+    fi
+
     # get latest python version from the pyenv list
     # regex for python version 3.10.*
     LATEST_PYTHON=$(pyenv install --list | grep --extended-regexp "^\s*3\.10\.[0-9]{1,2}\s*$" | tail -1 | xargs);
-    pyenv install $LATEST_PYTHON --force
-    pyenv install 2.7.18 --force
+    pyenv install $LATEST_PYTHON
+    pyenv install 2.7.18
     pyenv global $LATEST_PYTHON 2.7.18;
 fi
 
