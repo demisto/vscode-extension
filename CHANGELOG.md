@@ -1,6 +1,8 @@
 # Change Log
 
 # Unreleased
+
+# [0.6.1] (2023-06-22)
 - Set `python.analysis.typeCheckingMode` to `basic` In Content and Demisto-SDK VSCode settings.
 - Set `justMyCode` setting to `false` when running tests, to debug third party code.
 - Fixed an issue in **Install XSOAR local development environment** where `pyenv` installation fails.
