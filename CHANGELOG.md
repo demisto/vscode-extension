@@ -1,6 +1,8 @@
 # Change Log
 
 # Unreleased
+# [0.6.2] (2023-06-28)
+- Fixed an issue with debugging integrations and scripts with `Docker`.
 
 # [0.6.1] (2023-06-22)
 - Set `python.analysis.typeCheckingMode` to `basic` In Content and Demisto-SDK VSCode settings.

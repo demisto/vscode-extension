@@ -549,11 +549,12 @@ async function createLaunchJson(
     );
     launchJson = JSON5.parse(fs.readFileSync(launchJsonPath, "utf-8"));
     const program = path.join(cwd, filePath.name.concat(".py"));
-    launchJson.configurations[0].program = program;
-    launchJson.configurations[0].cwd = cwd;
-    launchJson.configurations[0].name = `Python: Debug (${filePath.name})`;
-    launchJson.configurations[1].name = `Docker: Debug (${filePath.name})`;
-    launchJson.configurations[2].name = `Docker: Debug tests (${filePath.name})`;
+    // The order matters here!
+    launchJson.configurations[0].name = `Docker: Debug (${filePath.name})`;
+    launchJson.configurations[1].name = `Docker: Debug tests (${filePath.name})`;
+    launchJson.configurations[2].name = `Python: Debug locally (${filePath.name})`;
+    launchJson.configurations[2].program = program;
+    launchJson.configurations[2].cwd = cwd;
   }
   const launchJsonOutput = path.join(vsCodePath, "launch.json");
   if (!(await fs.pathExists(vsCodePath))) {
