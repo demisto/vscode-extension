@@ -12,18 +12,22 @@ import { getContentPath } from "./tools";
 
 function getTestDockerImage(dirPath: string, dockerImage: string): string {
   try {
-    return execSync(
+    const testDockerImage = execSync(
       `docker images --format "{{.Repository}}:{{.Tag}}" | grep ${dockerImage.replace("demisto", "devtestdemisto")} | head -1`,
       { cwd: dirPath }
     )
       .toString()
       .trim();
+    if (!testDockerImage) {
+      throw new Error();
+    }
   }
   catch (err) {
     Logger.error("Test Docker image not found, exiting");
     vscode.window.showErrorMessage("Docker image not found, exiting");
     throw err;
   }
+
 }
 
 async function addPythonPath(): Promise<void> {
