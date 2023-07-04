@@ -79,6 +79,7 @@ export async function installDemistoSDKPoetry(): Promise<void> {
     }
     else {
         TerminalManager.sendText(['cd', contentPath])
+        TerminalManager.sendText(['deactivate'])
         TerminalManager.sendText(['poetry', 'install'])
     }
 }
