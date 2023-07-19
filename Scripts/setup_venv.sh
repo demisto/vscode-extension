@@ -2,27 +2,50 @@
 
 set -e
 
-dockerImage=$1
+# This is to take python2 from pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin":"/opt/homebrew/bin":"$PATH"
+eval "$(pyenv init -)" || echo "No pyenv, procceding without"
+
+testDockerImage=$1
 name=$2
 dirPath=$3
-extraReqs=$4
-pythonPath=$5
+pythonPath=$4
+
+# workaround to support M1
+export PATH=/opt/homebrew/bin:$PATH
 
 cd "$dirPath"
-testImage=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep devtest"$dockerImage" | head -1)
-echo "Using test image env: $testImage"
-docker rm -f "${name}" || true
-pythonVersion=$(docker run --name ${name} ${testImage} "python -c 'import sys; print(sys.version_info[0])'")
+# removing compiled and cached files
+rm -rf *.pyc
+rm -rf __pycache__
+rm -rf .mypy_cache
+rm -rf .pytest_cache
+
+# Getting the test image
+echo "Using test image env: $testDockerImage"
+docker rm -f "${name}" &> /dev/null || true
+pythonVersion=$(docker run --name ${name} ${testDockerImage} "python -c 'import sys; print(sys.version_info[0])'")
 echo "Using python version: $pythonVersion"
 docker rm -f "${name}" || true
-docker run --name "${name}" "$testImage" 'pip list --format=freeze > /requirements.txt'
+docker run --name "${name}" "$testDockerImage" 'pip list --format=freeze > /requirements.txt'
 docker cp "${name}":/requirements.txt .
 docker rm -f "${name}" || true
-source "${pythonPath}"/activate || true
 
-python -m virtualenv -p python"${pythonVersion}" "${dirPath}"/venv
-cat requirements.txt | xargs -n 1 "${dirPath}"/venv/bin/pip install --disable-pip-version-check
-"${dirPath}"/venv/bin/pip install autopep8 --disable-pip-version-check
-if [ "${pythonVersion}" = "3" ]; then
-    "${dirPath}"/venv/bin/pip install -r "$extraReqs" --disable-pip-version-check
+
+
+# check if virtualenv module is installed
+isVirtualEnvInstalled=true
+$pythonPath -m virtualenv --version > /dev/null 2>&1 || isVirtualEnvInstalled=false
+if [ "$isVirtualEnvInstalled" = "false" ]; then
+    $pythonPath -m pip install virtualenv
 fi
+
+$pythonPath -m virtualenv -p python"${pythonVersion}" venv
+
+venv/bin/pip --version || (echo "No pip, check your python"${pythonVersion}" installation" && exit 1)
+
+while read line; do
+    venv/bin/pip install --disable-pip-version-check -q $line || echo "Could not install dependency $line, proceeding"
+    echo "$line installed"
+done < requirements.txt

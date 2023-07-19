@@ -59,8 +59,11 @@ export function lintUsingGit(file: string): void {
 	TerminalManager.sendDemistoSDKCommand(command);
 
 }
-export async function lint(file: string, tests = true, lints = true, progress = false): Promise<void> {
-	const command = ['lint', '-i', file, '-j', tools.getReportPath(file)];
+export async function lint(file: string, tests = true, lints = true, report = true, progress = false): Promise<void> {
+	const command = ['lint', '-i', file];
+	if (report){
+		command.push('-j', tools.getReportPath(file));
+	}
 	if (!tests) {
 		command.push('--no-test', '--no-pwsh-test')
 	}
@@ -68,7 +71,11 @@ export async function lint(file: string, tests = true, lints = true, progress = 
 		command.push('--no-flake8', '--no-mypy', '--no-bandit', '--no-xsoar-linter', '--no-vulture', '--no-pylint', '--no-pwsh-analyze')
 	}
 	if (progress) {
-		await TerminalManager.sendDemistoSdkCommandWithProgress(command)
+		const isSuccess = await TerminalManager.sendDemistoSdkCommandWithProgress(command)
+		if (!isSuccess){
+			await tools.isDemistoSDKinstalled()
+			throw new Error('Demisto-SDK lint failed')
+		}
 	}
 	else {
 		TerminalManager.sendDemistoSDKCommand(command);
@@ -324,6 +331,74 @@ export async function run(dirPath: string): Promise<void> {
 	})
 }
 
+
+export async function init(): Promise<void> {
+	const command = ['init'];
+	const contentItem = await vscode.window.showQuickPick(['Integration', 'Script', 'Pack', 'Cancel'],
+		{ placeHolder: 'Select the content item you would like to init' })
+
+	if (contentItem === 'Integration') {
+		command.push('--integration');
+	}
+	else if (contentItem === 'Script') {
+		command.push('--script')
+	}
+	else if (contentItem === 'Pack') {
+		command.push('--pack');
+	}
+	else {
+		vscode.window.showInformationMessage('Demisto-SDK init cancelled');
+		return;
+	}
+	const name = await vscode.window.showInputBox({ placeHolder: "Choose the name of the content item." })
+	if (name) {
+		command.push('--name');
+		command.push(name)
+	}
+	else {
+		vscode.window.showInformationMessage('Demisto-SDK init cancelled');
+		return
+	}
+
+	await vscode.window.showQuickPick(['Use current working directory', 'Select output directory'], { placeHolder: 'Select output option' }).then(async (answer) => {
+		if (answer === 'Select output directory') {
+			await vscode.window.showOpenDialog({
+				"canSelectMany": false,
+				"openLabel": "Select the path to the content item.",
+				canSelectFiles: false,
+				canSelectFolders: true
+			}).then(answer => {
+				if (answer) {
+					command.push('--output');
+					command.push(answer[0].fsPath)
+				}
+			})
+		}
+	})
+	if (contentItem == 'Integration') {
+		await vscode.window.showQuickPick(['default', 'HelloWorld', 'HelloIAMWorld', 'FeedHelloWorld'],
+			{ placeHolder: 'Choose the integration template.' }).then(answer => {
+				if (answer && answer !== 'default') {
+					command.push('--template');
+					command.push(answer)
+				}
+			})
+	}
+
+	if (contentItem === 'Script'){
+		await vscode.window.showQuickPick(['default', 'HelloWorldScript'],
+			{ placeHolder: 'Choose the integration template.' }).then(answer => {
+				if (answer && answer !== 'default') {
+					command.push('--template');
+					command.push(answer)
+				}
+			})
+
+	}
+	vscode.window.showInformationMessage('Proceed with VSCode integrated terminal')
+	TerminalManager.sendDemistoSDKCommand(command);
+
+}
 
 interface demistoSDKReport {
 	"filePath": string,

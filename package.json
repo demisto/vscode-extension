@@ -2,7 +2,7 @@
   "name": "xsoar",
   "displayName": "Cortex XSOAR",
   "description": "Build, Format, and Validate Cortex XSOAR with ease.",
-  "version": "0.3.8",
+  "version": "0.6.2",
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -56,12 +56,7 @@
       },
       {
         "command": "xsoar.lint",
-        "title": "Demisto-SDK Lint (With Tests)",
-        "category": "XSOAR"
-      },
-      {
-        "command": "xsoar.lintNoTests",
-        "title": "Demisto-SDK Lint (Without Tests)",
+        "title": "Demisto-SDK Lint",
         "category": "XSOAR"
       },
       {
@@ -106,18 +101,38 @@
         "category": "XSOAR"
       },
       {
+        "command": "xsoar.setupIntegrationEnv",
+        "title": "Setup integration/script environment (recommended)",
+        "category": "XSOAR"
+      },
+      {
         "command": "xsoar.integrationContainer",
         "title": "Open integration/script in Dev Container (advanced)",
         "category": "XSOAR"
       },
       {
-        "command": "xsoar.integrationVirtualenv",
-        "title": "Open integration/script in virtual environment (recommended)",
+        "command": "xsoar.configureTests",
+        "title": "Configure XSOAR unit tests",
         "category": "XSOAR"
       },
       {
-        "command": "xsoar.configureTests",
-        "title": "Configure XSOAR unit tests",
+        "command": "xsoar.installDevEnv",
+        "title": "Install XSOAR local development environment",
+        "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.configureXSOAR",
+        "title": "Configure XSOAR connection",
+        "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.init",
+        "title": "Demisto-SDK Init (create new content item)",
+        "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.developDemistoSDK",
+        "title": "Develop and Debug Demisto-SDK",
         "category": "XSOAR"
       }
     ],
@@ -128,10 +143,6 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.lintNoTests",
-          "when": "resourcePath =~ /.*Packs/|\\.+/"
-        },
-        {
           "command": "xsoar.lint",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
@@ -156,11 +167,19 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.integrationVirtualenv",
+          "command": "xsoar.setupIntegrationEnv",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
           "command": "xsoar.configureTests",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.installDevEnv",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.configureXSOAR",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ],
@@ -170,10 +189,6 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.lintNoTests",
-          "when": "resourcePath =~ /.*Packs/|\\.+/"
-        },
-        {
           "command": "xsoar.lint",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
@@ -198,11 +213,19 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.integrationVirtualenv",
+          "command": "xsoar.setupIntegrationEnv",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
           "command": "xsoar.configureTests",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.installDevEnv",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.configureXSOAR",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ]
@@ -301,6 +324,7 @@
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {
+    "envfile": "^6.17.0",
     "fs-extra": "^10.0.1",
     "glob": "^7.1.6",
     "json5": "^2.2.1",

@@ -6,28 +6,20 @@
 			"IMAGENAME": ""
 		}
 	},
-	"containerUser": "demisto",
-	"settings": { 
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
-        "python.linting.enabled": true,
-        "python.linting.flake8Enabled": true,
-        "python.linting.mypyEnabled": true,
-		"python.linting.mypyArgs": [
-			"--follow-imports=silent",
-			"--ignore-missing-imports",
-			"--show-column-numbers",
-			"--no-pretty",
-			"--allow-redefinition"
-		],
-        "python.testing.cwd": "${containerWorkspaceFolder}",
-        "python.testing.pytestEnabled": true
+	"remoteEnv": {
+		"MYPYPATH": "/workspaces/content/Packs/Base/Scripts/CommonServerPython:${containerEnv:MYPYPATH}",
+		"PYTHONPATH": "/workspaces/content/Packs/Base/Scripts/CommonServerPython:${containerEnv:PYTHONPATH}"
 
 	},
+	"containerUser": "demisto",
 	"extensions": [
 		"ms-python.python",
-		"ms-python.vscode-pylance",
 		"ms-vscode.PowerShell",
-		"cortexxsoarext.xsoar"
+		"cortexxsoarext.xsoar",
+		"eamodio.gitlens",
+		"GitHub.vscode-pull-request-github",
+		"njpwerner.autodocstring",
+		"streetsidesoftware.code-spell-checker",
+		"littlefoxteam.vscode-python-test-adapter"
 	]
-
 }

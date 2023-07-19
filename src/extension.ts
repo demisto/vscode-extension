@@ -10,7 +10,7 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
-import { openIntegrationDevContainer, openInVirtualenv } from './devEnvs';
+import { openIntegrationDevContainer, setupIntegrationEnv, installDevEnv as installDevEnv, configureDemistoVars, developDemistoSDK } from './devEnvs';
 import JSON5 from 'json5'
 
 // this function returns the directory path of the file
@@ -29,18 +29,28 @@ export function activate(context: vscode.ExtensionContext): void {
 	const diagnosticCollection = vscode.languages.createDiagnosticCollection('XSOAR problems');
 	context.subscriptions.push(diagnosticCollection);
 	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.init', dsdk.init)
+	)
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.installDevEnv', installDevEnv)
+	)
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.configureXSOAR', configureDemistoVars)
+	)
+
+	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.integrationContainer', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)
 			openIntegrationDevContainer(fileToRun)
 		})
 	)
-
-	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.integrationVirtualenv', (file: vscode.Uri | undefined) => {
-			const fileToRun = getDirPath(file)
-			openInVirtualenv(fileToRun)
-		})
-	)
+	context.subscriptions.push(vscode.commands.registerCommand('xsoar.developDemistoSDK', developDemistoSDK)),
+		context.subscriptions.push(
+			vscode.commands.registerCommand('xsoar.setupIntegrationEnv', (file: vscode.Uri | undefined) => {
+				const fileToRun = getDirPath(file)
+				setupIntegrationEnv(fileToRun)
+			})
+		)
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.configureTests', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)
@@ -64,22 +74,21 @@ export function activate(context: vscode.ExtensionContext): void {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.upload', (file: vscode.Uri | undefined) => {
-			const fileToRun = getDirPath(file)
+			const fileToRun = getPathFromContext(file) // here we want to use the actual file, not directory!
 			dsdk.uploadToXSOAR(fileToRun)
 		})
 	);
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.lint', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)
-			dsdk.lint(fileToRun)
-		})
-	);
-	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.lintNoTests', (file: vscode.Uri | undefined) => {
-			const fileToRun = getDirPath(file)
-			dsdk.lint(fileToRun, false)
-		})
-	);
+			vscode.window.showQuickPick(['With tests', 'Without tests'], { placeHolder: 'Lint with tests?' }).then(option => {
+				if (option === 'With tests') {
+					dsdk.lint(fileToRun, true)
+				} else {
+					dsdk.lint(fileToRun, false)
+				}
+			})
+		}))
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.lintUsingGit', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)
@@ -267,13 +276,13 @@ function loadScript(filePath: string): AutomationI {
 }
 
 function configureTests(dirPath: string) {
-	const workspaceFolders = vscode.workspace.workspaceFolders
-	if (!workspaceFolders) {
+	const contentPath = tools.getContentPath()
+	if (!contentPath) {
+		vscode.window.showErrorMessage('Please run this command from Content repository.')
 		return
 	}
-	const workspaceFolder = workspaceFolders[0]
 	// read settings file
-	const settingsPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'settings.json')
+	const settingsPath = path.join(contentPath, '.vscode', 'settings.json')
 	let settings
 	if (!fs.existsSync(settingsPath)) {
 		fs.writeJSONSync(settingsPath, {})

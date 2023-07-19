@@ -4,6 +4,8 @@ import * as vscode from "vscode";
 import { DiagnosticCollection } from "vscode";
 import * as yaml from "yaml";
 import { AutomationI, IntegrationI } from './contentObject';
+import * as fs from "fs-extra";
+import { Logger } from './logger';
 import { TerminalManager } from './terminalManager';
 
 export function sendCommandExtraArgsWithUserInput(command: string[]): void {
@@ -19,6 +21,20 @@ export function sendCommandExtraArgsWithUserInput(command: string[]): void {
     });
 }
 
+export function getContentPath(): string | undefined {
+    const workspaces = vscode.workspace.workspaceFolders
+    if (!workspaces) {
+        return
+    }
+    for (const workspace of workspaces) {
+        const path = workspace.uri.fsPath
+        if (path.includes('content')) {
+            return path;
+        }
+    }
+    return
+}
+
 export function getPythonpath(): string {
     let sdkPath = <string>vscode.workspace.getConfiguration('xsoar').get('demisto-sdk.pythonPath')
     if (!sdkPath) {
@@ -31,12 +47,52 @@ export function getPythonpath(): string {
 }
 
 export function getSDKPath(): string {
-    const sdkPath = <string>vscode.workspace.getConfiguration('xsoar').get('demisto-sdk.Path')
-    return sdkPath
+    const sdkPath = `${getContentPath()}/.venv/bin/demisto-sdk`
+    if (fs.existsSync(sdkPath)) {
+        return sdkPath
+    }
+    return 'demisto-sdk'
 }
 
 export async function installDemistoSDK(): Promise<void> {
-    TerminalManager.sendText([getPythonpath(), '-m', 'pip', 'install', 'demisto-sdk', '--upgrade']);
+    vscode.window.showQuickPick(['Poetry', 'Pip'], {
+        title: 'Install Demisto SDK with Poetry or with Pip?',
+        placeHolder: 'Poetry is recommended'
+    }).then(answer => {
+        if (answer === 'Poetry') {
+            installDemistoSDKPoetry()
+        }
+        else if (answer == 'Local') {
+            installDemistoSDKPip()
+        }
+    })
+}
+
+export async function installDemistoSDKPip(): Promise<void> {
+    TerminalManager.sendText(['pip', 'install', 'demisto-sdk', '--upgrade']);
+}
+
+export async function installDemistoSDKPoetry(): Promise<void> {
+    const contentPath = getContentPath()
+    if (!contentPath) {
+        TerminalManager.sendText(['pip', 'install', 'demisto-sdk', '--upgrade']);
+    }
+    else {
+        TerminalManager.sendText(['cd', contentPath])
+        TerminalManager.sendText(['deactivate'])
+        TerminalManager.sendText(['poetry', 'install'])
+    }
+}
+
+export async function isDemistoSDKinstalled(): Promise<boolean> {
+    const isSDKInstalled = await TerminalManager.sendDemistoSdkCommandWithProgress(['--version']);
+    if (isSDKInstalled) {
+        return true
+    }
+    Logger.error('demisto-sdk is not installed')
+    await installDemistoSDKPoetry()
+    await new Promise(resolve => setTimeout(resolve, 15000))
+    return TerminalManager.sendDemistoSdkCommandWithProgress(['--version'])
 }
 
 export function publishDiagnostics(
