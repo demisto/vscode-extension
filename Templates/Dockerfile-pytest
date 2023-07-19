@@ -1,4 +1,0 @@
-ARG IMAGENAME
-FROM ${IMAGENAME}
-RUN pip install -U pytest
-
