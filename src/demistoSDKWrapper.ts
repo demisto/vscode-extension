@@ -7,6 +7,7 @@ import minimatch = require('minimatch');
 
 import { TerminalManager } from './terminalManager';
 import { Logger } from './logger';
+import { writeJSONSync } from 'fs-extra';
 export function updateReleaseNotesCommand(file: string): void {
 
 	const regs = new RegExp('Packs/[^/]*');  // TODO: Bug - Won't work in windows. 
@@ -61,7 +62,7 @@ export function lintUsingGit(file: string): void {
 }
 export async function lint(file: string, tests = true, lints = true, report = true, progress = false): Promise<void> {
 	const command = ['lint', '-i', file];
-	if (report){
+	if (report) {
 		command.push('-j', tools.getReportPath(file));
 	}
 	if (!tests) {
@@ -72,7 +73,7 @@ export async function lint(file: string, tests = true, lints = true, report = tr
 	}
 	if (progress) {
 		const isSuccess = await TerminalManager.sendDemistoSdkCommandWithProgress(command)
-		if (!isSuccess){
+		if (!isSuccess) {
 			await tools.isDemistoSDKinstalled()
 			throw new Error('Demisto-SDK lint failed')
 		}
@@ -97,6 +98,21 @@ interface Command {
 	name: string
 	description: string
 	arguments: Argumnet[]
+}
+
+function getDebuggingConfiguration(configNmae: string): vscode.DebugConfiguration {
+	const launchConfig = vscode.workspace.getConfiguration('launch').get<vscode.DebugConfiguration[]>(`configurations`)
+				
+	if (!launchConfig || !Array.isArray(launchConfig)){
+		vscode.window.showErrorMessage("Please run Setup integration env command")
+		throw new Error
+	}
+	
+	const debugConfig = launchConfig.find((config: vscode.DebugConfiguration) => config.name == `Docker: Debug (${configNmae})`)
+	if (!debugConfig){
+		throw new Error()
+	}
+	return debugConfig
 }
 
 function quickPickItemForCommands(_list: Command[]): vscode.QuickPickItem[] {
@@ -165,12 +181,19 @@ function runCommand(query: Map<string, string>) {
 	}
 }
 
-async function showCommandsOrArguments(commandNames: vscode.QuickPickItem[]): Promise<vscode.QuickPickItem | undefined> {
+async function showCommandsOrArguments(commandNames: vscode.QuickPickItem[], runOrDebug: string): Promise<vscode.QuickPickItem | undefined> {
 
+	let placeHolder: string;
+	if (runOrDebug == "DEBUG") {
+		placeHolder = "The command to debug in IDE"
+	}
+	else {
+		placeHolder = "The command to run with XSOAR"
+	}
 	const commandName = await vscode.window.showQuickPick(
 		commandNames, {
 		title: "Choose your command",
-		placeHolder: "The command to run with XSOAR"
+		placeHolder: placeHolder
 	}
 	)
 	return commandName
@@ -178,10 +201,10 @@ async function showCommandsOrArguments(commandNames: vscode.QuickPickItem[]): Pr
 }
 
 async function argsManagment(argumentNames: vscode.QuickPickItem[], args: Argumnet[], argsRequired: string[],
-	query: Map<string, string>): Promise<[Map<string, string>, boolean]> {
+	query: Map<string, string>, runOrDebug: string): Promise<[Map<string, string>, boolean]> {
 
 	let flag = false
-	return await showCommandsOrArguments(argumentNames).then(async (arg) => {
+	return await showCommandsOrArguments(argumentNames, runOrDebug).then(async (arg) => {
 		if (arg && arg.label != "Run command") {
 			const argument = args.find(x => x.name == arg.label)
 			if (argument?.predefined) {
@@ -248,15 +271,16 @@ async function argsManagment(argumentNames: vscode.QuickPickItem[], args: Argumn
 	}).then(() => { return [query, flag] })
 }
 
-async function runIntegration(ymlObject: any): Promise<Map<string, string>> {
+async function runIntegration(ymlObject: any, runOrDebug: string): Promise<Map<string, string>> {
 	// Map for query the command
 	const query: Map<string, string> = new Map<string, string>()
+
 	// Map contain all of the integration's commands
 	const commandNames: vscode.QuickPickItem[] | undefined = quickPickItemForCommands(ymlObject.script.commands)
 	const commands: Map<string, Command> = new Map<string, Command>()
 	ymlObject.script.commands.forEach((command: Command) => { commands.set(command.name, command) })
 
-	return await showCommandsOrArguments(commandNames).then(async (commandName) => {
+	return await showCommandsOrArguments(commandNames, runOrDebug).then(async (commandName) => {
 		if (commandName) {
 			const command = commands.get(commandName.label)
 			if (command) {
@@ -266,7 +290,7 @@ async function runIntegration(ymlObject: any): Promise<Map<string, string>> {
 					argumentNames.unshift({ label: "Run command", detail: "After you've finished filling in the arguments, or no arguments have been consumed" })
 					let flag = true
 					while (flag == true) {
-						await argsManagment(argumentNames, command.arguments, argsRequired, query).then(async ([queryForRun, ForRun]) => {
+						await argsManagment(argumentNames, command.arguments, argsRequired, query, runOrDebug).then(async ([queryForRun, ForRun]) => {
 							if (ForRun == true) {
 								flag = false
 								console.log(`${queryForRun}`)
@@ -279,7 +303,7 @@ async function runIntegration(ymlObject: any): Promise<Map<string, string>> {
 	}).then(() => { return query })
 }
 
-async function runScript(ymlObject: any): Promise<Map<string, string>> {
+async function runScript(ymlObject: any, runOrDebug: string): Promise<Map<string, string>> {
 	const query: Map<string, string> = new Map<string, string>()
 	const [argumentNames, argsRequired] = QuickPickItemForArgs(ymlObject.args)
 	query.set('cmd', ymlObject.name)
@@ -288,7 +312,7 @@ async function runScript(ymlObject: any): Promise<Map<string, string>> {
 	let flag = true
 	const a = async () => {
 		while (flag == true) {
-			await argsManagment(argumentNames, ymlObject.args, argsRequired, query).then(async ([queryForRun, ForRun]) => {
+			await argsManagment(argumentNames, ymlObject.args, argsRequired, query, runOrDebug).then(async ([queryForRun, ForRun]) => {
 				if (ForRun == true) {
 					flag = false
 					console.log(`${queryForRun}`)
@@ -304,31 +328,57 @@ async function runScript(ymlObject: any): Promise<Map<string, string>> {
 
 
 export async function run(dirPath: string): Promise<void> {
+	const command = await vscode.window.showInformationMessage('do you want debug a local or run to XSOR?', { modal: true }, 'DEBUG', 'RUN')
+	if (command === undefined) {
+		return
+	}
 
-	return await vscode.window.showInformationMessage('Do you want uploading before running?', { modal: true }, 'YES', 'NO').then(async (upload) => {
-		if (upload === undefined){
-			return
-		}
-		else if (upload) {
-			if (upload === 'YES') {
-				await uploadToXSOAR(dirPath, true)
+	if (command === "RUN") {
+		await vscode.window.showInformationMessage('Do you want uploading before running?', { modal: true }, 'YES', 'NO').then(async (upload) => {
+			if (upload === undefined) {
+				return
+			}
+			else if (upload) {
+				if (upload === 'YES') {
+					await uploadToXSOAR(dirPath, true)
+				}
 			}
 		}
-	}).then(async () => {
+	)}
+
+	const runAndDebug = async () => {
 		const filePath = path.parse(dirPath)
 		const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
 		const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON()
+
 		let queryMap: Map<string, string>
 		if ("configuration" in ymlObject) {
-			queryMap = await runIntegration(ymlObject)
+			queryMap = await runIntegration(ymlObject, command)
 		}
 		else {
-			queryMap = await runScript(ymlObject)
+			queryMap = await runScript(ymlObject, command)
+		}
+		if (queryMap.size === 0) {
+			return
 		}
 		if (queryMap) {
-			runCommand(queryMap)
+			if (command == "DEBUG") {
+				writeJSONSync(
+					path.join(dirPath, ".args_command.json"),
+					Object.fromEntries(queryMap),
+					{ spaces: 4 }
+				)
+				
+				const debugConfig = getDebuggingConfiguration(filePath.name)
+
+				vscode.debug.startDebugging(tools.getContentWorkspace(), debugConfig)
+			}
+			else if (command == "RUN") {
+				runCommand(queryMap)
+			}
 		}
-	})
+	}
+	await runAndDebug()
 }
 
 
@@ -385,7 +435,7 @@ export async function init(): Promise<void> {
 			})
 	}
 
-	if (contentItem === 'Script'){
+	if (contentItem === 'Script') {
 		await vscode.window.showQuickPick(['default', 'HelloWorldScript'],
 			{ placeHolder: 'Choose the integration template.' }).then(answer => {
 				if (answer && answer !== 'default') {

@@ -6,6 +6,7 @@
 		"outDir": "out",
 		"lib": [
 			"es6",
+			"es2019",
 			"ES2021.String"
 		],
 		"sourceMap": true,
