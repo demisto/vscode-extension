@@ -148,7 +148,6 @@ export async function installDevEnv(): Promise<void> {
   );
   // sleep for 3 seconds to let the windows load
   await new Promise((resolve) => setTimeout(resolve, 3000));
-  vscode.debug.startDebugging()
   vscode.commands.executeCommand(
     "workbench.extensions.action.installWorkspaceRecommendedExtensions",
     true
