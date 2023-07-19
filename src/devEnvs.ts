@@ -21,6 +21,7 @@ function getTestDockerImage(dirPath: string, dockerImage: string): string {
     if (!testDockerImage) {
       throw new Error();
     }
+    return testDockerImage;
   }
   catch (err) {
     Logger.error("Test Docker image not found, exiting");
