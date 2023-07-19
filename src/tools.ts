@@ -21,6 +21,21 @@ export function sendCommandExtraArgsWithUserInput(command: string[]): void {
     });
 }
 
+export function getContentWorkspace(): vscode.WorkspaceFolder | undefined {
+    const workspaces = vscode.workspace.workspaceFolders
+    if (!workspaces) {
+        return
+    }
+    for (const workspace of workspaces) {
+        const path = workspace.uri.fsPath
+        if (path.includes('content')) {
+            return workspace;
+        }
+    }
+    return
+}
+
+
 export function getContentPath(): string | undefined {
     const workspaces = vscode.workspace.workspaceFolders
     if (!workspaces) {

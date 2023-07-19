@@ -65,7 +65,12 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand('xsoar.loadScript', loadScriptYAML(context.extensionUri))
 	);
 
-	context.subscriptions.push(vscode.commands.registerCommand('xsoar.run', dsdk.run));
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.run', (file: vscode.Uri | undefined) => {
+			const fileToRun = getDirPath(file)
+			dsdk.run(fileToRun)
+		})
+	);
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.upload', (file: vscode.Uri | undefined) => {
