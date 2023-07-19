@@ -100,17 +100,18 @@ interface Command {
 	arguments: Argumnet[]
 }
 
-function getDebuggingConfiguration(configNmae: string): vscode.DebugConfiguration {
-	const launchConfig = vscode.workspace.getConfiguration('launch').get<vscode.DebugConfiguration[]>(`configurations`)
+function getDebuggingConfiguration(workspaceFolder: vscode.WorkspaceFolder, configName: string): vscode.DebugConfiguration {
+	const launchConfig = vscode.workspace.getConfiguration('launch', workspaceFolder).get<vscode.DebugConfiguration[]>(`configurations`)
 				
 	if (!launchConfig || !Array.isArray(launchConfig)){
 		vscode.window.showErrorMessage("Please run Setup integration env command")
 		throw new Error
 	}
 	
-	const debugConfig = launchConfig.find((config: vscode.DebugConfiguration) => config.name == `Docker: Debug (${configNmae})`)
+	const debugConfig = launchConfig.find((config: vscode.DebugConfiguration) => config.name == configName)
 	if (!debugConfig){
-		throw new Error()
+		vscode.window.showErrorMessage("Debug configuration was not found. Please run Setup integration env command")
+		throw new Error
 	}
 	return debugConfig
 }
@@ -328,13 +329,13 @@ async function runScript(ymlObject: any, runOrDebug: string): Promise<Map<string
 
 
 export async function run(dirPath: string): Promise<void> {
-	const command = await vscode.window.showInformationMessage('do you want debug a local or run to XSOR?', { modal: true }, 'DEBUG', 'RUN')
+	const command = await vscode.window.showInformationMessage('do you want debug a local or run to XSOR?', 'DEBUG', 'RUN')
 	if (command === undefined) {
 		return
 	}
 
 	if (command === "RUN") {
-		await vscode.window.showInformationMessage('Do you want uploading before running?', { modal: true }, 'YES', 'NO').then(async (upload) => {
+		await vscode.window.showInformationMessage('Do you want uploading before running?', 'YES', 'NO').then(async (upload) => {
 			if (upload === undefined) {
 				return
 			}
@@ -368,8 +369,12 @@ export async function run(dirPath: string): Promise<void> {
 					Object.fromEntries(queryMap),
 					{ spaces: 4 }
 				)
-				
-				const debugConfig = getDebuggingConfiguration(filePath.name)
+				const contentWorkspace = tools.getContentWorkspace()
+				if (!contentWorkspace) {
+					vscode.window.showErrorMessage("Could not find content workspace")
+					return
+				}
+				const debugConfig = getDebuggingConfiguration(contentWorkspace, `Docker: Debug (${filePath.name})`)
 
 				vscode.debug.startDebugging(tools.getContentWorkspace(), debugConfig)
 			}
