@@ -561,14 +561,13 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
   }
 
   if (newWorkspace && await fs.pathExists(virutalEnvPath)) {
-    //show input dialog if create virtualenv
     Logger.info("Virtualenv exists.");
     vsCodePath = path.join(packDir, ".vscode");
     await vscode.window
       .showQuickPick(
         ["Open existing virtual environment", "Create new virtual environment"],
         {
-          title: `Found virtual environemnt in ${filePath.name}`,
+          title: `Found virtual environment in ${filePath.name}`,
           placeHolder: "Creating virtual environment can take few minutes",
         }
       )
@@ -588,7 +587,12 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
       "Creating virtual environment. Might take a few minutes."
     );
   }
-  await dsdk.setupIntegrationEnv(dirPath, shouldCreateVirtualenv, shouldOverwriteVirtualenv);
+  // check if GCP is set
+  let secretId: string | undefined;
+  if (process.env.DEMISTO_GCP_PROJECT_ID) {
+    secretId = await vscode.window.showInputBox({title: "Do you want to fetch a custom secret from GCP?", placeHolder: "Enter secret name, leave blank to skip"})
+  }
+  await dsdk.setupIntegrationEnv(dirPath, shouldCreateVirtualenv, shouldOverwriteVirtualenv, secretId);
   
   if (newWorkspace) {
     const workspace = {

@@ -584,7 +584,7 @@ export async function backgroundValidate(document: vscode.TextDocument, showTerm
 
 }
 
-export async function setupIntegrationEnv(dirPath: string, createVirtualenv: boolean, overwriteVirtualenv: boolean): Promise<void> {
+export async function setupIntegrationEnv(dirPath: string, createVirtualenv: boolean, overwriteVirtualenv: boolean, secretId?: string): Promise<void> {
 	const contentPath = tools.getContentPath()
 	if (!contentPath) {
 		vscode.window.showErrorMessage('Could not find content path');
@@ -600,6 +600,9 @@ export async function setupIntegrationEnv(dirPath: string, createVirtualenv: boo
 	}
 	if (overwriteVirtualenv) {
 		command.push('--overwrite-virtualenv')
+	}
+	if (secretId) {
+		command.push('--secret-id', secretId)
 	}
 	await TerminalManager.sendDemistoSdkCommandWithProgress(command)
 
