@@ -97,7 +97,7 @@
       },
       {
         "command": "xsoar.run",
-        "title": "Run and Debug Command",
+        "title": "Run and Debug",
         "category": "XSOAR"
       },
       {
