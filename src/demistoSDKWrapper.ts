@@ -329,7 +329,7 @@ async function runScript(ymlObject: any, runOrDebug: string): Promise<Map<string
 
 
 export async function run(dirPath: string): Promise<void> {
-	const command = await vscode.window.showQuickPick(['DEBUG', 'RUN'], {title: 'do you want debug a local or run in XSOAR?')
+	const command = await vscode.window.showQuickPick(['DEBUG', 'RUN'], {title: 'do you want debug a local or run in XSOAR?'})
 	if (command === undefined) {
 		return
 	}
