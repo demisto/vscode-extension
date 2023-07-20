@@ -604,6 +604,9 @@ export async function setupIntegrationEnv(dirPath: string, createVirtualenv: boo
 	if (secretId) {
 		command.push('--secret-id', secretId)
 	}
-	await TerminalManager.sendDemistoSdkCommandWithProgress(command)
-
+	const isSuccess = await TerminalManager.sendDemistoSdkCommandWithProgress(command)
+	if (!isSuccess){
+		vscode.window.showErrorMessage('Demisto-SDK setup-env failed')
+		throw new Error('Demisto-SDK setup-env failed')
+	}
 }

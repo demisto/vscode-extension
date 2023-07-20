@@ -538,6 +538,10 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
   
   Logger.info(`Setting up integration env in ${dirPath}`);
   const filePath = path.parse(dirPath);
+  if (!("Integrations" in filePath) || !("Scripts" in filePath)) {
+    vscode.window.showErrorMessage("Please run this from an integration or script directory");
+    return
+  }
   const packDir = path.resolve(path.join(dirPath, "..", ".."));
   let newWorkspace;
   let shouldCreateVirtualenv = false;
