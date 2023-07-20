@@ -84,7 +84,7 @@ export async function lint(file: string, tests = true, lints = true, report = tr
 }
 
 /*************************** 
-	  RUN   COMMMAND
+	  RUN   COMMAND
 ****************************/
 
 interface Argumnet {
