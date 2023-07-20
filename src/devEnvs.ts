@@ -538,10 +538,10 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
   
   Logger.info(`Setting up integration env in ${dirPath}`);
   const filePath = path.parse(dirPath);
-  if (!("Integrations" in filePath) || !("Scripts" in filePath)) {
-    vscode.window.showErrorMessage("Please run this from an integration or script directory");
-    return
-  }
+  // if (!(dirPath.includes("Integrations")) && !(dirPath.includes("Scripts"))) {
+  //   vscode.window.showErrorMessage("Please run this from an integration or script directory");
+  //   return
+  // }
   const packDir = path.resolve(path.join(dirPath, "..", ".."));
   let newWorkspace;
   let shouldCreateVirtualenv = false;
@@ -593,10 +593,13 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
   }
   // check if GCP is set
   let secretId: string | undefined;
+  let instanceName: string | undefined;
   if (process.env.DEMISTO_GCP_PROJECT_ID) {
     secretId = await vscode.window.showInputBox({title: "Do you want to fetch a custom secret from GCP?", placeHolder: "Enter secret name, leave blank to skip"})
+  
+    instanceName = await vscode.window.showInputBox({title: "Enter the instance name if you want to create an instance in XSOAR/XSIAM", placeHolder: "Leave blank to skip"})
   }
-  await dsdk.setupIntegrationEnv(dirPath, shouldCreateVirtualenv, shouldOverwriteVirtualenv, secretId);
+  await dsdk.setupIntegrationEnv(dirPath, shouldCreateVirtualenv, shouldOverwriteVirtualenv, secretId, instanceName);
   
   if (newWorkspace) {
     const workspace = {
