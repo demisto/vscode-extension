@@ -8,6 +8,7 @@ import minimatch = require('minimatch');
 import { TerminalManager } from './terminalManager';
 import { Logger } from './logger';
 import { writeJSONSync } from 'fs-extra';
+import {setupIntegrationEnv} from "./devEnvs"
 export function updateReleaseNotesCommand(file: string): void {
 
 	const regs = new RegExp('Packs/[^/]*');  // TODO: Bug - Won't work in windows. 
@@ -84,7 +85,7 @@ export async function lint(file: string, tests = true, lints = true, report = tr
 }
 
 /*************************** 
-	  RUN   COMMMAND
+	  RUN   COMMAND
 ****************************/
 
 interface Argumnet {
@@ -202,7 +203,7 @@ async function showCommandsOrArguments(commandNames: vscode.QuickPickItem[], run
 }
 
 async function argsManagment(argumentNames: vscode.QuickPickItem[], args: Argumnet[], argsRequired: string[],
-	query: Map<string, string>, runOrDebug: string): Promise<[Map<string, string>, boolean]> {
+	query: Map<string, string>, runOrDebug: string): Promise<[Map<string, string> | undefined, boolean | undefined]> {
 
 	let flag = false
 	return await showCommandsOrArguments(argumentNames, runOrDebug).then(async (arg) => {
@@ -253,7 +254,6 @@ async function argsManagment(argumentNames: vscode.QuickPickItem[], args: Argumn
 					message += '\n' + arg
 				})
 				const header = 'The following arguments are required:'
-				message += '\n' + arg
 				await vscode.window.showInformationMessage(header, { modal: true, detail: message }, "Back").then(async (response) => {
 					if (response != "Back") {
 						flag = true
@@ -272,7 +272,7 @@ async function argsManagment(argumentNames: vscode.QuickPickItem[], args: Argumn
 	}).then(() => { return [query, flag] })
 }
 
-async function runIntegration(ymlObject: any, runOrDebug: string): Promise<Map<string, string>> {
+async function runIntegration(ymlObject: any, runOrDebug: string): Promise<Map<string, string> | undefined> {
 	// Map for query the command
 	const query: Map<string, string> = new Map<string, string>()
 
@@ -295,6 +295,9 @@ async function runIntegration(ymlObject: any, runOrDebug: string): Promise<Map<s
 							if (ForRun == true) {
 								flag = false
 								console.log(`${queryForRun}`)
+							}
+							if (!queryForRun && !ForRun) {
+								return
 							}
 						})
 					}
@@ -329,6 +332,7 @@ async function runScript(ymlObject: any, runOrDebug: string): Promise<Map<string
 
 
 export async function run(dirPath: string): Promise<void> {
+
 	const command = await vscode.window.showQuickPick(['DEBUG', 'RUN'], {title: 'do you want debug it locally or run in XSOAR?'})
 	if (command === undefined) {
 		return
@@ -346,20 +350,25 @@ export async function run(dirPath: string): Promise<void> {
 			}
 		}
 	)}
-
+	const shouldSetup = await vscode.window.showQuickPick(['No', 'Yes'], {title: 'do you want to setup environment?'})
+	if (shouldSetup){
+		if (shouldSetup === "Yes") {
+			await setupIntegrationEnv(dirPath) 
+		}
+	}
 	const runAndDebug = async () => {
 		const filePath = path.parse(dirPath)
 		const ymlFilePath = path.join(dirPath, filePath.name.concat('.yml'))
 		const ymlObject = yaml.parseDocument(fs.readFileSync(ymlFilePath, 'utf8')).toJSON()
 
-		let queryMap: Map<string, string>
+		let queryMap: Map<string, string> | undefined
 		if ("configuration" in ymlObject) {
 			queryMap = await runIntegration(ymlObject, command)
 		}
 		else {
 			queryMap = await runScript(ymlObject, command)
 		}
-		if (queryMap.size === 0) {
+		if (queryMap === undefined || queryMap.size === 0) {
 			return
 		}
 		if (queryMap) {

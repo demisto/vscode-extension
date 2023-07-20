@@ -12,11 +12,11 @@ fi
 if [[ $dependencies == *"python"* ]]; then     
     PYENV_ROOT="$HOME/.pyenv";
     PATH="$PYENV_ROOT/bin":$PATH;
-    pyenv_exists=true
-    eval "$(pyenv init -)" || pyenv_exists=false
-    pyenv update || pyenv_exists=false
+    pyenv_broken=true
+    eval "$(pyenv init -)" || pyenv_broken=false
+    pyenv update || pyenv_broken=false
 
-    if [ "$pyenv_exists" = true ];
+    if [ "$pyenv_broken" = true ];
     then
         echo "pyenv could not be found, installing pyenv"
         rm -rf $PYENV_ROOT

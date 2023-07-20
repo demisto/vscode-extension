@@ -119,10 +119,8 @@ export async function installDevEnv(): Promise<void> {
     vscode.window.showErrorMessage("Could not find a valid workspace");
     return;
   }
-  const workspace = workspaces[0];
-  const dirPath = workspace.uri.fsPath;
-  // check if content is in dirPath
-  if (!dirPath.includes("content")) {
+  const dirPath = getContentPath()
+  if (!dirPath) {
     vscode.window.showErrorMessage(
       "Please run this command from a content repository"
     );
