@@ -540,6 +540,10 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
   //   vscode.window.showErrorMessage("Please run this from an integration or script directory");
   //   return
   // }
+  const shouldUpload = await vscode.window.showQuickPick(["No", "Yes"], {title: "Do you want to upload the integration/script to XSOAR/XSIAM?"})
+  if (shouldUpload === "Yes") {
+    await dsdk.uploadToXSOAR(dirPath, true)
+  }
   const packDir = path.resolve(path.join(dirPath, "..", ".."));
   let newWorkspace;
   let shouldCreateVirtualenv = false;
@@ -597,7 +601,7 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
   
     instanceName = await vscode.window.showInputBox({title: "Enter the instance name if you want to create an instance in XSOAR/XSIAM", placeHolder: "Leave blank to skip"})
   }
-  await dsdk.setupIntegrationEnv(dirPath, shouldCreateVirtualenv, shouldOverwriteVirtualenv, secretId, instanceName);
+  await dsdk.setupEnv(dirPath, shouldCreateVirtualenv, shouldOverwriteVirtualenv, secretId, instanceName);
   
   if (newWorkspace) {
     const workspace = {

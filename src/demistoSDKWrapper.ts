@@ -593,7 +593,7 @@ export async function backgroundValidate(document: vscode.TextDocument, showTerm
 
 }
 
-export async function setupIntegrationEnv(dirPath: string, createVirtualenv: boolean, overwriteVirtualenv: boolean, secretId?: string, instanceName?: string): Promise<void> {
+export async function setupEnv(dirPath: string, createVirtualenv: boolean, overwriteVirtualenv: boolean, secretId?: string, instanceName?: string): Promise<void> {
 	const contentPath = tools.getContentPath()
 	if (!contentPath) {
 		vscode.window.showErrorMessage('Could not find content path');
