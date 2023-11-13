@@ -102,12 +102,7 @@
       },
       {
         "command": "xsoar.setupIntegrationEnv",
-        "title": "Setup integration/script environment (recommended)",
-        "category": "XSOAR"
-      },
-      {
-        "command": "xsoar.integrationContainer",
-        "title": "Open integration/script in Dev Container (advanced)",
+        "title": "Setup integration/script environment",
         "category": "XSOAR"
       },
       {
@@ -324,6 +319,7 @@
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {
+    "dotenv": "^16.3.1",
     "envfile": "^6.17.0",
     "fs-extra": "^10.0.1",
     "glob": "^7.1.6",

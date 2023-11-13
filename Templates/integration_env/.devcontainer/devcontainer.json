@@ -12,14 +12,18 @@
 
 	},
 	"containerUser": "demisto",
-	"extensions": [
-		"ms-python.python",
-		"ms-vscode.PowerShell",
-		"cortexxsoarext.xsoar",
-		"eamodio.gitlens",
-		"GitHub.vscode-pull-request-github",
-		"njpwerner.autodocstring",
-		"streetsidesoftware.code-spell-checker",
-		"littlefoxteam.vscode-python-test-adapter"
-	]
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-vscode.PowerShell",
+				"cortexxsoarext.xsoar",
+				"eamodio.gitlens",
+				"GitHub.vscode-pull-request-github",
+				"njpwerner.autodocstring",
+				"streetsidesoftware.code-spell-checker",
+				"littlefoxteam.vscode-python-test-adapter"		
+			]
+		}
+	}
 }

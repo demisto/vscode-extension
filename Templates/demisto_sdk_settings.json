@@ -4,8 +4,12 @@
         "python.testing.pytestArgs": [
             "."
         ],
-        "python.linting.flake8Enabled": false,
-        "python.linting.mypyEnabled": true,
-        "python.analysis.typeCheckingMode": "basic"
-
-}
+        "python.analysis.typeCheckingMode": "basic",
+        "mypy-type-checker.args": [
+            "--follow-imports=silent",
+            "--ignore-missing-imports",
+            "--show-column-numbers",
+            "--no-pretty",
+            "--allow-redefinition"
+        ],
+    }

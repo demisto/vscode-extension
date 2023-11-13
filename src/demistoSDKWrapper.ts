@@ -593,17 +593,16 @@ export async function backgroundValidate(document: vscode.TextDocument, showTerm
 
 }
 
-export async function setupEnv(dirPath: string, createVirtualenv: boolean, overwriteVirtualenv: boolean, secretId?: string, instanceName?: string): Promise<void> {
+export async function setupEnv(dirPath?: string, createVirtualenv?: boolean, overwriteVirtualenv?: boolean, secretId?: string, instanceName?: string): Promise<void> {
 	const contentPath = tools.getContentPath()
 	if (!contentPath) {
 		vscode.window.showErrorMessage('Could not find content path');
 		return;
 	}
-	const command = [
-		'setup-env',
-		'-i',
-		dirPath,
-	]
+	const command: string[] = ["setup-env"];
+	if (dirPath){
+		command.push('-i', dirPath)
+	}
 	if (createVirtualenv) {
 		command.push('--create-virtualenv')
 	}
