@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+PYENV_ROOT="$HOME/.pyenv";
+PATH="$PYENV_ROOT/bin":$PATH;
+
 dependencies=$1
 
 # if empty dependencies
@@ -10,8 +13,6 @@ if [ -z "$dependencies" ]; then
 fi
 
 if [[ $dependencies == *"python"* ]]; then     
-    PYENV_ROOT="$HOME/.pyenv";
-    PATH="$PYENV_ROOT/bin":$PATH;
     pyenv_broken=true
     eval "$(pyenv init -)" || pyenv_broken=false
     pyenv update || pyenv_broken=false

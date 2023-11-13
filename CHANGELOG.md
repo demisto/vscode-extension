@@ -1,14 +1,21 @@
 # Change Log
 
 # Unreleased
+
+- Fixed an issue with installing `poetry` in **Install XSOAR local development environment** command.
+
 # [0.6.2] (2023-06-28)
+
 - Fixed an issue with debugging integrations and scripts with `Docker`.
 
 # [0.6.1] (2023-06-22)
+
 - Set `python.analysis.typeCheckingMode` to `basic` In Content and Demisto-SDK VSCode settings.
 - Set `justMyCode` setting to `false` when running tests, to debug third party code.
 - Fixed an issue in **Install XSOAR local development environment** where `pyenv` installation fails.
+
 # [0.6.0] (2023-05-21)
+
 - Removed `flake8` from `settings.json` for `content` and `demisto-sdk` settings..
 - Introduced **Setup integration/script environment** command to setup the environment for the integration/script.
 - Deprecated **Open integration/script in virtual environment** command.
@@ -48,11 +55,11 @@
 - Added `Python Test Explorer` extension to Dev Container.
 - Changed pytest settings to `verbose` mode.
 - Maintenance and bug fixes.
-   
+
 # [0.5.6] (2022-10-30)
 
 - Fixed broken installation of local development environment with python and poetry.
-- Fixed installation of virtual environment of broken `types` packages. 
+- Fixed installation of virtual environment of broken `types` packages.
 
 # [0.5.5] (2022-09-15)
 
@@ -90,7 +97,7 @@
 # [0.4.10] (2022-08-24)
 
 - Fixed an issue in **Install XSOAR local development environment** where dependency installation fails even though installation succeeded.
-- Install `virtualenv` module in **Open integration/script in virtual environment** if the module is not installed. 
+- Install `virtualenv` module in **Open integration/script in virtual environment** if the module is not installed.
 - Installing **Demisto-SDK** globally will update it.
 
 # [0.4.9] (2022-08-23)
@@ -108,10 +115,9 @@
 - Add support for enabling pre-commit hooks in **Install XSOAR local development environment**.
 - Ask the user if execute the **Configure Demisto-SDK for XSOAR** command in **Install XSOAR local development environment**.
 
-
 # [0.4.7] (2022-08-15)
 
-- Fixed installation of docker in **Install XSOAR local development environment**. 
+- Fixed installation of docker in **Install XSOAR local development environment**.
 
 # [0.4.6] (2022-08-11)
 
@@ -181,7 +187,7 @@
 # [0.3.4] (2022-07-11)
 
 - Fixed finding the docker test image when same test images are available locally.
-- Using the VSCode selected python interpreter when creating a Dev Container or a Virtual Environment. 
+- Using the VSCode selected python interpreter when creating a Dev Container or a Virtual Environment.
 
 ## [0.3.3] (2022-07-05)
 
@@ -200,7 +206,7 @@
 
 - Added an option to create a virtualenv for integrations or scripts.
 - Integration Dev Container now use the test image,
-- Fixed an issue on which the updated docker image in YML wasn't updated in the devcontainer. 
+- Fixed an issue on which the updated docker image in YML wasn't updated in the devcontainer.
 - Opens integration environment in new windos (virtualenv or Dev Container)
 - Added option to `Configure XSOAR Tests` for integrations or scripts.
 - Deleted content dev container since it's available on `content` repo.
