@@ -29,11 +29,11 @@ export function getDirPath(file: vscode.Uri | undefined): string {
 export function activate(context: vscode.ExtensionContext): void {
 	Logger.createLogger()
 	const contentPath = tools.getContentPath()
-	if (!contentPath){
+	if (!contentPath) {
 		// dont activate outside of content path
 		return
 	}
-	dotenv.config({path: path.resolve(contentPath, ".env")})
+	dotenv.config({ path: path.resolve(contentPath, ".env") })
 
 	const diagnosticCollection = vscode.languages.createDiagnosticCollection('XSOAR problems');
 	context.subscriptions.push(diagnosticCollection);

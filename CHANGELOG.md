@@ -3,7 +3,7 @@
 # Unreleased
 
 - Fixed an issue with installing `poetry` in **Install XSOAR local development environment** command.
-- Added **Run And Debug** command to run and debug integrations/scripts locally.
+- Added **Run And Debug** command to run and debug integrations/scripts locally and in XSOAR/XSIAM.
 
 # [0.6.2] (2023-06-28)
 

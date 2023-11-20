@@ -264,7 +264,7 @@ export async function run(dirPath: string): Promise<void> {
 
     const shouldSetup = await vscode.window.showQuickPick(['No', 'Yes'], { title: 'do you want to setup environment before?' })
     if (shouldSetup && shouldSetup === "Yes") {
-          await setupIntegrationEnv(dirPath)
+        await setupIntegrationEnv(dirPath)
     }
     const runAndDebug = async () => {
         const filePath = path.parse(dirPath)
@@ -294,7 +294,7 @@ export async function run(dirPath: string): Promise<void> {
                     return
                 }
                 let debugConfig = getDebuggingConfiguration(contentWorkspace, `Docker: Debug (${filePath.name})`)
-                if (!debugConfig){
+                if (!debugConfig) {
                     debugConfig = getDebuggingConfiguration(contentWorkspace, "Python: Debug Integration locally")
                 }
                 vscode.debug.startDebugging(contentWorkspace, debugConfig)
