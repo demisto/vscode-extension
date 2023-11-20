@@ -200,10 +200,6 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.run",
-          "when": "resourcePath =~ /.*Packs/|\\.+/"
-        },
-        {
           "command": "xsoar.integrationContainer",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },

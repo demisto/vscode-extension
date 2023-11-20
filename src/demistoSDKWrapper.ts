@@ -49,7 +49,7 @@ export async function uploadToXSOAR(file: string): Promise<void> {
 
 
 }
-export async function lintUsingGit(file: string): void {
+export async function lintUsingGit(file: string): Promise<void> {
 	const command = ['lint', '-g', '-i ', file];
 	await TerminalManager.sendDemistoSdkCommandWithProgress(command);
 
