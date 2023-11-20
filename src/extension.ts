@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as yaml from "yaml";
+import * as dotenv from 'dotenv';
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as tools from "./tools";
@@ -10,8 +11,9 @@ import * as integration from "./integrationLoader";
 import { AutomationI, IntegrationI } from './contentObject';
 import * as automation from './automation';
 import { Logger } from './logger';
-import { openIntegrationDevContainer, setupIntegrationEnv, installDevEnv as installDevEnv, configureDemistoVars, developDemistoSDK } from './devEnvs';
+import { setupIntegrationEnv, installDevEnv as installDevEnv, configureDemistoVars, developDemistoSDK } from './devEnvs';
 import JSON5 from 'json5'
+import * as runAndDebug from './runAndDebug'
 
 // this function returns the directory path of the file
 export function getDirPath(file: vscode.Uri | undefined): string {
@@ -26,6 +28,13 @@ export function getDirPath(file: vscode.Uri | undefined): string {
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext): void {
 	Logger.createLogger()
+	const contentPath = tools.getContentPath()
+	if (!contentPath) {
+		// dont activate outside of content path
+		return
+	}
+	dotenv.config({ path: path.resolve(contentPath, ".env") })
+
 	const diagnosticCollection = vscode.languages.createDiagnosticCollection('XSOAR problems');
 	context.subscriptions.push(diagnosticCollection);
 	context.subscriptions.push(
@@ -38,12 +47,6 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand('xsoar.configureXSOAR', configureDemistoVars)
 	)
 
-	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.integrationContainer', (file: vscode.Uri | undefined) => {
-			const fileToRun = getDirPath(file)
-			openIntegrationDevContainer(fileToRun)
-		})
-	)
 	context.subscriptions.push(vscode.commands.registerCommand('xsoar.developDemistoSDK', developDemistoSDK)),
 		context.subscriptions.push(
 			vscode.commands.registerCommand('xsoar.setupIntegrationEnv', (file: vscode.Uri | undefined) => {
@@ -65,7 +68,12 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand('xsoar.loadScript', loadScriptYAML(context.extensionUri))
 	);
 
-	context.subscriptions.push(vscode.commands.registerCommand('xsoar.run', dsdk.run));
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.run', (file: vscode.Uri | undefined) => {
+			const fileToRun = getDirPath(file)
+			runAndDebug.run(fileToRun)
+		})
+	);
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.upload', (file: vscode.Uri | undefined) => {

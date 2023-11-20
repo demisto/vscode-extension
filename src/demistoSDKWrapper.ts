@@ -21,7 +21,7 @@ export function updateReleaseNotesCommand(file: string): void {
 			(value) => {
 				if (value) {
 					const command = ['update-release-notes -i', packName.toString(), '-u', value];
-					TerminalManager.sendDemistoSDKCommand(command);
+					TerminalManager.sendDemistoSdkCommandWithProgress(command);
 				}
 			});
 	} else {
@@ -32,31 +32,31 @@ export function updateReleaseNotesCommand(file: string): void {
 export function validateCommand(file: string): void {
 	const json_path = tools.getReportPath(file);
 	const command = ['validate -i', file, '-j', json_path];
-	TerminalManager.sendDemistoSDKCommand(command);
+	TerminalManager.sendDemistoSdkCommandWithProgress(command);
 }
 
 export function validateUsingGit(workspace: vscode.WorkspaceFolder): void {
-	TerminalManager.sendDemistoSDKCommand(['validate', '-g', '-j', tools.getReportPathFromConf(workspace)]);
+	TerminalManager.sendDemistoSdkCommandWithProgress(['validate', '-g', '-j', tools.getReportPathFromConf(workspace)]);
 }
 export function formatCommand(file: string): void {
 
 	const command = ['format', '-i', file];
-	TerminalManager.sendDemistoSDKCommand(command);
+	TerminalManager.sendDemistoSdkCommandWithProgress(command);
 }
-export function uploadToXSOAR(file: string): void {
+export async function uploadToXSOAR(file: string): Promise<void> {
 	const command = ['upload', '-i', file];
-	TerminalManager.sendDemistoSDKCommand(command);
+	await TerminalManager.sendDemistoSdkCommandWithProgress(command)
 
 
 }
-export function lintUsingGit(file: string): void {
+export async function lintUsingGit(file: string): Promise<void> {
 	const command = ['lint', '-g', '-i ', file];
-	TerminalManager.sendDemistoSDKCommand(command);
+	await TerminalManager.sendDemistoSdkCommandWithProgress(command);
 
 }
-export async function lint(file: string, tests = true, lints = true, report = true, progress = false): Promise<void> {
+export async function lint(file: string, tests = true, lints = true, report = true): Promise<void> {
 	const command = ['lint', '-i', file];
-	if (report){
+	if (report) {
 		command.push('-j', tools.getReportPath(file));
 	}
 	if (!tests) {
@@ -65,34 +65,9 @@ export async function lint(file: string, tests = true, lints = true, report = tr
 	if (!lints) {
 		command.push('--no-flake8', '--no-mypy', '--no-bandit', '--no-xsoar-linter', '--no-vulture', '--no-pylint', '--no-pwsh-analyze')
 	}
-	if (progress) {
-		const isSuccess = await TerminalManager.sendDemistoSdkCommandWithProgress(command)
-		if (!isSuccess){
-			await tools.isDemistoSDKinstalled()
-			throw new Error('Demisto-SDK lint failed')
-		}
-	}
-	else {
-		TerminalManager.sendDemistoSDKCommand(command);
-	}
+	await TerminalManager.sendDemistoSdkCommandWithProgress(command)
 }
 
-export function run(): void {
-	vscode.window.showInputBox(
-		{
-			value: "Command to run"
-		}
-	).then(
-		(value) => {
-			if (value) {
-				value = JSON.stringify(value)
-				const command = ['run', '-q', value];
-				TerminalManager.sendDemistoSDKCommand(command);
-			}
-		});
-
-
-}
 
 export async function init(): Promise<void> {
 	const command = ['init'];
@@ -147,7 +122,7 @@ export async function init(): Promise<void> {
 			})
 	}
 
-	if (contentItem === 'Script'){
+	if (contentItem === 'Script') {
 		await vscode.window.showQuickPick(['default', 'HelloWorldScript'],
 			{ placeHolder: 'Choose the integration template.' }).then(answer => {
 				if (answer && answer !== 'default') {
@@ -289,4 +264,33 @@ export async function backgroundValidate(document: vscode.TextDocument, showTerm
 		TerminalManager.sendDemistoSDKCommandBackground(command, { cwd: cwd?.uri.path })
 	}
 
+}
+
+export async function setupEnv(dirPath?: string, createVirtualenv?: boolean, overwriteVirtualenv?: boolean, secretId?: string, instanceName?: string): Promise<void> {
+	const contentPath = tools.getContentPath()
+	if (!contentPath) {
+		vscode.window.showErrorMessage('Could not find content path');
+		return;
+	}
+	const command: string[] = ["setup-env"];
+	if (dirPath) {
+		command.push('-i', dirPath)
+	}
+	if (createVirtualenv) {
+		command.push('--create-virtualenv')
+	}
+	if (overwriteVirtualenv) {
+		command.push('--overwrite-virtualenv')
+	}
+	if (secretId) {
+		command.push('--secret-id', secretId)
+	}
+	if (instanceName) {
+		command.push("--instance-name", instanceName)
+	}
+	const isSuccess = await TerminalManager.sendDemistoSdkCommandWithProgress(command)
+	if (!isSuccess) {
+		vscode.window.showErrorMessage('Demisto-SDK setup-env failed')
+		throw new Error('Demisto-SDK setup-env failed')
+	}
 }
