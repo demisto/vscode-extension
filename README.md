@@ -1,6 +1,4 @@
 
-[![Run Node Test](https://img.shields.io/github/workflow/status/demisto/vscode-extension/Run%20Node%20Test)](https://github.com/demisto/vscode-extension/actions/workflows/steps.yml)
-
 # Cortex  XSOAR VSCode Plugin
 
 Work with Visual Studio Code to edit, validate and format your Cortex XSOAR integrations and automations.

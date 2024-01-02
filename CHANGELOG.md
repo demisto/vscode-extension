@@ -2,6 +2,8 @@
 
 # Unreleased
 
+- Fixed an issue with `demisto-sdk` arguments where there are special characters in the path.
+
 # [0.7.0] (2023-11-21)
 
 - Fixed an issue with installing `poetry` in **Install XSOAR local development environment** command.

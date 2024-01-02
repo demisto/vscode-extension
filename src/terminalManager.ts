@@ -23,6 +23,11 @@ export class TerminalManager {
 		options: ProcessEnvOptions
 	): Promise<void> {
 		const sdkPath = tools.getSDKPath()
+		for (let i = 0; i < command.length; i++) {
+			if (command[i].includes(' ')) {
+				command[i] = `"${command[i]}"`
+			}
+		}
 		const cmd = `${sdkPath} ${command.join(' ')}`;
 	
 		Logger.info(`Executing command in background: \`${cmd}\``)
@@ -39,6 +44,12 @@ export class TerminalManager {
 
 	public static async sendDemistoSdkCommandWithProgress(command: string[]): Promise<boolean> {
 		const sdkPath = tools.getSDKPath()
+		// loop the command and add quotes to each argument
+		for (let i = 0; i < command.length; i++) {
+			if (command[i].includes(' ')) {
+				command[i] = `"${command[i]}"`
+			}
+		}
 		let cmd = `${sdkPath} ${command.join(' ')}`
 		const contentPath = tools.getContentPath()
 		if (contentPath){
@@ -104,6 +115,11 @@ export class TerminalManager {
 		newTerminal = false,
 		timeout = 10000
 	): Promise<void> {
+		for (let i = 0; i < command.length; i++) {
+			if (command[i].includes(' ')) {
+				command[i] = `"${command[i]}"`
+			}
+		}
 		const contentPath = tools.getContentPath()
 		if (!await tools.isDemistoSDKinstalled()){
 			vscode.window.showErrorMessage('Demisto-SDK is not available in your environment')
