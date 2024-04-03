@@ -9,7 +9,7 @@ import { parse, stringify } from "envfile";
 import { getContentPath } from "./tools";
 
 enum Platform {
-  XSOAR6 = 'Xsoar 6',
+  XSOAR6 = 'XSOAR 6',
   XSOAR8_XSIAM = 'XSOAR 8/XSIAM'
 }
 
