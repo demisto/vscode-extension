@@ -33,6 +33,7 @@ This will configure `.env` file with the following environment variables:
 * DEMISTO_USERNAME (XSOAR username)
 * DEMISTO_PASSWORD (XSOAR password)
 * DEMISTO_API_KEY (XSOAR API key)
+* XSIAM_AUTH_ID (XSOAR/XSIAM Auth ID) (Relevant for XSOAR 8/XSIAM)
 * DEMISTO_VERIFY_SSL (Verify SSL in XSOAR, `true` or `false`) 
 ## Configure XSOAR unit tests
 
@@ -86,7 +87,7 @@ If the `license/cla` status check remains on *Pending*, even though all contribu
 
 * `npm install`
 * `npm run compile`
-* `pip demisto-sdk`
+* `pip install demisto-sdk`
 
 ### Main Locations
 

@@ -8,6 +8,10 @@ import { spawn } from "child_process";
 import { parse, stringify } from "envfile";
 import { getContentPath } from "./tools";
 
+enum Platform {
+  XSOAR6 = 'Xsoar 6',
+  XSOAR8_XSIAM = 'XSOAR 8/XSIAM'
+}
 
 export async function installDevEnv(): Promise<void> {
   const workspaces = vscode.workspace.workspaceFolders;
@@ -239,6 +243,7 @@ export async function developDemistoSDK(): Promise<void> {
 
 export async function configureDemistoVars(): Promise<void> {
   const workspaces = vscode.workspace.workspaceFolders;
+
   if (!workspaces) {
     vscode.window.showErrorMessage("Could not find a valid workspace");
     return;
@@ -256,6 +261,15 @@ export async function configureDemistoVars(): Promise<void> {
   if (!env) {
     env = {};
   }
+  
+  // Select configured platform
+  const configuredPlatform = await vscode.window
+    .showQuickPick([Platform.XSOAR6, Platform.XSOAR8_XSIAM], {
+      title: "Platform",
+      placeHolder: "Select configured platform",
+    }) ?? Platform.XSOAR6;    
+
+  // XSOAR url  
   await vscode.window
     .showInputBox({
       title: "XSOAR URL",
@@ -270,6 +284,8 @@ export async function configureDemistoVars(): Promise<void> {
   vscode.window.showInformationMessage(
     "Enter either XSOAR username and password, or an API key"
   );
+
+  // XSOAR username
   await vscode.window
     .showInputBox({
       title: "XSOAR username (optional)",
@@ -281,6 +297,8 @@ export async function configureDemistoVars(): Promise<void> {
         env["DEMISTO_USERNAME"] = username;
       }
     });
+
+  // XSOAR password  
   await vscode.window
     .showInputBox({
       title: "XSOAR password (optional)",
@@ -294,6 +312,7 @@ export async function configureDemistoVars(): Promise<void> {
       }
     });
 
+  // XSOAR API Key
   await vscode.window
     .showInputBox({
       title: "XSOAR API key (optional)",
@@ -306,6 +325,21 @@ export async function configureDemistoVars(): Promise<void> {
         env["DEMISTO_API_KEY"] = apiKey;
       }
     });
+  
+  if (configuredPlatform === Platform.XSOAR8_XSIAM){
+    // XISAM Auth ID
+    await vscode.window
+      .showInputBox({
+        title: "XSIAM Auth ID",
+        ignoreFocusOut: true,
+      }).then((authId) => {
+        if (authId){
+          env["XSIAM_AUTH_ID"] = authId;
+        }
+      })
+  }
+
+  // Verify SSL  
   await vscode.window
     .showQuickPick(["true", "false"], {
       title: "XSOAR SSL verification",
