@@ -337,7 +337,7 @@ export async function configureDemistoVars(): Promise<void> {
         }
       })
   } else {
-    // Commenting XSIAM_AUTH_ID if exist
+    // Commenting XSIAM_AUTH_ID if exist.
     if (env["XSIAM_AUTH_ID"])
       env["# XSIAM_AUTH_ID"] = `${env["XSIAM_AUTH_ID"]}`;
       delete env["XSIAM_AUTH_ID"];
