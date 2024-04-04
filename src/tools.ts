@@ -315,11 +315,11 @@ export function stringify(obj: Input): string {
 		if (key) {
 			if (
 				typeof key === 'symbol' &&
-				(key as Symbol).toString().startsWith('Symbol(comment')
+				(key as symbol).toString().startsWith('Symbol(comment')
 			) {
 				
                 const [_, lineIndex] = (
-                    (key as Symbol).description ?? 'comment#0'
+                    (key as symbol).description ?? 'comment#0'
                 ).split('#')
                 result.splice(parseInt(lineIndex, 10), 0, value)
 				
