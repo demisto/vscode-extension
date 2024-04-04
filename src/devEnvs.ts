@@ -5,8 +5,7 @@ import JSON5 from "json5";
 import * as dsdk from "./demistoSDKWrapper";
 import * as fs from "fs-extra";
 import { spawn } from "child_process";
-import { parse, stringify } from "envfile";
-import { getContentPath } from "./tools";
+import { getContentPath, parse, stringify } from "./tools";
 
 enum Platform {
   XSOAR6 = 'XSOAR 6',
@@ -326,8 +325,8 @@ export async function configureDemistoVars(): Promise<void> {
       }
     });
   
+  // XSIAM Auth ID
   if (configuredPlatform === Platform.XSOAR8_XSIAM){
-    // XISAM Auth ID
     await vscode.window
       .showInputBox({
         title: "XSIAM Auth ID",
@@ -337,6 +336,11 @@ export async function configureDemistoVars(): Promise<void> {
           env["XSIAM_AUTH_ID"] = authId;
         }
       })
+  } else {
+    // Commenting XSIAM_AUTH_ID if exist
+    if (env["XSIAM_AUTH_ID"])
+      env["# XSIAM_AUTH_ID"] = `${env["XSIAM_AUTH_ID"]}`;
+      delete env["XSIAM_AUTH_ID"];
   }
 
   // Verify SSL  
