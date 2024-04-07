@@ -284,6 +284,7 @@ export function getWebviewRemoveCommandButton(commandIndex: number): string {
 export type Data = Record<string, string>
 
 /** We typecast the value as a string so that it is compatible with envfiles.  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Input = Record<string, any>
 
 /** Parse an envfile string. */
@@ -299,6 +300,7 @@ export function parse(src: string): Data {
 			result[key] = value
 		} else if ( line.trim().startsWith('#')) {
 			const sym = Symbol.for(`comment#${lineIndex - notHandleCount}`)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
 			result[sym as any] = line
 		} else {
 			notHandleCount++
@@ -317,7 +319,7 @@ export function stringify(obj: Input): string {
 				typeof key === 'symbol' &&
 				(key as symbol).toString().startsWith('Symbol(comment')
 			) {
-				
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const [_, lineIndex] = (
                     (key as symbol).description ?? 'comment#0'
                 ).split('#')
