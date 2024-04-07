@@ -266,6 +266,7 @@ export async function configureDemistoVars(): Promise<void> {
     .showQuickPick([Platform.XSOAR6, Platform.XSOAR8_XSIAM], {
       title: "Platform",
       placeHolder: "Select configured platform",
+      ignoreFocusOut: true,
     }) ?? Platform.XSOAR6;    
 
   // XSOAR url  
@@ -348,6 +349,7 @@ export async function configureDemistoVars(): Promise<void> {
     .showQuickPick(["true", "false"], {
       title: "XSOAR SSL verification",
       placeHolder: "Should XSOAR SSL verification be enabled?",
+      ignoreFocusOut: true,
     })
     .then((verifySSL) => {
       if (verifySSL) {
