@@ -287,6 +287,8 @@ export type Data = Record<string, string>
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Input = Record<string, any>
 
+// This function is copied from https://github.com/bevry/envfile/pull/213
+// TODO - Utilize 'parse()' from 'envfile' once the official package adopts the mentioned PR.
 /** Parse an envfile string. */
 export function parse(src: string): Data {
 	const result: Data = {}
@@ -309,6 +311,8 @@ export function parse(src: string): Data {
 	return result
 }
 
+// This function is copied from https://github.com/bevry/envfile/pull/213
+// TODO - Utilize 'stringify()' from 'envfile' once the official package adopts the mentioned PR. 
 /** Turn an object into an envfile string. */
 export function stringify(obj: Input): string {
 	const result = []
