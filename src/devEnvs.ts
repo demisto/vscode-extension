@@ -5,9 +5,12 @@ import JSON5 from "json5";
 import * as dsdk from "./demistoSDKWrapper";
 import * as fs from "fs-extra";
 import { spawn } from "child_process";
-import { parse, stringify } from "envfile";
-import { getContentPath } from "./tools";
+import { getContentPath, parse, stringify } from "./tools";
 
+enum Platform {
+  XSOAR6 = 'XSOAR 6',
+  XSOAR8_XSIAM = 'XSOAR 8/XSIAM'
+}
 
 export async function installDevEnv(): Promise<void> {
   const workspaces = vscode.workspace.workspaceFolders;
@@ -28,6 +31,7 @@ export async function installDevEnv(): Promise<void> {
       title: "Select dependencies to install",
       placeHolder: "Leave blank to skip dependencies installation",
       canPickMany: true,
+      ignoreFocusOut: true,
     })
     .then(async (dependencies) => {
       if (dependencies) {
@@ -53,6 +57,8 @@ export async function installDevEnv(): Promise<void> {
       title: "Do you want to install pre-commit hooks?",
       placeHolder:
         "Installing pre-commit hooks will run `validate` and `lint` before every commit",
+      ignoreFocusOut: true,
+
     })
     .then(async (answer) => {
       if (answer === "Yes") {
@@ -76,6 +82,8 @@ export async function installDevEnv(): Promise<void> {
       title: "Would you like to configure the connection to XSOAR?",
       placeHolder:
         "This will ask you to configure the connection XSOAR, allowing Demisto-SDK commands such as upload and download",
+      ignoreFocusOut: true,
+
     })
     .then(async (answer) => {
       if (answer === "Yes") {
@@ -132,12 +140,11 @@ async function getDemistoSDKPath(
   let demistoSDKPathString = path.resolve(demistoSDKParentPath, "demisto-sdk");
   if (!(await fs.pathExists(demistoSDKPathString))) {
     Logger.info(`demisto-sdk not found in ${demistoSDKPathString}`);
-    const answer = await vscode.window.showQuickPick(
-      ["Select Demisto-SDK path", "Clone repository"],
-      {
-        placeHolder:
-          "Do you want to use an existing repository or clone a new one?",
+    const answer = await vscode.window
+      .showQuickPick(["Select Demisto-SDK path", "Clone repository"], {
+        placeHolder: "Do you want to use an existing repository or clone a new one?",
         title: "Select Demisto-SDK repository path",
+        ignoreFocusOut: true,
       }
     );
     if (answer === "Clone repository") {
@@ -214,19 +221,20 @@ export async function developDemistoSDK(): Promise<void> {
     `demisto-sdk_content.code-workspace`
   );
   fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 });
-  const response = await vscode.window.showQuickPick(
-    ["Existing Window", "New Window"],
-    {
-      placeHolder:
-        "Select if you want to open in existing window or new window",
+  const response = await vscode.window
+    .showQuickPick(["Existing Window", "New Window"], {
+      placeHolder: "Select if you want to open in existing window or new window",
       title: "Where would you like to open the environment?",
+      ignoreFocusOut: true,
     }
   );
   const openInNewWindow = response === "New Window";
-  const installDemistoSDK = await vscode.window.showQuickPick(["Yes", "No"], {
-    title: "Do you want to install Demisto-SDK dependencies?",
-    placeHolder: " Will run poetry install in the demisto-sdk repository",
-  });
+  const installDemistoSDK = await vscode.window
+    .showQuickPick(["Yes", "No"], {
+      title: "Do you want to install Demisto-SDK dependencies?",
+      placeHolder: " Will run poetry install in the demisto-sdk repository",
+      ignoreFocusOut: true,
+    });
   if (installDemistoSDK === "Yes") {
     spawn(`cd ${demistoSDKPathString} && poetry install`);
   }
@@ -239,6 +247,7 @@ export async function developDemistoSDK(): Promise<void> {
 
 export async function configureDemistoVars(): Promise<void> {
   const workspaces = vscode.workspace.workspaceFolders;
+
   if (!workspaces) {
     vscode.window.showErrorMessage("Could not find a valid workspace");
     return;
@@ -256,6 +265,16 @@ export async function configureDemistoVars(): Promise<void> {
   if (!env) {
     env = {};
   }
+  
+  // Select configured platform
+  const configuredPlatform = await vscode.window
+    .showQuickPick([Platform.XSOAR6, Platform.XSOAR8_XSIAM], {
+      title: "Platform",
+      placeHolder: "Select configured platform",
+      ignoreFocusOut: true,
+    }) ?? Platform.XSOAR6;    
+
+  // XSOAR url  
   await vscode.window
     .showInputBox({
       title: "XSOAR URL",
@@ -270,6 +289,8 @@ export async function configureDemistoVars(): Promise<void> {
   vscode.window.showInformationMessage(
     "Enter either XSOAR username and password, or an API key"
   );
+
+  // XSOAR username
   await vscode.window
     .showInputBox({
       title: "XSOAR username (optional)",
@@ -281,6 +302,8 @@ export async function configureDemistoVars(): Promise<void> {
         env["DEMISTO_USERNAME"] = username;
       }
     });
+
+  // XSOAR password  
   await vscode.window
     .showInputBox({
       title: "XSOAR password (optional)",
@@ -294,6 +317,7 @@ export async function configureDemistoVars(): Promise<void> {
       }
     });
 
+  // XSOAR API Key
   await vscode.window
     .showInputBox({
       title: "XSOAR API key (optional)",
@@ -306,10 +330,31 @@ export async function configureDemistoVars(): Promise<void> {
         env["DEMISTO_API_KEY"] = apiKey;
       }
     });
+  
+  // XSIAM Auth ID
+  if (configuredPlatform === Platform.XSOAR8_XSIAM){
+    await vscode.window
+      .showInputBox({
+        title: "XSIAM Auth ID",
+        ignoreFocusOut: true,
+      }).then((authId) => {
+        if (authId){
+          env["XSIAM_AUTH_ID"] = authId;
+        }
+      })
+  } else {
+    // Commenting XSIAM_AUTH_ID if exist.
+    if (env["XSIAM_AUTH_ID"])
+      env["# XSIAM_AUTH_ID"] = `${env["XSIAM_AUTH_ID"]}`;
+      delete env["XSIAM_AUTH_ID"];
+  }
+
+  // Verify SSL  
   await vscode.window
     .showQuickPick(["true", "false"], {
       title: "XSOAR SSL verification",
       placeHolder: "Should XSOAR SSL verification be enabled?",
+      ignoreFocusOut: true,
     })
     .then((verifySSL) => {
       if (verifySSL) {
@@ -383,6 +428,7 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
       {
         title: `Do you want to open a new workspace with a virtual environment, or inside a Devcontainer?`,
         placeHolder: "Virtual environment creation is slow, but provide better IDE autocompletion",
+        ignoreFocusOut: true,
       }
     )
   if (!answer) {
@@ -400,11 +446,10 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
     Logger.info("Virtualenv exists.");
     vsCodePath = path.join(packDir, ".vscode");
     await vscode.window
-      .showQuickPick(
-        ["Open existing virtual environment", "Create new virtual environment"],
-        {
+      .showQuickPick(["Open existing virtual environment", "Create new virtual environment"], {
           title: `Found virtual environment in ${filePath.name}`,
           placeHolder: "Creating virtual environment can take few minutes",
+          ignoreFocusOut: true,
         }
       )
       .then(async (answer) => {
@@ -428,8 +473,18 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
   let instanceName: string | undefined;
 
   if (process.env.DEMISTO_SDK_GCP_PROJECT_ID) {
-    secretId = await vscode.window.showInputBox({ title: "Do you want to fetch a custom secret from GCP?", placeHolder: "Enter secret name, leave blank to skip" })
-    instanceName = await vscode.window.showInputBox({ title: "Create an instance on XSOAR/XSIAM", placeHolder: "Enter the instance name. Leave blank to skip" })
+    secretId = await vscode.window
+      .showInputBox({ 
+        title: "Do you want to fetch a custom secret from GCP?",
+        placeHolder: "Enter secret name, leave blank to skip",
+        ignoreFocusOut: true,  
+      })
+    instanceName = await vscode.window
+      .showInputBox({ 
+        title: "Create an instance on XSOAR/XSIAM", 
+        placeHolder: "Enter the instance name. Leave blank to skip",
+        ignoreFocusOut: true,
+      })
   }
   await dsdk.setupEnv(dirPath, shouldCreateVirtualenv, shouldOverwriteVirtualenv, secretId, instanceName);
   if (answer === "Devcontainer (advanced)") {
@@ -446,12 +501,11 @@ export async function setupIntegrationEnv(dirPath: string): Promise<void> {
       `content-${filePath.name}.code-workspace`
     );
     fs.writeJsonSync(workspaceOutput, workspace, { spaces: 2 });
-    const response = await vscode.window.showQuickPick(
-      ["Existing Window", "New Window"],
-      {
-        placeHolder:
-          "Select if you want to open in existing window or new window",
-        title: "Where would you like to open the environment?",
+    const response = await vscode.window
+    .showQuickPick(["Existing Window", "New Window"],{
+       placeHolder: "Select if you want to open in existing window or new window",
+       title: "Where would you like to open the environment?",
+       ignoreFocusOut: true,
       }
     );
     const openInNewWindow = response === "New Window";

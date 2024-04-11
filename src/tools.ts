@@ -279,3 +279,61 @@ export function getWebviewRemoveCommandButton(commandIndex: number): string {
     </script>
     `;
 }
+
+/** We don't normalize anything, so it is just strings and strings. */
+export type Data = Record<string, string>
+
+/** We typecast the value as a string so that it is compatible with envfiles.  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Input = Record<string, any>
+
+// This function is copied from https://github.com/bevry/envfile/pull/213
+// TODO - Utilize 'parse()' from 'envfile' once the official package adopts the mentioned PR.
+/** Parse an envfile string. */
+export function parse(src: string): Data {
+	const result: Data = {}
+	const lines = src.toString().split('\n')
+	let notHandleCount = 0
+	for (const [lineIndex, line] of lines.entries()) {
+		const match = line.match(/^([^=:#]+?)[=:](.*)/)
+		if (match) {
+			const key = match[1].trim()
+			const value = match[2].trim().replace(/['"]+/g, '')
+			result[key] = value
+		} else if ( line.trim().startsWith('#')) {
+			const sym = Symbol.for(`comment#${lineIndex - notHandleCount}`)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+			result[sym as any] = line
+		} else {
+			notHandleCount++
+		}
+	}
+	return result
+}
+
+// This function is copied from https://github.com/bevry/envfile/pull/213
+// TODO - Utilize 'stringify()' from 'envfile' once the official package adopts the mentioned PR. 
+/** Turn an object into an envfile string. */
+export function stringify(obj: Input): string {
+	const result = []
+	for (const key of Reflect.ownKeys(obj)) {
+		const value = obj[key as string]
+		if (key) {
+			if (
+				typeof key === 'symbol' &&
+				(key as symbol).toString().startsWith('Symbol(comment')
+			) {
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const [_, lineIndex] = (
+                    (key as symbol).description ?? 'comment#0'
+                ).split('#')
+                result.splice(parseInt(lineIndex, 10), 0, value)
+				
+			} else {
+				const line = `${key as string}=${String(value)}`
+				result.push(line)
+			}
+		}
+	}
+	return result.join('\n')
+}

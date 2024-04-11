@@ -188,7 +188,7 @@ async function argsManagment(argumentNames: vscode.QuickPickItem[], args: Argumn
         }
     }).then(() => { return [query, flag] })
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function runIntegration(ymlObject: any, runOrDebug: string): Promise<Map<string, string> | undefined> {
     // Map for query the command
     const query: Map<string, string> = new Map<string, string>()
@@ -223,7 +223,7 @@ async function runIntegration(ymlObject: any, runOrDebug: string): Promise<Map<s
         }
     }).then(() => { return query })
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function runScript(ymlObject: any, runOrDebug: string): Promise<Map<string, string>> {
     const query: Map<string, string> = new Map<string, string>()
     const [argumentNames, argsRequired] = QuickPickItemForArgs(ymlObject.args)
