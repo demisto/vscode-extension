@@ -6,6 +6,73 @@ import minimatch = require('minimatch');
 
 import { TerminalManager } from './terminalManager';
 import { Logger } from './logger';
+
+// interface CommandOption {
+//     name: string;
+//     param_type_name: string;
+//     opts: string[];
+//     secondary_opts: string[];
+//     type: {
+//         param_type: string;
+//         name: string;
+//     };
+//     required: boolean;
+//     nargs: number;
+//     multiple: boolean;
+//     default: any;
+//     envvar: string | null;
+//     help: string;
+//     prompt: string | null;
+//     is_flag: boolean;
+//     flag_value: boolean;
+//     count: boolean;
+//     hidden: boolean;
+// }
+
+// interface Command {
+//     name: string;
+//     params: CommandOption[];
+//     help: string;
+//     epilog: string | null;
+//     short_help: string | null;
+//     hidden: boolean;
+//     deprecated: boolean;
+// }
+
+// interface NestedCommandJSON {
+//     [commandName: string]: Command;
+// }
+
+// interface CommandJSON {
+// 	[commandName: string]: Command | NestedCommandJSON;
+
+// }
+
+// export async function executeDemistoSDKCommand(): Promise<void>{
+// 	// read the `demisto-sdk-api.json` file
+// 	const contentPath = tools.getContentPath()
+// 	if (!contentPath) {
+// 		vscode.window.showErrorMessage('Could not find content path');
+// 		return;
+// 	}
+// 	await TerminalManager.sendDemistoSdkCommandWithProgress(["dump-api"])
+
+// 	const demistoSDKAPIPath = path.join(contentPath, 'demisto-sdk-api.json');
+// 	// read the file and parse it as CommandJSON
+// 	const demistoSDKAPI = JSON.parse(fs.readFileSync(demistoSDKAPIPath, 'utf-8')) as CommandJSON;
+// 	// show a quick pick with the command names and show the help of the selected command in the quickpick options
+// 	// create a list of dictionary with the command name and the help of the command
+// 	const commands: vscode.QuickPickItem[] = Object.keys(demistoSDKAPI).map(commandName => {
+// 		const command = demistoSDKAPI[commandName] as Command | NestedCommandJSON;
+// 		return {
+// 			label: commandName,
+// 			description: command.help
+// 		}
+// 	});
+// }
+
+
+
 export function updateReleaseNotesCommand(file: string): void {
 
 	const regs = new RegExp('Packs/[^/]*');  // TODO: Bug - Won't work in windows. 
