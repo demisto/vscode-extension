@@ -2,6 +2,8 @@
 
 # Unreleased
 
+# [0.7.1] (2024-04-25)
+
 - Fixed an issue with `demisto-sdk` arguments where there are special characters in the path.
 - Added support for XSOAR NG/ XSIAM env vars setting.
 - Added support for comments in `.env` file.
