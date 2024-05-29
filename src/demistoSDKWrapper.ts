@@ -20,7 +20,7 @@ export function updateReleaseNotesCommand(file: string): void {
 		).then(
 			(value) => {
 				if (value) {
-					const command = ['update-release-notes -i', packName.toString(), '-u', value];
+					const command = ['update-release-notes', '-i', packName.toString(), '-u', value];
 					TerminalManager.sendDemistoSdkCommandWithProgress(command);
 				}
 			});
