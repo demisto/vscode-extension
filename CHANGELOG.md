@@ -4,7 +4,7 @@
 
 - Fixed an issue where the "Update Release Notes" command failed due to incorrect command calling.
 - Fixed an issue where the "Validate" command failed due to incorrect command calling.
-- 
+
 # [0.7.1] (2024-04-25)
 
 - Fixed an issue with `demisto-sdk` arguments where there are special characters in the path.
