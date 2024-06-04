@@ -20,7 +20,7 @@ export function updateReleaseNotesCommand(file: string): void {
 		).then(
 			(value) => {
 				if (value) {
-					const command = ['update-release-notes -i', packName.toString(), '-u', value];
+					const command = ['update-release-notes', '-i', packName.toString(), '-u', value];
 					TerminalManager.sendDemistoSdkCommandWithProgress(command);
 				}
 			});
@@ -31,7 +31,7 @@ export function updateReleaseNotesCommand(file: string): void {
 
 export function validateCommand(file: string): void {
 	const json_path = tools.getReportPath(file);
-	const command = ['validate -i', file, '-j', json_path];
+	const command = ['validate', '-i', file, '-j', json_path];
 	TerminalManager.sendDemistoSdkCommandWithProgress(command);
 }
 
