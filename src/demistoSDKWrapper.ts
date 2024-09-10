@@ -6,8 +6,20 @@ import minimatch = require('minimatch');
 
 import { TerminalManager } from './terminalManager';
 import { Logger } from './logger';
+
+export function isRunningInsideContent(): boolean {
+	const contentPath = tools.getContentPath()
+	if (!contentPath) {
+		vscode.window.showErrorMessage('Could not find content path, please run the command from a content directory.');
+		return false;
+	}
+	return true;
+}
+
 export function updateReleaseNotesCommand(file: string): void {
 
+	if (!isRunningInsideContent())
+		return;
 	const regs = new RegExp('Packs/[^/]*');  // TODO: Bug - Won't work in windows. 
 	const matchGroup = file.match(regs);
 	const packName = matchGroup ? matchGroup[0] : null;
@@ -30,31 +42,42 @@ export function updateReleaseNotesCommand(file: string): void {
 }
 
 export function validateCommand(file: string): void {
+	if (!isRunningInsideContent())
+		return;
 	const json_path = tools.getReportPath(file);
 	const command = ['validate', '-i', file, '-j', json_path];
 	TerminalManager.sendDemistoSdkCommandWithProgress(command);
 }
 
 export function validateUsingGit(workspace: vscode.WorkspaceFolder): void {
+	if (!isRunningInsideContent())
+		return;
 	TerminalManager.sendDemistoSdkCommandWithProgress(['validate', '-g', '-j', tools.getReportPathFromConf(workspace)]);
 }
 export function formatCommand(file: string): void {
-
+	if (!isRunningInsideContent())
+		return;
 	const command = ['format', '-i', file];
 	TerminalManager.sendDemistoSdkCommandWithProgress(command);
 }
 export async function uploadToXSOAR(file: string): Promise<void> {
+	if (!isRunningInsideContent())
+		return;
 	const command = ['upload', '-i', file];
 	await TerminalManager.sendDemistoSdkCommandWithProgress(command)
 
 
 }
 export async function lintUsingGit(file: string): Promise<void> {
+	if (!isRunningInsideContent())
+		return;
 	const command = ['lint', '-g', '-i ', file];
 	await TerminalManager.sendDemistoSdkCommandWithProgress(command);
 
 }
 export async function lint(file: string, tests = true, lints = true, report = true): Promise<void> {
+	if (!isRunningInsideContent())
+		return;
 	const command = ['lint', '-i', file];
 	if (report) {
 		command.push('-j', tools.getReportPath(file));
@@ -70,6 +93,8 @@ export async function lint(file: string, tests = true, lints = true, report = tr
 
 
 export async function init(): Promise<void> {
+	if (!isRunningInsideContent())
+		return;
 	const command = ['init'];
 	const contentItem = await vscode.window.showQuickPick(['Integration', 'Script', 'Pack', 'Cancel'],
 		{ placeHolder: 'Select the content item you would like to init' })
@@ -230,6 +255,8 @@ export function isGlobPatternMatch(docUri: string, patterns: Array<string>): boo
 
 }
 export async function backgroundLint(document: vscode.TextDocument, showTerminal: boolean): Promise<void> {
+	if (!isRunningInsideContent())
+		return;
 	const docUri = document.uri.path;
 
 	const command = [
@@ -250,6 +277,8 @@ export async function backgroundLint(document: vscode.TextDocument, showTerminal
 
 
 export async function backgroundValidate(document: vscode.TextDocument, showTerminal: boolean): Promise<void> {
+	if (!isRunningInsideContent())
+		return;
 	const docUri = document.uri.path;
 
 	const command = [
@@ -267,11 +296,10 @@ export async function backgroundValidate(document: vscode.TextDocument, showTerm
 }
 
 export async function setupEnv(dirPath?: string, createVirtualenv?: boolean, overwriteVirtualenv?: boolean, secretId?: string, instanceName?: string): Promise<void> {
-	const contentPath = tools.getContentPath()
-	if (!contentPath) {
-		vscode.window.showErrorMessage('Could not find content path');
+
+	if (!isRunningInsideContent())
 		return;
-	}
+
 	const command: string[] = ["setup-env"];
 	if (dirPath) {
 		command.push('-i', dirPath)
