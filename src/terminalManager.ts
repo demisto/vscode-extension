@@ -6,6 +6,16 @@ import { Logger } from "./logger";
  * Used to manage backgrount terminal. Will auto-kill any terminal that is older than
  * 60 seconds.
  */
+
+export function isRunningInsideContent(): boolean {
+	const contentPath = tools.getContentPath()
+	if (!contentPath) {
+		vscode.window.showErrorMessage('Could not find content path, please run the command from a content directory.');
+		return false;
+	}
+	return true;
+}
+
 export class TerminalManager {
 	static terminal: vscode.Terminal;
 	private static delay(ms: number) {
@@ -22,6 +32,8 @@ export class TerminalManager {
 		// options: vscode.TerminalOptions,
 		options: ProcessEnvOptions
 	): Promise<void> {
+		if (!isRunningInsideContent())
+			return;
 		const sdkPath = tools.getSDKPath()
 		for (let i = 0; i < command.length; i++) {
 			if (command[i].includes(' ')) {
@@ -44,6 +56,8 @@ export class TerminalManager {
 
 	public static async sendDemistoSdkCommandWithProgress(command: string[]): Promise<boolean> {
 		const sdkPath = tools.getSDKPath()
+		if (!isRunningInsideContent())
+			return false;
 		// loop the command and add quotes to each argument
 		for (let i = 0; i < command.length; i++) {
 			if (command[i].includes(' ')) {
@@ -115,6 +129,8 @@ export class TerminalManager {
 		newTerminal = false,
 		timeout = 10000
 	): Promise<void> {
+		if (!isRunningInsideContent())
+			return;
 		for (let i = 0; i < command.length; i++) {
 			if (command[i].includes(' ')) {
 				command[i] = `"${command[i]}"`
