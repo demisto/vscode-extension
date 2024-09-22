@@ -6,7 +6,6 @@ import minimatch = require('minimatch');
 
 import { TerminalManager } from './terminalManager';
 import { Logger } from './logger';
-
 export function updateReleaseNotesCommand(file: string): void {
 
 	const regs = new RegExp('Packs/[^/]*');  // TODO: Bug - Won't work in windows. 
@@ -40,6 +39,7 @@ export function validateUsingGit(workspace: vscode.WorkspaceFolder): void {
 	TerminalManager.sendDemistoSdkCommandWithProgress(['validate', '-g', '-j', tools.getReportPathFromConf(workspace)]);
 }
 export function formatCommand(file: string): void {
+
 	const command = ['format', '-i', file];
 	TerminalManager.sendDemistoSdkCommandWithProgress(command);
 }
@@ -267,7 +267,11 @@ export async function backgroundValidate(document: vscode.TextDocument, showTerm
 }
 
 export async function setupEnv(dirPath?: string, createVirtualenv?: boolean, overwriteVirtualenv?: boolean, secretId?: string, instanceName?: string): Promise<void> {
-
+	const contentPath = tools.getContentPath()
+	if (!contentPath) {
+		vscode.window.showErrorMessage('Could not find content path');
+		return;
+	}
 	const command: string[] = ["setup-env"];
 	if (dirPath) {
 		command.push('-i', dirPath)
