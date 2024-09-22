@@ -10,7 +10,7 @@ import { Logger } from "./logger";
 export function isRunningInsideContent(): boolean {
 	const contentPath = tools.getContentPath()
 	if (!contentPath) {
-		vscode.window.showErrorMessage('Could not find content path, please run the command from a content directory.');
+		vscode.window.showErrorMessage('Could not find content path, run the command from a content directory.');
 		return false;
 	}
 	return true;
