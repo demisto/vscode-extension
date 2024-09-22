@@ -15,6 +15,8 @@ Commands:
 * You can also run the commands directry from the explorer menu:  
 ![sidebar](documentation/changelog/0.0.3/sidebar.png)
 
+NOTE: You have to run the commands from a content-like repository, i.e. */content/packs/* .
+
 ## Configurations  
 
 ### Local Environment (LINUX or MacOS)
