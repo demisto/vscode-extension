@@ -15,7 +15,7 @@ Commands:
 * You can also run the commands directry from the explorer menu:  
 ![sidebar](documentation/changelog/0.0.3/sidebar.png)
 
-NOTE: You have to run the commands from a content-like repository, i.e. */content/packs/* .
+NOTE: To use the extension, make sure there's a `Packs` folder at the repository root.
 
 ## Configurations  
 
