@@ -2,6 +2,8 @@
 
 # Unreleased
 
+# [0.7.3] (2024-09-24)
+
 - Documentation improvements.
 
 # [0.7.2] (2024-07-24)
