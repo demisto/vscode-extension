@@ -30,7 +30,6 @@ export function activate(context: vscode.ExtensionContext): void {
 	Logger.createLogger()
 	const contentPath = tools.getContentPath()
 	if (!contentPath) {
-		vscode.window.showErrorMessage('Could not find content path, run the command from a content directory.');
 		// dont activate outside of content path
 		return
 	}
@@ -71,7 +70,6 @@ export function activate(context: vscode.ExtensionContext): void {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.run', (file: vscode.Uri | undefined) => {
-
 			const fileToRun = getDirPath(file)
 			runAndDebug.run(fileToRun)
 		})
