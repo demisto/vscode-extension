@@ -15,6 +15,8 @@ Commands:
 * You can also run the commands directry from the explorer menu:  
 ![sidebar](documentation/changelog/0.0.3/sidebar.png)
 
+NOTE: To use the extension, make sure there's a `Packs` folder at the repository root.
+
 ## Configurations  
 
 ### Local Environment (LINUX or MacOS)

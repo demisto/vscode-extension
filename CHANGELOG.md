@@ -2,6 +2,8 @@
 
 # Unreleased
 
+- Documentation improvements.
+
 # [0.7.2] (2024-07-24)
 
 - Fixed an issue where the "Update Release Notes" command failed due to incorrect command calling.
