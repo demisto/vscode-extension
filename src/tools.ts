@@ -7,6 +7,7 @@ import { AutomationI, IntegrationI } from './contentObject';
 import * as fs from "fs-extra";
 import { Logger } from './logger';
 import { TerminalManager } from './terminalManager';
+import { promises as fsp } from 'fs';
 
 export function sendCommandExtraArgsWithUserInput(command: string[]): void {
     vscode.window.showInputBox(
@@ -337,3 +338,48 @@ export function stringify(obj: Input): string {
 	}
 	return result.join('\n')
 }
+
+export async function findDir(basePath: string, dirName: string): Promise<string | null> {
+    const parts = basePath.split(path.sep);
+    const packsIndex = parts.indexOf('Packs');
+
+    if (packsIndex === -1 || packsIndex === parts.length - 1) {
+        // console.log("תיקיית Packs לא נמצאה או שהיא האלמנט האחרון בנתיב.");
+        return null;
+    } 
+
+    const dirPath = path.join(...parts.slice(0, packsIndex + 2), dirName);
+    
+    if (fs.existsSync(dirPath)) {
+        return dirPath;
+    }
+
+    return null;
+}
+
+export async function getLastRNFile(directoryPath: string): Promise<string> {
+    try {
+        const entries = await fsp.readdir(directoryPath, { withFileTypes: true });
+        let maxSum = 0;
+        let latestFile = "";
+
+        entries.forEach(entry => {
+            if (entry.isFile()) {
+                const parts = entry.name.split('_')
+
+                const sum = parseInt(parts[0], 10) + parseInt(parts[1], 10) + parseInt(parts[2], 10);  // חישוב הסכום של המספרים
+
+                if (sum > maxSum) {
+                    maxSum = sum;
+                    latestFile = entry.name;
+                }
+            }
+        });
+
+        return latestFile;
+    } catch (error) {
+        console.error('Error reading directory:', error);
+        throw error;
+    }
+}
+

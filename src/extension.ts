@@ -14,6 +14,7 @@ import { Logger } from './logger';
 import { setupIntegrationEnv, installDevEnv as installDevEnv, configureDemistoVars, developDemistoSDK } from './devEnvs';
 import JSON5 from 'json5'
 import * as runAndDebug from './runAndDebug'
+import { findDir, getLastRNFile } from './tools';
 
 // this function returns the directory path of the file
 export function getDirPath(file: vscode.Uri | undefined): string {
@@ -154,6 +155,15 @@ export function activate(context: vscode.ExtensionContext): void {
 
 		})
 	)
+
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.openLastRN', (file: vscode.Uri | undefined) => {
+			const fileToRun = getDirPath(file)
+			openLastRN(fileToRun)
+		})
+	)
+
 	// Create a file listener
 	const workspaces = vscode.workspace.workspaceFolders;
 	if (workspaces) {
@@ -164,6 +174,24 @@ export function activate(context: vscode.ExtensionContext): void {
 // this method is called when your extension is deactivated
 export function deactivate(): void { Logger.info('deactivated') }
 
+
+function openLastRN(dirPath: string) {
+	findDir(dirPath, 'ReleaseNotes').then(
+		ReleaseNotesDir => {
+			if (!ReleaseNotesDir) {
+				vscode.window.showErrorMessage('No ReleaseNotes directory found.');
+				return;
+			}
+			getLastRNFile(ReleaseNotesDir).then(
+				lastReleaseNotesFile => {
+					const filePath = path.parse(dirPath);
+					const relativeFilePath = path.join(ReleaseNotesDir, lastReleaseNotesFile + ".md");
+					vscode.workspace.openTextDocument(vscode.Uri.file(relativeFilePath))
+						.then(doc => vscode.window.showTextDocument(doc));
+				});
+		}
+	)
+}
 
 function autoGetProblems(
 	workspaces: readonly vscode.WorkspaceFolder[],

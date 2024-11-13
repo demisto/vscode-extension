@@ -129,6 +129,11 @@
         "command": "xsoar.developDemistoSDK",
         "title": "Develop and Debug Demisto-SDK",
         "category": "XSOAR"
+      },
+      {
+        "command": "xsoar.openLastRN",
+        "title": "Open Last RN",
+        "category": "XSOAR"
       }
     ],
     "menus": {
