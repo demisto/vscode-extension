@@ -178,14 +178,17 @@ export function deactivate(): void { Logger.info('deactivated') }
 function openLastRN(dirPath: string) {
 	findDir(dirPath, 'ReleaseNotes').then(
 		ReleaseNotesDir => {
+			if (ReleaseNotesDir === undefined) {
+				vscode.window.showErrorMessage('The current file is not under the "Packs" directory.');
+				return;
+			}
 			if (!ReleaseNotesDir) {
 				vscode.window.showErrorMessage('No ReleaseNotes directory found.');
 				return;
 			}
 			getLastRNFile(ReleaseNotesDir).then(
 				lastReleaseNotesFile => {
-					const filePath = path.parse(dirPath);
-					const relativeFilePath = path.join(ReleaseNotesDir, lastReleaseNotesFile + ".md");
+					const relativeFilePath = path.join(ReleaseNotesDir, lastReleaseNotesFile);
 					vscode.workspace.openTextDocument(vscode.Uri.file(relativeFilePath))
 						.then(doc => vscode.window.showTextDocument(doc));
 				});

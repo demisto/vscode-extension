@@ -34,6 +34,7 @@
     "onCommand:xsoar.lint",
     "onCommand:xsoar.lintUsingGit",
     "onCommand:xsoar.readProblems",
+    "onCommand:xsoar.openLastRN",
     "*"
   ],
   "main": "./dist/extension.js",
@@ -181,6 +182,10 @@
         {
           "command": "xsoar.configureXSOAR",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.openLastRN",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ],
       "explorer/context": [
@@ -226,6 +231,10 @@
         },
         {
           "command": "xsoar.configureXSOAR",
+          "when": "resourcePath =~ /.*Packs/|\\.+/"
+        },
+        {
+          "command": "xsoar.openLastRN",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         }
       ]
@@ -291,7 +300,22 @@
           "description": "Whether to show the running process of demisto-sdk in the terminal windows and will not dispose it after finish."
         }
       }
-    }
+    },
+    "keybindings": [
+      {
+        "command": "xsoar.openLastRN",
+        "key": "cmd+r",
+        "when": "editorTextFocus",
+        "mac": "cmd+r"
+      },
+      {
+        "command": "xsoar.openLastRN",
+        "key": "ctrl+r",
+        "when": "editorTextFocus",
+        "win": "ctrl+r",
+        "linux": "ctrl+r"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
@@ -310,6 +334,7 @@
     "@types/minimatch": "^3.0.4",
     "@types/mocha": "^8.0.4",
     "@types/node": "^12.20.47",
+    "@types/semver": "^7.5.8",
     "@types/vscode": "^1.54.0",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
