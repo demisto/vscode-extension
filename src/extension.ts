@@ -14,7 +14,7 @@ import { Logger } from './logger';
 import { setupIntegrationEnv, installDevEnv as installDevEnv, configureDemistoVars, developDemistoSDK } from './devEnvs';
 import JSON5 from 'json5'
 import * as runAndDebug from './runAndDebug'
-import { findDir, getLastRNFile } from './tools';
+import { openLastRN } from './openLastRN';
 
 // this function returns the directory path of the file
 export function getDirPath(file: vscode.Uri | undefined): string {
@@ -174,27 +174,6 @@ export function activate(context: vscode.ExtensionContext): void {
 // this method is called when your extension is deactivated
 export function deactivate(): void { Logger.info('deactivated') }
 
-
-function openLastRN(dirPath: string) {
-	findDir(dirPath, 'ReleaseNotes').then(
-		ReleaseNotesDir => {
-			if (ReleaseNotesDir === undefined) {
-				vscode.window.showErrorMessage('The current file is not under the "Packs" directory.');
-				return;
-			}
-			if (!ReleaseNotesDir) {
-				vscode.window.showErrorMessage('No ReleaseNotes directory found.');
-				return;
-			}
-			getLastRNFile(ReleaseNotesDir).then(
-				lastReleaseNotesFile => {
-					const relativeFilePath = path.join(ReleaseNotesDir, lastReleaseNotesFile);
-					vscode.workspace.openTextDocument(vscode.Uri.file(relativeFilePath))
-						.then(doc => vscode.window.showTextDocument(doc));
-				});
-		}
-	)
-}
 
 function autoGetProblems(
 	workspaces: readonly vscode.WorkspaceFolder[],

@@ -7,8 +7,6 @@ import { AutomationI, IntegrationI } from './contentObject';
 import * as fs from "fs-extra";
 import { Logger } from './logger';
 import { TerminalManager } from './terminalManager';
-import { promises as fsp } from 'fs';
-import * as semver from 'semver';
 
 
 export function sendCommandExtraArgsWithUserInput(command: string[]): void {
@@ -357,27 +355,3 @@ export async function findDir(basePath: string, dirName: string): Promise<string
 
     return null;
 }
-
-export async function getLastRNFile(directoryPath: string): Promise<string> {
-    try {
-        const entries = await fsp.readdir(directoryPath, { withFileTypes: true });
-        let maxSum = "0.0.0";
-        let latestFile = "";
-
-        entries.forEach(entry => {
-            if (entry.isFile()) {
-                const version = path.parse(entry.name).name.replace(/_/g, '.')
-                if (semver.gt(version, maxSum)) {
-                    maxSum = version;
-                    latestFile = entry.name;
-                }
-            }
-        });
-
-        return latestFile;
-    } catch (error) {
-        console.error('Error reading directory:', error);
-        throw error;
-    }
-}
-
