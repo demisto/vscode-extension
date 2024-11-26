@@ -2,6 +2,8 @@
 
 # Unreleased
 
+- Added **Open ast release note** command to open the last release note (`Cmd+R` on Mac, `Ctrl+Alt+R` on linux and Windows)
+
 # [0.7.3] (2024-09-24)
 
 - Documentation improvements.

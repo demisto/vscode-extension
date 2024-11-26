@@ -1,19 +1,19 @@
 import * as vscode from 'vscode';
 import * as path from "path";
-import { findDir } from './tools';
+import { findDirUnderPacks } from './tools';
 import { promises as fsp } from 'fs';
 import * as semver from 'semver';
 
 
 export function openLastRN(dirPath: string): void {
-	findDir(dirPath, 'ReleaseNotes').then(
+	findDirUnderPacks(dirPath, 'ReleaseNotes').then(
 		ReleaseNotesDir => {
 			if (ReleaseNotesDir === undefined) {
-				vscode.window.showErrorMessage('The current file is not under the "Packs" directory.');
+				vscode.window.showErrorMessage('Cortex "Open last release note" only works on files under the Packs directory.');
 				return;
 			}
 			if (!ReleaseNotesDir) {
-				vscode.window.showErrorMessage('No ReleaseNotes directory found.');
+				vscode.window.showErrorMessage('Unable to find a ReleaseNotes directory.');
 				return;
 			}
 			getLastRNFile(ReleaseNotesDir).then(
@@ -44,7 +44,7 @@ async function getLastRNFile(directoryPath: string): Promise<string> {
 
         return latestFile;
     } catch (error) {
-        console.error('Error reading directory:', error);
+        console.error('Error finding last release note in', directoryPath, error);
         throw error;
     }
 }

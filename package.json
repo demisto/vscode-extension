@@ -133,7 +133,7 @@
       },
       {
         "command": "xsoar.openLastRN",
-        "title": "Open Last RN",
+        "title": "Open last release note",
         "category": "XSOAR"
       }
     ],
@@ -304,16 +304,11 @@
     "keybindings": [
       {
         "command": "xsoar.openLastRN",
-        "key": "cmd+r",
-        "when": "editorTextFocus",
-        "mac": "cmd+r"
-      },
-      {
-        "command": "xsoar.openLastRN",
         "key": "ctrl+r",
         "when": "editorTextFocus",
-        "win": "ctrl+r",
-        "linux": "ctrl+r"
+        "win": "ctrl+alt+r",
+        "linux": "ctrl+alt+r",
+        "mac": "cmd+r"
       }
     ]
   },
