@@ -4,7 +4,7 @@
 
 # [0.7.4] (2024-11-26)
 
-- Added **Open last release note** command to open the last release note (`Cmd+R` on Mac, `Ctrl+Alt+R` on linux and Windows)
+- Added **Open last release note** command to open the last release note (`Cmd+R` on Mac, `Ctrl+Alt+R` on Linux and Windows)
 
 # [0.7.3] (2024-09-24)
 
