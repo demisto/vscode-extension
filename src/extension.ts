@@ -14,6 +14,7 @@ import { Logger } from './logger';
 import { setupIntegrationEnv, installDevEnv as installDevEnv, configureDemistoVars, developDemistoSDK } from './devEnvs';
 import JSON5 from 'json5'
 import * as runAndDebug from './runAndDebug'
+import { openLastRN } from './openLastRN';
 
 // this function returns the directory path of the file
 export function getDirPath(file: vscode.Uri | undefined): string {
@@ -154,6 +155,15 @@ export function activate(context: vscode.ExtensionContext): void {
 
 		})
 	)
+
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('xsoar.openLastRN', (file: vscode.Uri | undefined) => {
+			const fileToRun = getDirPath(file)
+			openLastRN(fileToRun)
+		})
+	)
+
 	// Create a file listener
 	const workspaces = vscode.workspace.workspaceFolders;
 	if (workspaces) {

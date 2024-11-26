@@ -8,6 +8,7 @@ import * as fs from "fs-extra";
 import { Logger } from './logger';
 import { TerminalManager } from './terminalManager';
 
+
 export function sendCommandExtraArgsWithUserInput(command: string[]): void {
     vscode.window.showInputBox(
         {
@@ -336,4 +337,37 @@ export function stringify(obj: Input): string {
 		}
 	}
 	return result.join('\n')
+}
+
+
+/**
+ * Searches for a specific directory under the 'Packs' directory in the given base path.
+ *
+ * @param basePath - The starting path to begin the search from.
+ * @param dirName - The name of the directory to find under the 'Packs' directory.
+ * 
+ * @returns A Promise that resolves to:
+ *   - The full path of the found directory as a string if it exists.
+ *   - null if the 'Packs' directory is found but the specified directory does not exist.
+ *   - undefined if the 'Packs' directory is not found in the base path.
+ */
+export async function findDirUnderPacks(basePath: string, dirName: string): Promise<string | null | undefined> {
+    const parts = basePath.split(path.sep);
+    const packsIndex = parts.indexOf('Packs');
+    if (packsIndex === -1 ) {
+        return;
+    } 
+
+    let dirPath = path.join(...parts.slice(0, packsIndex + 2), dirName);
+    
+    // Add '/' for linux operating systems
+    const os = process.platform;
+    if (os === 'linux') {
+        dirPath = '/' + dirPath;
+    }
+    if (fs.existsSync(dirPath)) {
+        return dirPath;
+    }
+
+    return null;
 }
