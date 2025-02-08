@@ -1,6 +1,7 @@
 # Change Log
 
 # Unreleased
+- Fixed an issue where the **Run And Debug** command failed to execute properly when running commands with arguments in XSOAR.
 
 # [0.7.4] (2024-11-26)
 
