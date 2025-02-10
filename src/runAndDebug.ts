@@ -89,14 +89,14 @@ function argumentSorted(_list: vscode.QuickPickItem[]): vscode.QuickPickItem[] {
 }
 
 function runCommand(query: Map<string, string>) {
-    let cmd = `"${query.get('cmd')}`
+    let cmd = `${query.get('cmd')}`
     if (typeof cmd === 'string') {
         query.delete('cmd')
         const queryTest = Array.from(query.entries())
         queryTest.map((arg: [string, string]) => {
             cmd += ` ${arg[0]}=${arg[1]}`
         })
-        const q: string[] = ['run', '-q', cmd + `"`]
+        const q: string[] = ['run', '-q', cmd]
         TerminalManager.sendDemistoSDKCommand(q);
     }
 }
