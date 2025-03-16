@@ -49,22 +49,21 @@ export async function uploadToXSOAR(file: string): Promise<void> {
 
 
 }
-export async function lintUsingGit(file: string): Promise<void> {
-	const command = ['lint', '-g', '-i ', file];
+export async function preCommitUsingGit(): Promise<void> {
+	const command = ['pre-commit', '-g'];
 	await TerminalManager.sendDemistoSdkCommandWithProgress(command);
 
 }
-export async function lint(file: string, tests = true, lints = true, report = true): Promise<void> {
-	const command = ['lint', '-i', file];
-	if (report) {
-		command.push('-j', tools.getReportPath(file));
+export async function preCommit(file: string, onlyTests: boolean, noDocker: boolean): Promise<void> {
+	const command = ['pre-commit', '-i', file];
+
+	if (onlyTests) {
+		command.push('pytest-in-docker');
 	}
-	if (!tests) {
-		command.push('--no-test', '--no-pwsh-test')
+	if (noDocker) {
+		command.push('--no-docker');
 	}
-	if (!lints) {
-		command.push('--no-flake8', '--no-mypy', '--no-bandit', '--no-xsoar-linter', '--no-vulture', '--no-pylint', '--no-pwsh-analyze')
-	}
+
 	await TerminalManager.sendDemistoSdkCommandWithProgress(command)
 }
 
