@@ -228,24 +228,6 @@ export function isGlobPatternMatch(docUri: string, patterns: Array<string>): boo
 	return false
 
 }
-export async function backgroundLint(document: vscode.TextDocument, showTerminal: boolean): Promise<void> {
-	const docUri = document.uri.path;
-
-	const command = [
-		'lint',
-		'-i', path.dirname(docUri.toString()),
-		'-j', tools.getReportPath(docUri.toString()),
-		'--no-test', '--no-pwsh-test'
-	]
-
-	if (showTerminal) {
-		TerminalManager.sendDemistoSDKCommand(command, true, false)
-	} else {
-		const cwd = vscode.workspace.getWorkspaceFolder(document.uri)
-		TerminalManager.sendDemistoSDKCommandBackground(command, { cwd: cwd?.uri.path })
-	}
-
-}
 
 
 export async function backgroundValidate(document: vscode.TextDocument, showTerminal: boolean): Promise<void> {
