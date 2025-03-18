@@ -10,7 +10,7 @@ You can also use the *XSOAR: Install/Update Demisto-SDK* command.
 Commands:
 
 * *XSOAR: Setup integration/script environment*: Setups the environment of integration or a script.
-* *XSOAR: Demisto-SDK Validate*: Run Validators on opened file directory.
+* *XSOAR: Demisto-SDK Validate*: Run validators on opened file directory.
 * *XSOAR: Demisto-SDK Update Release Notes*: Update release notes of the opened file's pack.
 * You can also run the commands directry from the explorer menu:  
 ![sidebar](documentation/changelog/0.0.3/sidebar.png)

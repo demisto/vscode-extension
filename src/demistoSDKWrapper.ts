@@ -54,13 +54,13 @@ export async function preCommitUsingGit(): Promise<void> {
 	await TerminalManager.sendDemistoSdkCommandWithProgress(command);
 
 }
-export async function preCommit(file: string, onlyTests: boolean, noDocker: boolean): Promise<void> {
+export async function preCommit(file: string, onlyTests: boolean = false, noDocker: boolean = false): Promise<void> {
 	const command = ['pre-commit', '-i', file];
 
 	if (onlyTests) {
 		command.push('pytest-in-docker');
 	}
-	if (noDocker) {
+	else if (noDocker) {
 		command.push('--no-docker');
 	}
 

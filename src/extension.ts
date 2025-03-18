@@ -85,13 +85,13 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('xsoar.preCommit', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)
-			vscode.window.showQuickPick(['Default configuration', 'Only tests', 'No docker'], { placeHolder: 'Select pre-commit configuration' }).then(option => {
+			vscode.window.showQuickPick(['Default configuration', 'Only tests', 'No docker based hooks'], { placeHolder: 'Select pre-commit configuration' }).then(option => {
 				if (option === 'Default configuration') {
 					dsdk.preCommit(fileToRun, false, false)
 				} else if(option === 'Only tests'){
 					dsdk.preCommit(fileToRun, true, false)
 				}
-				else{
+				else {
 					dsdk.preCommit(fileToRun, false, true)
 				}
 			})
