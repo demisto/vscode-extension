@@ -58,7 +58,7 @@ export async function preCommit(file: string, onlyTests = false, noDocker = fals
 	const command = ['pre-commit', '-i', file];
 
 	if (onlyTests) {
-		command.push('pytest-in-docker');
+		command.push('pytest-network-in-docker');
 	}
 	else if (noDocker) {
 		command.push('--no-docker');
