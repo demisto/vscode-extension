@@ -31,8 +31,8 @@
     "onCommand:xsoar.updateReleaseNotes",
     "onCommand:xsoar.validateUsingGit",
     "onCommand:xsoar.updateDSDK",
-    "onCommand:xsoar.lint",
-    "onCommand:xsoar.lintUsingGit",
+    "onCommand:xsoar.preCommit",
+    "onCommand:xsoar.preCommitUsingGit",
     "onCommand:xsoar.readProblems",
     "onCommand:xsoar.openLastRN",
     "*"
@@ -56,13 +56,13 @@
         "category": "XSOAR"
       },
       {
-        "command": "xsoar.lint",
-        "title": "Demisto-SDK Lint",
+        "command": "xsoar.preCommit",
+        "title": "Demisto-SDK Pre-Commit",
         "category": "XSOAR"
       },
       {
-        "command": "xsoar.lintUsingGit",
-        "title": "Demisto-SDK Lint (Using Git)",
+        "command": "xsoar.preCommitUsingGit",
+        "title": "Demisto-SDK Pre-Commit (Using Git)",
         "category": "XSOAR"
       },
       {
@@ -144,7 +144,7 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.lint",
+          "command": "xsoar.preCommit",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
@@ -194,7 +194,7 @@
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
-          "command": "xsoar.lint",
+          "command": "xsoar.preCommit",
           "when": "resourcePath =~ /.*Packs/|\\.+/"
         },
         {
@@ -245,7 +245,7 @@
         "xsoar.autoFindProblems.readProblems": {
           "type": "boolean",
           "default": false,
-          "markdownDescription": "Should auto-read the file in `#xsoar.autoFindProblems.reportPath#`. Disable this setting will also disable `#xsoar.linter.lint.enable#` and `#xsoar.linter.validate.enable#`."
+          "markdownDescription": "Should auto-read the file in `#xsoar.autoFindProblems.reportPath#`. Disable this setting will also disable `#xsoar.linter.validate.enable#`."
         },
         "xsoar.autoFindProblems.reportPath": {
           "type": "string",
@@ -261,23 +261,6 @@
           "type": "boolean",
           "default": true,
           "description": "Whether to auto-save changes in script/integration panel changes."
-        },
-        "xsoar.linter.lint.patterns": {
-          "type": "array",
-          "default": [
-            "**/Packs/*/Integrations/**/*.py",
-            "**/Packs/*/Scripts/**/*.py",
-            "**/Packs/*/Integrations/**/*.ps1",
-            "**/Packs/*/Scripts/**/*.ps1",
-            "**/Packs/*/Integrations/**/*.js",
-            "**/Packs/*/Scripts/**/*.js"
-          ],
-          "description": "Patterns to enable demisto-sdk lint on. glob format."
-        },
-        "xsoar.linter.lint.enable": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether to run the lint command on the files (Checks the code file."
         },
         "xsoar.linter.validate.enable": {
           "type": "boolean",

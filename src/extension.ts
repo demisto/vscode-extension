@@ -83,20 +83,22 @@ export function activate(context: vscode.ExtensionContext): void {
 		})
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.lint', (file: vscode.Uri | undefined) => {
+		vscode.commands.registerCommand('xsoar.preCommit', (file: vscode.Uri | undefined) => {
 			const fileToRun = getDirPath(file)
-			vscode.window.showQuickPick(['With tests', 'Without tests'], { placeHolder: 'Lint with tests?' }).then(option => {
-				if (option === 'With tests') {
-					dsdk.lint(fileToRun, true)
-				} else {
-					dsdk.lint(fileToRun, false)
+			vscode.window.showQuickPick(['Default configuration', 'Only tests', 'No docker based hooks'], { placeHolder: 'Select pre-commit configuration' }).then(option => {
+				if (option === 'Default configuration') {
+					dsdk.preCommit(fileToRun, false, false)
+				} else if(option === 'Only tests'){
+					dsdk.preCommit(fileToRun, true, false)
+				}
+				else {
+					dsdk.preCommit(fileToRun, false, true)
 				}
 			})
 		}))
 	context.subscriptions.push(
-		vscode.commands.registerCommand('xsoar.lintUsingGit', (file: vscode.Uri | undefined) => {
-			const fileToRun = getDirPath(file)
-			dsdk.lintUsingGit(fileToRun)
+		vscode.commands.registerCommand('xsoar.preCommitUsingGit', () => {
+			dsdk.preCommitUsingGit()
 		})
 	);
 	context.subscriptions.push(
@@ -142,11 +144,6 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
 			const showTerminal = <boolean>vscode.workspace.getConfiguration('xsoar').get('linter.showOnSaveTerminal')
 			Logger.info('Processing ' + document.fileName)
-			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.lint.enable')) {
-				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.lint.patterns'))) {
-					dsdk.backgroundLint(document, showTerminal);
-				}
-			}
 			if (<boolean>vscode.workspace.getConfiguration('xsoar').get('linter.validate.enable')) {
 				if (dsdk.isGlobPatternMatch(document.uri.path, <Array<string>>vscode.workspace.getConfiguration('xsoar').get('linter.validate.patterns'))) {
 					dsdk.backgroundValidate(document, showTerminal)

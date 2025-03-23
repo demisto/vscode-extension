@@ -2,6 +2,8 @@
 
 # Unreleased
 
+- Deprecate **lint** command and add **Demisto-SDK Pre-Commit** and **Demisto-SDK Pre-Commit (Using Git)** commands instead.
+
 # [0.7.5] (2025-02-10)
 
 - Fixed an issue where the ***Run And Debug*** command failed to execute properly when running commands with arguments in Cortex XSOAR.
