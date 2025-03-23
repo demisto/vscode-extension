@@ -13,7 +13,7 @@ Commands:
 * *XSOAR: Demisto-SDK Validate*: Run validators on opened file directory.
 * *XSOAR: Demisto-SDK Update Release Notes*: Update release notes of the opened file's pack.
 * You can also run the commands directry from the explorer menu:  
-![sidebar](documentation/changelog/0.0.3/sidebar.png)
+![sidebar](documentation/changelog/0.7.5/sidebar.png)
 
 NOTE: To use the extension, make sure there's a `Packs` folder at the repository root.
 
