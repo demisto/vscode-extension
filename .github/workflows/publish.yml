@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: npm install
-      - uses: lannonbr/vsce-action@master
+      - uses: lannonbr/vsce-action@510e61c5e9e6f33c0418ec5ff5fd36b1ced61e85 # master
         with:
           args: "publish"
         env:
