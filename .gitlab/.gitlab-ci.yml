@@ -1,7 +1,7 @@
 variables:
-  CURRENT_BRANCH_NAME: "${INFRA_BRANCH}"
+  CURRENT_BRANCH_NAME: sk_vscode-extension # "${INFRA_BRANCH}"
 
 include:
-  - file: "/.gitlab/ci/vscode-extension/.gitlab-ci.yml"
-    ref: "${INFRA_BRANCH}"
+  - file: .gitlab/ci/vscode-extension/.gitlab-ci.yml
+    ref: sk_vscode-extension #"${INFRA_BRANCH}"
     project: "${CI_PROJECT_NAMESPACE}/infra"
