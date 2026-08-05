@@ -2,7 +2,10 @@
 
 # Unreleased
 
-- Deprecate **lint** command and add **Demisto-SDK Pre-Commit** and **Demisto-SDK Pre-Commit (Using Git)** commands instead.
+# [0.8.0] (2025-04-25)
+
+- Deprecated **Demisto-SDK Lint** command.
+- Added **Demisto-SDK Pre-Commit** and **Demisto-SDK Pre-Commit (Using Git)** commands.
 
 # [0.7.5] (2025-02-10)
 
